@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Test</title>
+
+  </head>
+  <body>
+    <form id="file-form" action="addImgAsset" method="post" enctype="multipart/form-data">
+      <input id="file-uuid" type="text" name="uuid"  value="123">
+    	<input id="file-select" type="file" name="myImg"/>
+      <input id="upload-button" type="submit">Upload</input>
+    </form>
+    <form action="addGeoAsset" method="post">
+      <input type="text" name="uuid"  value="123">
+      <input type="text" name="geometry"  value="234">
+      <input type="submit">
+    </form>
+    <form action="saveScene" method="post">
+      <input type="text" name="uuid"  value="123">
+      <input type="text" name="scene"  value="234">
+      <input type="submit">
+    </form>
+
+    <script>
+    var form = document.getElementById('file-form');
+    var fileSelect = document.getElementById('file-select');
+    var uploadButton = document.getElementById('upload-button');
+    var fileUuid = document.getElementById('file-uuid');
+
+    form.onsubmit = function(event) {
+      event.preventDefault();
+
+      // Update button text.
+      uploadButton.innerHTML = 'Uploading...';
+
+      var file = fileSelect.files[0];
+      // Create a new FormData object.
+      var formData = new FormData();  
+
+      // Add the file to the request.
+      formData.append('myImg', file, file.name);
+      formData.append('uuid', fileUuid.value);
+
+      // Set up the request.
+      var xhr = new XMLHttpRequest();
+
+      // Open the connection.
+      xhr.open('POST', 'addImgAsset', true);
+
+      // Set up a handler for when the request finishes.
+      xhr.onload = function () {
+        if (xhr.status === 200) {
+          // File(s) uploaded.
+          uploadButton.innerHTML = 'Upload';
+        } else {
+          alert('An error occurred!');
+        }
+      };
+
+      // Send the Data.
+      xhr.send(formData);
+    }
+
+
+
+    </script>    
+  </body>
+</html>
