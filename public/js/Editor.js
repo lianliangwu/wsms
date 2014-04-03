@@ -17,6 +17,7 @@ var Editor = function () {
 		spaceChanged: new SIGNALS.Signal(),
 		rendererChanged: new SIGNALS.Signal(),
 
+		sceneReseted: new SIGNALS.Signal(),
 		sceneGraphChanged: new SIGNALS.Signal(),
 
 		cameraChanged: new SIGNALS.Signal(),
@@ -68,8 +69,117 @@ Editor.prototype = {
 		this.signals.themeChanged.dispatch( value );
 
 	},
+	saveScene: function () {//wzh
+
+		var exporter = new THREE.ObjectExporter();
+		var scene = exporter.parse(editor.scene);
+		var uuid = scene.object.uuid;
+
+		scene.geometries = [];
+		scene = JSON.stringify(scene);
+
+		//save scene
+		var formData = new FormData();  
+
+		// Add the file to the request.
+		formData.append('uuid', uuid);
+		formData.append('scene', scene);
+
+		// Set up the request.
+		var xhr = new XMLHttpRequest();
+
+		// Open the connection.
+		xhr.open('POST', 'saveScene', true);
+
+		// Set up a handler for when the request finishes.
+		xhr.onload = function () {
+			if (xhr.status === 200) {
+
+			} else {
+			  alert('An error occurred!');
+			}
+		};
+
+		// Send the Data.
+		xhr.send(formData);		
+	},
+	loadScene: function (uuid) {//wzh
+		var scope = this;
+
+		var addTempGeo = function(scene, object){//add temp geometry to scene graph recursively
+
+			var children = object.children;
+			var i, max;
+			var geometry = {
+								"uuid": null,
+								"type": "BoxGeometry",
+								"width": 50,
+								"height": 50,
+								"depth": 50,
+								"widthSegments": 1,
+								"heightSegments": 1,
+								"depthSegments": 1
+							};
+
+			if( typeof object.geometry === "string"){
+
+				var geo = JSON.parse(JSON.stringify(geometry));
+				geo.uuid = object.geometry;
+				scene.geometries.push(geo);			
+
+			}
+
+			if(!children){
+
+				return;
+
+			}
+
+			for(i = 0, max = children.length; i < max; i++){
+
+				var tmp = children[i];
+
+				addTempGeo(scene, tmp);
+
+			}
+		}
+
+		// Set up the request.
+		var xhr = new XMLHttpRequest();
+
+		// Open the connection.
+		xhr.open('GET', 'loadScene?uuid='+ uuid, true);
+
+		// Set up a handler for when the request finishes.
+		xhr.onload = function () {
+			if (xhr.status === 200 && xhr.readyState === 4) {
+
+				var scene = JSON.parse(xhr.responseText).scene;
+				addTempGeo(scene, scene.object);
+
+				var loader = new THREE.ObjectLoader();
+				var result = loader.parse( scene );
+				scope.setScene( result );
+				
+			} else {
+			  alert('An error occurred!');
+			}
+		};
+
+		// Send the Data.
+		xhr.send();		
+	},
+
+	resetScene: function () {
+
+		this.scene = new THREE.Scene();//wzh reset 
+		this.signals.sceneReseted.dispatch();
+
+	},
 
 	setScene: function ( scene ) {
+		
+		this.resetScene();
 
 		this.scene.uuid = scene.uuid;//wzh
 		this.scene.name = scene.name;

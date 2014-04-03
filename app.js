@@ -30,6 +30,7 @@ app.get('/test', routes.test);
 app.post('/addImgAsset', routes.addImgAsset);
 app.post('/addGeoAsset', routes.addGeoAsset);
 app.post('/saveScene', routes.saveScene);
+app.get('/loadScene', routes.loadScene);
 
 http.createServer(app).listen(app.get('port'), function(){
   console.log('Express server listening on port ' + app.get('port'));

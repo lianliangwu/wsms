@@ -99,57 +99,57 @@
 
 			editor.setTheme( editor.config.getKey( 'theme' ) );
 
-			// editor.storage.init( function () {
+			editor.storage.init( function () {
 
-			// 	editor.storage.get( function ( state ) {
+				editor.storage.get( function ( state ) {
 
-			// 		if ( state !== undefined ) {
+					if ( state !== undefined ) {
 
-			// 			var loader = new THREE.ObjectLoader();
-			// 			var scene = loader.parse( state );
+						var loader = new THREE.ObjectLoader();
+						var scene = loader.parse( state );
 
-			// 			editor.setScene( scene );
+						editor.setScene( scene );
 
-			// 		}
+					}
 
-			// 		var selected = editor.config.getKey( 'selected' );
+					var selected = editor.config.getKey( 'selected' );
 
-			// 		if ( selected !== undefined ) {
+					if ( selected !== undefined ) {
 
-			// 			editor.selectByUuid( selected );
+						editor.selectByUuid( selected );
 
-			// 		}
+					}
 
-			// 	} );
+				} );
 
-			// 	//
+				//
 
-			// 	var timeout;
-			// 	var exporter = new THREE.ObjectExporter();
+				var timeout;
+				var exporter = new THREE.ObjectExporter();
 
-			// 	var saveState = function ( scene ) {
+				var saveState = function ( scene ) {
 
-			// 		clearTimeout( timeout );
+					clearTimeout( timeout );
 
-			// 		timeout = setTimeout( function () {
+					timeout = setTimeout( function () {
 
-			// 			editor.storage.set( exporter.parse( editor.scene ) );
+						editor.storage.set( exporter.parse( editor.scene ) );
 
-			// 		}, 1000 );
+					}, 1000 );
 
-			// 	};
+				};
 
-			// 	var signals = editor.signals;
+				var signals = editor.signals;
 
-			// 	signals.objectAdded.add( saveState );
-			// 	signals.objectChanged.add( saveState );
-			// 	signals.objectRemoved.add( saveState );
-			// 	signals.materialChanged.add( saveState );
-			// 	signals.sceneGraphChanged.add( saveState );
+				signals.objectAdded.add( saveState );
+				signals.objectChanged.add( saveState );
+				signals.objectRemoved.add( saveState );
+				signals.materialChanged.add( saveState );
+				signals.sceneGraphChanged.add( saveState );
 
-			// } );
+			} );
 
-			//
+			
 
 			document.addEventListener( 'dragover', function ( event ) {
 
@@ -190,7 +190,7 @@
 			window.addEventListener( 'resize', onWindowResize, false );
 
 			onWindowResize();
-			test_workflow();
+//			test_workflow();
 
 		</script>
 	</body>

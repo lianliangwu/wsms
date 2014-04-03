@@ -235,6 +235,12 @@ var Viewport = function ( editor ) {
 
 	} );
 
+	signals.sceneReseted.add( function () {
+
+		scene = editor.scene;
+		
+	} );
+
 	signals.sceneGraphChanged.add( function () {
 
 		render();

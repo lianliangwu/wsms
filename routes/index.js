@@ -74,6 +74,14 @@ function saveScene(uuid, scene){
 	})
 }
 
+function loadScene(uuid, callback) {
+	Scene.findByUuid(uuid, function(err, scenes){
+		if(scenes.length > 0){
+			callback&&callback(scenes[0]);
+		}
+	})
+}
+
 exports.index = function(req, res){
   res.render('index');
 };
@@ -113,3 +121,14 @@ exports.saveScene = function(req, res){
 	saveScene(uuid, scene);
 	res.send({success: true});
 };
+
+exports.loadScene = function(req, res){
+	var uuid = req.query['uuid'];
+
+	loadScene(uuid, function(scene){
+		res.send({
+			'success': true,
+			'scene':JSON.parse(scene.data)
+		});
+	});
+}

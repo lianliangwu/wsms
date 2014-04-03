@@ -148,6 +148,20 @@ Menubar.Edit = function ( editor ) {
 	} );
 	options.add( option );
 
+	//load scene
+
+	var option = new UI.Panel();
+	option.setClass( 'option' );
+	option.setTextContent( 'Load Scene' );
+	option.onClick( function () {
+
+		editor.loadScene('87DE608C-7AD5-4EA5-BFCD-81305CF7533C');	
+
+	} );
+	options.add( option );
+
+	options.add( new UI.HorizontalRule() );	
+
 	return container;
 
 }
