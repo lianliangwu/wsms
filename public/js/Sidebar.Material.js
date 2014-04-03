@@ -386,7 +386,11 @@ Sidebar.Material = function ( editor ) {
 
 					material.map = mapEnabled ? materialMap.getValue() : null;
 					material.needsUpdate = true;
-					editor.asset.addImgAsset(materialMap.getFile());
+
+					//wzh, upload and tag the file asset 
+					var uuid = THREE.Math.generateUUID();
+					editor.asset.addImgAsset(materialMap.getFile(), uuid);
+					editor.selected.userData.map = uuid;
 
 				} else {
 

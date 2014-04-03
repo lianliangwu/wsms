@@ -2,13 +2,13 @@ var Asset = function(editor){
 	var scene = editor.scene;
 	var signals = editor.signals;
 
-	this.addImgAsset = function(file){
+	this.addImgAsset = function(file,uuid){
 
 		var formData = new FormData();  
 
 		// Add the file to the request.
 		formData.append('myImg', file, file.name);
-		formData.append('uuid', THREE.Math.generateUUID());
+		formData.append('uuid', uuid);
 
 		// Set up the request.
 		var xhr = new XMLHttpRequest();
