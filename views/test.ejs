@@ -24,6 +24,16 @@
       <input type="text" name="uuid"  value="0E1025E5-9366-4986-B1A0-F634004B7FB2">
       <input type="submit">
     </form>
+    <form action="getGeoAsset" method="get">
+      <input type="text" name="uuid"  value="0E1025E5-9366-4986-B1A0-F634004B7FB2">
+      <input type="submit" value="geoAsset" />
+    </form>
+    <form action="getImgAsset" method="get">
+      <input type="text" name="uuid"  value="0E1025E5-9366-4986-B1A0-F634004B7FB2">
+      <input type="submit" value="imgAsset" />
+    </form>
+    <input type="button" value="ajaxImg" onclick="getImg()">
+    <input type="button" value="ajaxgeo" onclick="getGeo()"> 
 
     <script>
     var form = document.getElementById('file-form');
@@ -65,6 +75,31 @@
       xhr.send(formData);
     }
 
+    function getImg() {
+      var image = document.createElement( 'img' );
+      image.src = "upload/DSCF0007.JPG";
+      image.addEventListener( 'load', function onEnd( event ) {
+        alert("img ok!");
+      });
+          }
+
+    function getGeo() {
+      var xhr = new XMLHttpRequest();
+      xhr.open('GET', 'upload/FB9CDCAD-A333-48FD-845D-69880EFEA387.js', true);
+
+      xhr.onload = function () {
+        if (xhr.status === 200 && xhr.readyState === 4) {
+
+          alert(xhr.responseText);
+          
+        } else {
+          alert('An error occurred!');
+        }
+      };
+
+      // Send the Data.
+      xhr.send(); 
+    }
 
 
     </script>    

@@ -6,10 +6,10 @@ var fs = require('fs');
  * GET home page.
  */
 
-function addGeoAsset(uuid, geometry){
+function addGeoAsset(uuid, path){
 	var newGeoAsset = new GeoAsset({
 		uuid: uuid,
-		geometry: geometry
+		path: path
 	});
 
 	GeoAsset.findByUuid(newGeoAsset.uuid, function(err, geoAsset){
@@ -93,19 +93,33 @@ exports.test = function(req, res){
 };
 
 exports.addGeoAsset = function(req, res){
-	var newPath = "./upload/" + req.body["uuid"] + ".js";
+	var newPath = "./public/upload/" + req.body["uuid"] + ".js";
 	fs.writeFile(newPath, req.body["geometry"], function (err) {
 		res.send({success: true});
 	});	
-	addGeoAsset(req.body["uuid"], "111");
+	addGeoAsset(req.body["uuid"], "upload/" + req.body["uuid"] + ".js");
 };
+
+exports.getGeoAsset = function(req, res) {
+  var uuid = req.query['uuid'];
+
+  GeoAsset.findByUuid(uuid, function onEnd(err, geoAsset) {
+    if (err) {
+      console.log("err: fail to get geoAsset "+ uuid);
+    }
+    res.send({
+      success: true,
+      data: geoAsset[0]
+    });
+  });
+}
 
 exports.addImgAsset = function(req, res){
 	var uuid = req.body["uuid"];
 
 	fs.readFile(req.files.myImg.path, function (err, data) {
 	  
-	  var newPath = "./upload/" + req.files.myImg.name;
+	  var newPath = "./public/upload/" + req.files.myImg.name;
 
 	  addImgAsset(uuid, "upload/" + req.files.myImg.name);
 	  fs.writeFile(newPath, data, function (err) {
@@ -113,6 +127,21 @@ exports.addImgAsset = function(req, res){
 	  });
 	});
 };
+
+exports.getImgAsset = function(req, res) {
+  var uuid = req.query['uuid'];
+
+  ImgAsset.findByUuid(uuid, function onEnd(err, imgAsset) {
+    if (err) {
+      console.log("err: fail to get imgAsset "+ uuid);
+    }
+    res.send({
+      success: true,
+      data: imgAsset[0]
+    });
+  });
+
+}
 
 exports.saveScene = function(req, res){
 	var uuid = req.body['uuid'];

@@ -248,6 +248,8 @@ var Viewport = function ( editor ) {
 
 	} );
 
+
+
 	var saveTimeout;
 
 	signals.cameraChanged.add( function () {
@@ -355,6 +357,17 @@ var Viewport = function ( editor ) {
 		if ( materialsNeedUpdate === true ) updateMaterials();
 
 	} );
+
+	//wzh, add assets(geometry, map...) information to mesh
+	signals.assetAdded.add(function(option) {
+		var target = option.target;
+		var uuid = option.uuid;
+		var type = option.type;
+
+		target.userData.assets = target.userData.assets||{};
+
+		target.userData.assets[type] = uuid;
+	});
 
 	signals.helperAdded.add( function ( object ) {
 

@@ -7,7 +7,7 @@ var express = require('express');
 var routes = require('./routes');
 var http = require('http');
 var path = require('path');
-var mongoose = require('mongoose');
+var db = require('./models/db');
 
 var app = express();
 
@@ -22,13 +22,13 @@ app.use(express.methodOverride());
 app.use(app.router);
 app.use(express.static(path.join(__dirname, 'public')));
 
-mongoose.connect('mongodb://localhost/csms');
-
 
 app.get('/', routes.index);
 app.get('/test', routes.test);
 app.post('/addImgAsset', routes.addImgAsset);
+app.get('/getImgAsset', routes.getImgAsset);
 app.post('/addGeoAsset', routes.addGeoAsset);
+app.get('/getGeoAsset', routes.getGeoAsset);
 app.post('/saveScene', routes.saveScene);
 app.get('/loadScene', routes.loadScene);
 

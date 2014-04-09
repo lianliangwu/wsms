@@ -2,7 +2,7 @@ var mongoose = require("mongoose");
 
 var GeoSchema = new mongoose.Schema({
   uuid: String,
-  geometry: String
+  path: String
 });
 
 GeoSchema.statics.findByUuid = function (uuid, callback){

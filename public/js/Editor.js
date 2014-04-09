@@ -27,6 +27,8 @@ var Editor = function () {
 		objectChanged: new SIGNALS.Signal(),
 		objectRemoved: new SIGNALS.Signal(),
 
+		assetAdded: new SIGNALS.Signal(),//wzh
+
 		helperAdded: new SIGNALS.Signal(),
 		helperRemoved: new SIGNALS.Signal(),
 
@@ -72,10 +74,33 @@ Editor.prototype = {
 	saveScene: function () {//wzh
 
 		var exporter = new THREE.ObjectExporter();
-		var scene = exporter.parse(editor.scene);
+		var scene = exporter.parse(this.scene);
 		var uuid = scene.object.uuid;
+		var i, l;
+		var geometry = {
+			"uuid": null,
+			"type": "BoxGeometry",
+			"width": 1,
+			"height": 1,
+			"depth": 1,
+			"widthSegments": 1,
+			"heightSegments": 1,
+			"depthSegments": 1
+		};
 
-		scene.geometries = [];
+		//change complex geometry to simple box geometry
+		var geometries = scene.geometries;
+		var type, tempGeo;
+		for(i = 0, l = geometries.length; i < l; i++){
+			var type = geometries[i].type;
+
+			if(!this.isPrimaryGeometry(type)){
+				tempGeo = JSON.parse(JSON.stringify(geometry));
+				tempGeo.uuid = geometries[i].uuid;
+				geometries[i] = tempGeo;
+			}
+		}
+
 		scene = JSON.stringify(scene);
 
 		//save scene
@@ -105,44 +130,120 @@ Editor.prototype = {
 	},
 	loadScene: function (uuid) {//wzh
 		var scope = this;
+		var meshes = [];
 
-		var addTempGeo = function(scene, object){//add temp geometry to scene graph recursively
+		// var preProcess = function(scene){
 
-			var children = object.children;
-			var i, max;
-			var geometry = {
-								"uuid": null,
-								"type": "BoxGeometry",
-								"width": 50,
-								"height": 50,
-								"depth": 50,
-								"widthSegments": 1,
-								"heightSegments": 1,
-								"depthSegments": 1
-							};
+		// 	var extractMesh = function(object){
+		// 		var children = object.children;
+		// 		var mesh = {
+		// 			"metadata": {
+		// 				"version": 4.3,
+		// 				"type": "Object",
+		// 				"generator": "ObjectExporter"
+		// 			},
+		// 			"geometries": [],
+		// 			"materials": []
+		// 		};
 
-			if( typeof object.geometry === "string"){
+		// 		if( typeof object.geometry === "string"){
+		// 			mesh.object = object;
+		// 		//	mesh.material = 
+		// 		}
+		// 	};
+		// };
 
-				var geo = JSON.parse(JSON.stringify(geometry));
-				geo.uuid = object.geometry;
-				scene.geometries.push(geo);			
+		// var addTempGeo = function(scene, object){//extract meshes of scene
 
-			}
+		// 	var children = object.children;
+		// 	var i, max;
+		// 	var geometry = {
+		// 		"uuid": null,
+		// 		"type": "BoxGeometry",
+		// 		"width": 1,
+		// 		"height": 1,
+		// 		"depth": 1,
+		// 		"widthSegments": 1,
+		// 		"heightSegments": 1,
+		// 		"depthSegments": 1
+		// 	};
 
-			if(!children){
+		// 	if( typeof object.geometry === "string"){
 
-				return;
+		// 		var geo = JSON.parse(JSON.stringify(geometry));
+		// 		geo.uuid = object.geometry;
+		// 		scene.geometries.push(geo);			
 
-			}
+		// 	}
 
-			for(i = 0, max = children.length; i < max; i++){
+		// 	if(!children){
 
-				var tmp = children[i];
+		// 		return;
 
-				addTempGeo(scene, tmp);
+		// 	}
 
-			}
-		}
+		// 	for(i = 0, max = children.length; i < max; i++){
+
+		// 		var tmp = children[i];
+
+		// 		addTempGeo(scene, tmp);
+
+		// 	}
+		// };
+
+
+		var loadAssets = function() {
+			var asset  = scope.asset;
+			var url;
+			scope.scene.traverse(function eachChild(child) {
+
+				if (editor.getObjectType(child) === 'Mesh'){
+
+					var assets = child.userData.assets;
+					for ( var type in assets ) {
+						if (assets.hasOwnProperty(type)){
+							switch(type){
+								case 'geometry':
+									asset.getGeoAsset(assets[type], function onEnd(geometry) {
+										setGeometry(geometry);
+									});	
+								break;
+								default:
+									asset.getImgAsset(assets[type], function onEnd(img) {
+										setTexture(type, img);
+									});
+								break;
+							}
+						}
+					}					
+					
+					var setGeometry = function(data){
+						var loader = new THREE.JSONLoader();
+						var result = loader.parse( data );
+
+						// child.geometry = result.geometry;
+						// child.geometry.computeBoundingSphere();
+						// scope.signals.objectChanged.dispatch( child );
+						var mesh = new THREE.Mesh( result.geometry, child.material );
+						scope.addObject( mesh );
+
+						mesh.name = child.name;
+						mesh.applyMatrix(child.matrix);
+						mesh.uuid = child.uuid;
+						mesh.userData = child.userData;			
+						
+						scope.removeObject(child);			
+					}
+
+					var setTexture = function(type, img) {
+
+					};
+
+
+
+				}
+			});
+		};
 
 		// Set up the request.
 		var xhr = new XMLHttpRequest();
@@ -155,11 +256,15 @@ Editor.prototype = {
 			if (xhr.status === 200 && xhr.readyState === 4) {
 
 				var scene = JSON.parse(xhr.responseText).scene;
-				addTempGeo(scene, scene.object);
+
+				//preProcess(scene);
+				//addTempGeo(scene, scene.object);
 
 				var loader = new THREE.ObjectLoader();
 				var result = loader.parse( scene );
 				scope.setScene( result );
+
+				loadAssets();
 				
 			} else {
 			  alert('An error occurred!');
@@ -231,9 +336,9 @@ Editor.prototype = {
 
 	removeObject: function ( object ) {
 
-		if ( object.parent === undefined ) return; // avoid deleting the camera or scene
+		// if ( object.parent === undefined ) return; // avoid deleting the camera or scene
 
-		if ( confirm( 'Delete ' + object.name + '?' ) === false ) return;
+		// if ( confirm( 'Delete ' + object.name + '?' ) === false ) return;
 
 		var scope = this;
 
@@ -449,6 +554,33 @@ Editor.prototype = {
 
 		}
 
+	},
+	isPrimaryGeometry: function(type) {//wzh
+		var types = {
+
+			'BoxGeometry': true,
+			'CircleGeometry': true,
+			'CylinderGeometry': true,
+			'ExtrudeGeometry': false,
+			'IcosahedronGeometry': true,
+			'LatheGeometry': false,
+			'OctahedronGeometry': false,
+			'ParametricGeometry': false,
+			'PlaneGeometry': true,
+			'PolyhedronGeometry': false,
+			'ShapeGeometry': false,
+			'SphereGeometry': true,
+			'TetrahedronGeometry': false,
+			'TextGeometry': false,
+			'TorusGeometry': true,
+			'TorusKnotGeometry': true,
+			'TubeGeometry': false,
+			'Geometry': false,
+			'Geometry2': false,
+			'BufferGeometry': false
+		};		
+
+		return types[type];
 	},
 
 	getGeometryType: function ( geometry ) {

@@ -112,40 +112,9 @@ Menubar.Edit = function ( editor ) {
 	var option = new UI.Panel();
 	option.setClass( 'option' );
 	option.setTextContent( 'Save Scene' );
-	option.onClick( function () {
-
-		var exporter = new THREE.ObjectExporter();
-		var scene = exporter.parse(editor.scene);
-		var uuid = scene.object.uuid;
-
-		scene.geometries = [];
-		scene = JSON.stringify(scene);
-
-		//save scene
-		var formData = new FormData();  
-
-		// Add the file to the request.
-		formData.append('uuid', uuid);
-		formData.append('scene', scene);
-
-		// Set up the request.
-		var xhr = new XMLHttpRequest();
-
-		// Open the connection.
-		xhr.open('POST', 'saveScene', true);
-
-		// Set up a handler for when the request finishes.
-		xhr.onload = function () {
-			if (xhr.status === 200) {
-
-			} else {
-			  alert('An error occurred!');
-			}
-		};
-
-		// Send the Data.
-		xhr.send(formData);		
-	} );
+	option.onClick(function(){
+		editor.saveScene();
+	});
 	options.add( option );
 
 	//load scene
@@ -155,7 +124,7 @@ Menubar.Edit = function ( editor ) {
 	option.setTextContent( 'Load Scene' );
 	option.onClick( function () {
 
-		editor.loadScene('87DE608C-7AD5-4EA5-BFCD-81305CF7533C');	
+		editor.loadScene('9BE88E13-8F5C-406F-8B0D-22A91D7DA7A1');	
 
 	} );
 	options.add( option );

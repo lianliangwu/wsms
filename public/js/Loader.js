@@ -153,7 +153,7 @@ var Loader = function ( editor ) {
 					var object = new THREE.OBJLoader().parse( contents );
 					object.name = filename;
 
-					editor.addGeoAssetOfObject(object);
+					asset.addGeoAssetOfObject(object);
 					editor.addObject( object );
 					editor.select( object );
 
@@ -329,6 +329,7 @@ var Loader = function ( editor ) {
 			var mesh = new THREE.Mesh( geometry, material );
 			mesh.name = filename;
 
+			asset.addGeoAssetOfObject( mesh );
 			editor.addObject( mesh );
 			editor.select( mesh );
 
