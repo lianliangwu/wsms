@@ -57,6 +57,7 @@ UI.Texture = function () {
 					var texture = new THREE.Texture( this );
 					texture.sourceFile = file.name;
 					texture.needsUpdate = true;
+					texture.needUpload = true;//wzh
 
 					scope.setValue( texture );
 
@@ -87,10 +88,10 @@ UI.Texture.prototype = Object.create( UI.Element.prototype );
 
 UI.Texture.prototype.getFile = function(){
 	return this.file;
-}
+};
 UI.Texture.prototype.setFile = function(file){
 	this.file = file;
-}
+};
 UI.Texture.prototype.getValue = function () {
 
 	return this.texture;

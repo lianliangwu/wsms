@@ -130,7 +130,6 @@ Editor.prototype = {
 	},
 	loadScene: function (uuid) {//wzh
 		var scope = this;
-		var meshes = [];
 
 		// var preProcess = function(scene){
 
@@ -209,8 +208,8 @@ Editor.prototype = {
 									});	
 								break;
 								default:
-									asset.getImgAsset(assets[type], function onEnd(img) {
-										setTexture(type, img);
+									asset.getImgAsset(assets[type], function onEnd(img, name) {
+										setTexture(type, img, name, assets[type]);
 									});
 								break;
 							}
@@ -221,9 +220,7 @@ Editor.prototype = {
 						var loader = new THREE.JSONLoader();
 						var result = loader.parse( data );
 
-						// child.geometry = result.geometry;
-						// child.geometry.computeBoundingSphere();
-						// scope.signals.objectChanged.dispatch( child );
+						//change the mesh with new geometry and old material
 						var mesh = new THREE.Mesh( result.geometry, child.material );
 						scope.addObject( mesh );
 
@@ -235,12 +232,18 @@ Editor.prototype = {
 						scope.removeObject(child);			
 					}
 
-					var setTexture = function(type, img) {
+					var setTexture = function(type, img, name, uuid) {
+						var texture = new THREE.Texture( img );
+						var mapRow = scope.materialSiderbar.mapRow;
+						texture.sourceFile = name;
+						texture.needsUpdate = true;
+						texture.uuid = uuid;
 
+						scope.select(child);
+						mapRow.texture.setValue(texture);
+						mapRow.checkbox.setValue(true);
+						scope.materialSiderbar.update();
 					};
-
-
-
 				}
 			});
 		};

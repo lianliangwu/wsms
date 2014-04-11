@@ -376,6 +376,7 @@ Sidebar.Material = function ( editor ) {
 				var mapEnabled = materialMapEnabled.getValue() === true;
 
 				if ( objectHasUvs )  {
+					var mapTexture = materialMap.getValue();
 
 					if ( geometry !== undefined ) {
 
@@ -384,17 +385,19 @@ Sidebar.Material = function ( editor ) {
 
 					}
 
-					material.map = mapEnabled ? materialMap.getValue() : null;
+					material.map = mapEnabled ? mapTexture : null;
 					material.needsUpdate = true;
 
 					//wzh, upload and tag the file asset 
-					var uuid = THREE.Math.generateUUID();
-					editor.asset.addImgAsset(materialMap.getFile(), uuid);
-					signals.assetAdded.dispatch({
-						type: 'map',
-						target: editor.selected,
-						uuid: uuid
-					});
+					if (mapTexture && mapTexture.needUpload && mapTexture.needUpload === true){
+						editor.asset.addImgAsset(materialMap.getFile(), mapTexture.uuid);
+
+						signals.assetAdded.dispatch({
+							type: 'map',
+							target: editor.selected,
+							uuid: mapTexture.uuid
+						});						
+					}
 
 				} else {
 
@@ -742,6 +745,16 @@ Sidebar.Material = function ( editor ) {
 		}
 
 	} );
+
+	//wzh, export material siderbar controls for future use
+	var materialSiderbar = {
+		mapRow: {
+			'texture': materialMap,
+			'checkbox': materialMapEnabled
+		},
+		update: update
+	};
+	editor.materialSiderbar = materialSiderbar;
 
 	return container;
 
