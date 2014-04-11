@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Our Modal Dialog Example</title>
+  <style>
+  /* This is the CSS for the normal div */
+  .normal {
+    background-color: lightblue;
+    width: 900px;
+    min-height: 200px;
+    padding: 20px;
+  }
+
+  /* This is the CSS for the modal dialog window */
+  .modal {
+    background-color: #fff;
+    color: #888;
+    border: 1px solid gray;
+    display: block;
+    position: absolute;
+    top: 42px;
+    right: 20px;
+    width: 80%;
+    bottom: 42px;
+  }
+    .modal #menu {
+      background-color: #eee;
+      height: 30px;
+    }
+    .modal #menu .Panel{
+      margin: 0px;
+      padding: 8px;
+    }
+    .modal #menu #close{
+      position: absolute;
+      right: -19px;
+      top: -19px;
+      cursor: pointer;
+    }
+    .modal #footer{
+      position: absolute;
+      bottom: 0px;
+      background-color: #eee;
+      height: 25px;
+      width: 100%;
+    }
+  /* This gives us the styling for the background */
+  .background {
+    width: 100%;
+    min-height: 100%;
+    overflow: hidden;
+    position: absolute;
+    top: 0;
+    left: 0;
+    color: white;
+  }
+  </style>
+</head>
+
+<body>
+  <div class="normal">
+    This is a regular div inline with the page (default
+    position in CSS is static).
+  </div>
+  <div class="background"></div>
+  <div class="modal">
+    <div id="menu">
+        <div class="Panel">Assets Manager</div>
+        <img id="close" src="img/close.png" />
+    </div>
+    <div id="footer">
+      
+    </div>
+  </div>
+</body>
+</html>

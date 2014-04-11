@@ -5,9 +5,17 @@ var SceneSchema = new mongoose.Schema({
   data: String
 });
 
-SceneSchema.statics.findByUuid = function (uuid, callback){
+SceneSchema.statics.findByUuid = function(uuid, callback) {
   this.find({'uuid': uuid}, callback);
-}
+};
+
+SceneSchema.statics.saveScene = function(scene, callback) {
+
+};
+
+SceneSchema.statics.getScene = function(uuid, callback) {
+	
+};
 
 var Scene = mongoose.model('Scene', SceneSchema);
 

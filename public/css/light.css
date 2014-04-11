@@ -144,6 +144,14 @@ input.Number {
 		font-size: 12px;
 	}
 
+#assetwin {
+    position: absolute;
+    top: 42px;
+    right: 20px;
+    width: 500px;
+    bottom: 42px;
+}
+
 #toolbar {
 	position: absolute;
 	left: 0px;

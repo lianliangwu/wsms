@@ -945,3 +945,28 @@ UI.Button.prototype.setLabel = function ( value ) {
 	return this;
 
 };
+
+//wzh
+UI.Image = function( url ) {
+
+	UI.Element.call( this );
+
+	var scope = this;
+
+	var dom = document.createElement( 'img' );
+	dom.className = 'Image';
+
+	this.dom = dom;
+	this.dom.src = url;
+
+	return this;
+};
+
+UI.Image.prototype = Object.create( UI.Element.prototype );
+
+UI.Image.prototype.setSrc = function ( url ) {
+
+	this.dom.src = url;
+
+	return this;
+};

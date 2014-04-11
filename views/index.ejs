@@ -44,6 +44,7 @@
 		<script src="js/libs/signals.min.js"></script>
 		<script src="js/libs/ui.js"></script>
 		<script src="js/libs/ui.three.js"></script>
+		<script src="js/libs/ui.component.js"></script>
 		<script src="js/libs/tween.min.js"></script>
 
 		<script src="js/Storage.js"></script>
@@ -53,6 +54,7 @@
 		<script src="js/Config.js"></script>
 		<script src="js/Loader.js"></script>
 		<script src="js/Engine.js"></script>
+		<script src="js/Assetwin.js"></script>
 		<script src="js/Menubar.js"></script>
 		<script src="js/Menubar.File.js"></script>
 		<script src="js/Menubar.Edit.js"></script>
@@ -97,6 +99,8 @@
 			var sidebar = new Sidebar( editor ).setId( 'sidebar' );
 			document.body.appendChild( sidebar.dom );
 
+			var assetwin = new Assetwin( editor ).setId( 'assetwin' ); 
+			document.body.appendChild( assetwin.dom );
 			//
 
 			editor.setTheme( editor.config.getKey( 'theme' ) );
