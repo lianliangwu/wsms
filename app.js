@@ -5,6 +5,7 @@
 
 var express = require('express');
 var routes = require('./routes');
+var rc = require('./routes/revisionControl');
 var http = require('http');
 var path = require('path');
 var db = require('./models/db');
@@ -31,6 +32,8 @@ app.post('/addGeoAsset', routes.addGeoAsset);
 app.get('/getGeoAsset', routes.getGeoAsset);
 app.post('/saveScene', routes.saveScene);
 app.get('/loadScene', routes.loadScene);
+
+app.post('/commit', rc.commit);
 
 http.createServer(app).listen(app.get('port'), function(){
   console.log('Express server listening on port ' + app.get('port'));
