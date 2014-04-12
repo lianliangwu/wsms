@@ -329,7 +329,7 @@ var Loader = function ( editor ) {
 			var mesh = new THREE.Mesh( geometry, material );
 			mesh.name = filename;
 
-			asset.addGeoAssetOfObject( mesh );
+			asset.addGeoAssetOfObject( mesh ); //wzh
 			editor.addObject( mesh );
 			editor.select( mesh );
 
@@ -344,7 +344,7 @@ var Loader = function ( editor ) {
 
 			} else {
 
-				asset.addGeoAssetOfObject( result );
+				asset.addGeoAssetOfObject( result ); //wzh
 				editor.addObject( result );
 				editor.select( result );
 

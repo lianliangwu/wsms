@@ -131,66 +131,6 @@ Editor.prototype = {
 	loadScene: function (uuid) {//wzh
 		var scope = this;
 
-		// var preProcess = function(scene){
-
-		// 	var extractMesh = function(object){
-		// 		var children = object.children;
-		// 		var mesh = {
-		// 			"metadata": {
-		// 				"version": 4.3,
-		// 				"type": "Object",
-		// 				"generator": "ObjectExporter"
-		// 			},
-		// 			"geometries": [],
-		// 			"materials": []
-		// 		};
-
-		// 		if( typeof object.geometry === "string"){
-		// 			mesh.object = object;
-		// 		//	mesh.material = 
-		// 		}
-		// 	};
-		// };
-
-		// var addTempGeo = function(scene, object){//extract meshes of scene
-
-		// 	var children = object.children;
-		// 	var i, max;
-		// 	var geometry = {
-		// 		"uuid": null,
-		// 		"type": "BoxGeometry",
-		// 		"width": 1,
-		// 		"height": 1,
-		// 		"depth": 1,
-		// 		"widthSegments": 1,
-		// 		"heightSegments": 1,
-		// 		"depthSegments": 1
-		// 	};
-
-		// 	if( typeof object.geometry === "string"){
-
-		// 		var geo = JSON.parse(JSON.stringify(geometry));
-		// 		geo.uuid = object.geometry;
-		// 		scene.geometries.push(geo);			
-
-		// 	}
-
-		// 	if(!children){
-
-		// 		return;
-
-		// 	}
-
-		// 	for(i = 0, max = children.length; i < max; i++){
-
-		// 		var tmp = children[i];
-
-		// 		addTempGeo(scene, tmp);
-
-		// 	}
-		// };
-
-
 		var loadAssets = function() {
 			var asset  = scope.asset;
 			var url;
@@ -208,7 +148,7 @@ Editor.prototype = {
 									});	
 								break;
 								default:
-									asset.getImgAsset(assets[type], function onEnd(img, name) {
+									asset.getImgAsset(assets[type].imgId, function onEnd(img, name) {
 										setTexture(type, img, name, assets[type]);
 									});
 								break;

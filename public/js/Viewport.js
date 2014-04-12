@@ -363,10 +363,25 @@ var Viewport = function ( editor ) {
 		var target = option.target;
 		var uuid = option.uuid;
 		var type = option.type;
+		var texture, assets;
 
 		target.userData.assets = target.userData.assets||{};
+		assets = target.userData.assets;
 
-		target.userData.assets[type] = uuid;
+		switch(type){
+		case 'geometry':
+			assets[type] = uuid;
+			break;
+		default:
+			if (typeof assets[type] === 'undefined'){
+				assets[type] = {
+					uuid: THREE.Math.generateUUID(),
+					imgId:null
+				};
+			}
+			assets[type].imgId = uuid;
+			break;
+		}
 	});
 
 	signals.helperAdded.add( function ( object ) {
