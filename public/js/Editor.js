@@ -43,7 +43,8 @@ var Editor = function () {
 	this.config = new Config();
 	this.storage = new Storage();
 	this.asset = new Asset(this);	
-	this.loader = new Loader( this );
+	this.loader = new Loader(this);
+	this.revCon = new RevisionControl(this); 
 
 	this.scene = new THREE.Scene();
 	this.sceneHelpers = new THREE.Scene();
@@ -199,9 +200,6 @@ Editor.prototype = {
 			if (xhr.status === 200 && xhr.readyState === 4) {
 
 				var scene = JSON.parse(xhr.responseText).scene;
-
-				//preProcess(scene);
-				//addTempGeo(scene, scene.object);
 
 				var loader = new THREE.ObjectLoader();
 				var result = loader.parse( scene );

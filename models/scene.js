@@ -2,7 +2,8 @@ var mongoose = require("mongoose");
 
 var SceneSchema = new mongoose.Schema({
   uuid: String,
-  data: String
+  data: String,
+  newestVersion: Number
 });
 
 SceneSchema.statics.findByUuid = function(uuid, callback) {

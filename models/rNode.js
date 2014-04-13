@@ -1,15 +1,12 @@
 var mongoose = require("mongoose");
 
 var RNodeSchema = new mongoose.Schema({
-  uuid: String,
-  data: String
+  verisonNum: Number,
+  sceneId: String,
+  preViewsions: Array,
+  nodeMap: String
 });
 
-RNodeSchema.statics.findByUuid = function(uuid, callback) {
-  this.find({'uuid': uuid}, callback);
-};
+var RNode = mongoose.model('RNode', RNodeSchema);
 
-
-var RNodeSchema = mongoose.model('RNode', RNodeSchema);
-
-module.exports = RNodeSchema;
+module.exports = RNode;
