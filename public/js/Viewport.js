@@ -376,10 +376,10 @@ var Viewport = function ( editor ) {
 			if (typeof assets[type] === 'undefined'){
 				assets[type] = {
 					uuid: THREE.Math.generateUUID(),
-					imgId:null
+					assetId:null
 				};
 			}
-			assets[type].imgId = uuid;
+			assets[type].assetId = uuid;
 			break;
 		}
 	});

@@ -30,7 +30,7 @@ var RevisionControl = function(editor){
 				object.userData.assets.geometry = geometry.assetId;
 
 				//set a temporary box geometry
-				geometries[geoMap[geoId]] = JSON.parse(JSON.stringify(tempGeometry));
+				geometries[geoMap[assetId]] = JSON.parse(JSON.stringify(tempGeometry));
 			}
 		};
 
@@ -113,10 +113,10 @@ var RevisionControl = function(editor){
 			matMap[temp.uuid] = temp;
 		}
 
-		var setGeometryNode = function(mesh, geoId) {
+		var setGeometryNode = function(mesh, assetId) {
 			var geometry = geoMap[mesh.geometry.uuid];
 			geometry.data = {};
-			geometry.assetId = geoId;
+			geometry.assetId = assetId;
 		};
 
 		var setMaterialNode = function(mesh, type, texture) {
