@@ -181,7 +181,7 @@ var RevisionControl = function(editor){
 
 	this.retrieve = function(sceneId, versionNum) {
 		var scope = this;
-		sceneId = "1AB19EAC-752F-4A85-B43E-D767467BCDA2";
+		sceneId = "D295CF6E-F268-48BB-A72B-35B9E0808BC9";
 		versionNum = prompt("choose the version to retrive:","");
 		//versionNum = 4;
 		//save scene
