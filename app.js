@@ -33,7 +33,7 @@ app.get('/getGeoAsset', routes.getGeoAsset);
 app.post('/saveScene', routes.saveScene);
 app.get('/loadScene', routes.loadScene);
 
-app.get('retrieve', rc.retrieve);
+app.get('/retrieve', rc.retrieve);
 app.post('/commit', rc.commit);
 
 http.createServer(app).listen(app.get('port'), function(){

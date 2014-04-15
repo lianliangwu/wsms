@@ -1,9 +1,9 @@
 var mongoose = require("mongoose");
 
 var RNodeSchema = new mongoose.Schema({
-  verisonNum: Number,
+  versionNum: Number,
   sceneId: String,
-  preViewsions: Array,
+  prevs: [String],
   nodeMap: String
 });
 

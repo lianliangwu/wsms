@@ -129,6 +129,26 @@ Menubar.Edit = function ( editor ) {
 	} );
 	options.add( option );
 
+	//commit scene
+
+	var option = new UI.Panel();
+	option.setClass( 'option' );
+	option.setTextContent( 'Commit' );
+	option.onClick(function(){
+		editor.revCon.commit();
+	});
+	options.add( option );
+
+	//retrieve scene
+	var option = new UI.Panel();
+	option.setClass( 'option' );
+	option.setTextContent( 'Retrieve' );
+	option.onClick(function(){
+		editor.revCon.retrieve();
+	});
+	options.add( option );
+
+
 	options.add( new UI.HorizontalRule() );	
 
 	return container;

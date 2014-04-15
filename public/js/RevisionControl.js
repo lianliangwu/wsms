@@ -1,7 +1,7 @@
 var RevisionControl = function(editor){
-	var scene = editor.scene;
 	var signals = editor.signals;
 	var currentVersion = -1;
+	var commitable = true;
 	var maps = ['map', 'bumpMap', 'lightMap', 'normalMap', 'specularMap', 'envMap'];
 
 	//get a loadable JSON scene data from WSG
@@ -9,7 +9,7 @@ var RevisionControl = function(editor){
 		var geometries = scene.geometries;
 		var materials = scene.materials;
 		var textures = scene.textures;
-		var geoMap = {}, matMap = {}, textureMap;
+		var geoIndex = {}, matIndex = {}, textureMap = {};
 		var tempGeometry = {
 			"uuid": null,
 			"type": "BoxGeometry",
@@ -23,20 +23,22 @@ var RevisionControl = function(editor){
 
 		var setGeometryNode = function(object) {
 			var uuid = object.geometry;
-			var geometry = geometries[geoMap[uuid]];
+			var geometry = geometries[geoIndex[uuid]];
 
 			if(typeof geometry.assetId !== 'undefined'){
 				
 				object.userData.assets.geometry = geometry.assetId;
 
 				//set a temporary box geometry
-				geometries[geoMap[assetId]] = JSON.parse(JSON.stringify(tempGeometry));
+				geometry = JSON.parse(JSON.stringify(tempGeometry));
+				geometry.uuid = uuid;				
+				geometries[geoIndex[uuid]] = geometry;
 			}
 		};
 
 		var setMaterialNode = function(object) {
 			var uuid = object.material;
-			var material = materials[matMap[uuid]];
+			var material = materials[matIndex[uuid]];
 
 			maps.forEach(function each(type){
 				
@@ -44,40 +46,45 @@ var RevisionControl = function(editor){
 					var texture = textureMap[material[type]];
 
 					object.userData.assets[type] = texture;
+
+					delete material[type];
 				}
 			});
 		};
 
 		var setAssets = function(object) {
 			var children = object.children;
+			var i, l, temp;
 
 			//check if object is a mesh
 			if (typeof object.geometry !== 'undefined'){
-				object.userData.assets = object.userData.assets || {};
+				object.userData = {};
+				object.userData.assets = {};
 
 				setGeometryNode(object);
 				setMaterialNode(object);
 			}
 
-			var i, l, temp;
-
-			for(i = 0, l = children.length; i < l ; i++){
-				temp = children[i];
-				setAssets(temp);
-			} 
+			
+			if(typeof children !== 'undefined'){
+				for(i = 0, l = children.length; i < l ; i++){
+					temp = children[i];
+					setAssets(temp);
+				} 				
+			}
 		};
 
-		//build geometry map
+		//build geometry index map
 		var i, l, temp;
 		for(i = 0, l = geometries.length; i < l; i++){
 			temp = geometries[i];
-			geoMap[temp.uuid] = i;
+			geoIndex[temp.uuid] = i;
 		}
 
-		//build material map
+		//build material index map
 		for(i = 0, l = materials.length; i < l; i++){
 			temp = materials[i];
-			matMap[temp.uuid] = i;
+			matIndex[temp.uuid] = i;
 		}
 
 		//build texture map
@@ -89,15 +96,17 @@ var RevisionControl = function(editor){
 		//add assets into userData		
 		setAssets(scene.object);
 		delete scene.textures;		
+
+		return scene;
 	};
 	//get wsms SG from current scene
 	var getWSG = function() {
 		var exporter = new THREE.ObjectExporter();
-		var scene = exporter.parse(scene);
+		var scene = exporter.parse(editor.scene);
 		var geometries = scene.geometries;
 		var materials = scene.materials;
 		var textures = [];
-		var geoMap = {}, matMap = {};
+		var geoMap = {}, matMap = {}, meshMap = {};
 
 
 		//build geometry map
@@ -113,36 +122,56 @@ var RevisionControl = function(editor){
 			matMap[temp.uuid] = temp;
 		}
 
+		//build mesh map
+		var buildMeshMap = function(object) {
+			var i, l, children;
+			children = object.children;
+
+			if(object.type === "Mesh"){
+				meshMap[object.uuid] = object;
+			}
+			if(typeof children !== 'undefined'){
+				for(i = 0, l = children.length; i < l; i++){
+					buildMeshMap(children[i]);
+				}
+			}
+		};
+		buildMeshMap(scene.object);
+
 		var setGeometryNode = function(mesh, assetId) {
-			var geometry = geoMap[mesh.geometry.uuid];
+			var geometry = geoMap[mesh.geometry];
 			geometry.data = {};
 			geometry.assetId = assetId;
 		};
 
 		var setMaterialNode = function(mesh, type, texture) {
-			var material = matMap[mesh.material.uuid];
+			var material = matMap[mesh.material];
 			material[type] = texture.uuid;
 			textures.push(texture);
 		};	
 
 		//handle the assets info in userData
-		scene.traverse(function eachChild(child) {
+		editor.scene.traverse(function eachChild(child) {
 		
 			if (editor.getObjectType(child) === 'Mesh'){
+				var mesh = meshMap[child.uuid];
 				var assets = child.userData.assets;
-				for ( var type in assets ) {
-					if (assets.hasOwnProperty(type)){
-						switch(type){
-							case 'geometry':
-								setGeometryNode(child, assets[type]);
-							break;
-							default:
-								setMaterialNode(child, type, assets[type]);
-							break;
+
+				if(typeof assets !== 'undefined'){
+					for ( var type in assets ) {
+						if (assets.hasOwnProperty(type)){
+							switch(type){
+								case 'geometry':
+									setGeometryNode(mesh, assets[type]);
+								break;
+								default:
+									setMaterialNode(mesh, type, assets[type]);
+								break;
+							}
 						}
 					}
+					delete mesh.userData;					
 				}
-				child.userData = {};
 			}
 		});
 
@@ -150,21 +179,19 @@ var RevisionControl = function(editor){
 		return scene;
 	};
 
-	this.retrieve = function() {
+	this.retrieve = function(sceneId, versionNum) {
 		var scope = this;
-
+		sceneId = "1AB19EAC-752F-4A85-B43E-D767467BCDA2";
+		versionNum = prompt("choose the version to retrive:","");
+		//versionNum = 4;
 		//save scene
 		var formData = new FormData();  
-
-		// Add the file to the request.
-		formData.append('sceneId', '9BE88E13-8F5C-406F-8B0D-22A91D7DA7A1');
-		formData.append('preVersion', currentVersion);
 
 		// Set up the request.
 		var xhr = new XMLHttpRequest();
 
 		// Open the connection.
-		xhr.open('GET', 'retrieve', true);
+		xhr.open('GET', 'retrieve?sceneId='+sceneId+'&versionNum='+versionNum, true);
 
 		// Set up a handler for when the request finishes.
 		xhr.onload = function () {
@@ -175,9 +202,10 @@ var RevisionControl = function(editor){
 				scene = getThreeSG(scene);
 				var loader = new THREE.ObjectLoader();
 				var result = loader.parse( scene );
-				scope.setScene( result );
+				editor.setScene( result );
 
-				loadAssets();
+				editor.loadAssets();
+				currentVersion = versionNum;
 				
 			} else {
 			  alert('An error occurred!');
@@ -189,6 +217,10 @@ var RevisionControl = function(editor){
 	};
 
 	this.commit = function() {
+		if(!commitable){
+			console.log("unable to commit!");
+		}
+		commitable = false; //prevent user from committing
 		var scene = getWSG();
 		var uuid = scene.object.uuid;
 		//save scene
@@ -207,8 +239,11 @@ var RevisionControl = function(editor){
 
 		// Set up a handler for when the request finishes.
 		xhr.onload = function () {
-			if (xhr.status === 200) {
+			if (xhr.status === 200 && xhr.readyState === 4) {
 
+				var result = JSON.parse(xhr.responseText);
+				currentVersion = result.versionNum;
+				commitable = true; // allow for committing
 			} else {
 			  alert('An error occurred!');
 			}

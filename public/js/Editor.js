@@ -149,7 +149,7 @@ Editor.prototype = {
 									});	
 								break;
 								default:
-									asset.getImgAsset(assets[type].imgId, function onEnd(img, name) {
+									asset.getImgAsset(assets[type].assetId, function onEnd(img, name) {
 										setTexture(type, img, name, assets[type]);
 									});
 								break;
@@ -214,6 +214,66 @@ Editor.prototype = {
 
 		// Send the Data.
 		xhr.send();		
+	},
+	loadAssets: function() {
+		var scope = this;
+		var asset  = this.asset;
+		var url;
+		this.scene.traverse(function eachChild(child) {
+
+			if (editor.getObjectType(child) === 'Mesh'){
+
+				var assets = child.userData.assets;
+				for ( var type in assets ) {
+					if (assets.hasOwnProperty(type)){
+						switch(type){
+							case 'geometry':
+								asset.getGeoAsset(assets[type], function onEnd(geometry) {
+									setGeometry(geometry);
+								});	
+							break;
+							default:
+								asset.getImgAsset(assets[type].assetId, function onEnd(img, name) {
+									setTexture(type, img, name, assets[type]);
+								});
+							break;
+						}
+					}
+				}					
+				
+				var setGeometry = function(data){
+					var loader = new THREE.JSONLoader();
+					var result = loader.parse( data );
+					var geometry = result.geometry;
+
+
+					//change the mesh with new geometry and old material
+					geometry.uuid = child.geometry.uuid;
+					var mesh = new THREE.Mesh( geometry, child.material );
+					scope.addObject( mesh );
+
+					mesh.name = child.name;
+					mesh.applyMatrix(child.matrix);
+					mesh.uuid = child.uuid;
+					mesh.userData = child.userData;			
+					
+					scope.removeObject(child);			
+				}
+
+				var setTexture = function(type, img, name, uuid) {
+					var texture = new THREE.Texture( img );
+					var mapRow = scope.materialSiderbar.mapRow;
+					texture.sourceFile = name;
+					texture.needsUpdate = true;
+					texture.uuid = uuid;
+
+					scope.select(child);
+					mapRow.texture.setValue(texture);
+					mapRow.checkbox.setValue(true);
+					scope.materialSiderbar.update();
+				};
+			}
+		});
 	},
 
 	resetScene: function () {

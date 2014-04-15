@@ -1,6 +1,7 @@
 var Scene = require('../models/scene.js');
 var SNode = require('../models/sNode.js');
 var RNode = require('../models/rNode.js');
+var VNode = require('../models/vNode.js');
 
 var getSceneFromNodes = function(nodes, rootId) {
 	var scene = {};
@@ -16,13 +17,13 @@ var getSceneFromNodes = function(nodes, rootId) {
 			nodeMap[e.uuid] = e;
 		break;
 		case 'geometry':
-			geometries.push(e);
+			geometries.push(JSON.parse(e.data));
 		break;
 		case 'material':
-			materials.push(e);
+			materials.push(JSON.parse(e.data));
 		break;
 		case 'texture':
-			textures.push(e);
+			textures.push(JSON.parse(e.data));
 		break;
 		default:
 		break;
@@ -34,11 +35,13 @@ var getSceneFromNodes = function(nodes, rootId) {
 		var children = object.children;
 		var i, l, tempObject, tempId;
 
-		for (i = 0, l = children.length; i < l; i++) {
-			tempId = children[i];
-			tempObject = JSON.parse(nodeMap[tempId].data);
-			buildObject(tempObject);
-			children[i] = tempObject;
+		if(typeof children !== 'undefined'){
+			for (i = 0, l = children.length; i < l; i++) {
+				tempId = children[i];
+				tempObject = JSON.parse(nodeMap[tempId].data);
+				buildObject(tempObject);
+				children[i] = tempObject;
+			}			
 		}
 	};
 
@@ -67,15 +70,16 @@ var getNodesFromScene = function(scene) {
 
 	//translate scene tree into object nodes recursively
 	var getObject = function(object) {
-		var children = object.children;
-		var i, l, tempId;
+		if(typeof object.children !== 'undefined'){
+			var children = object.children;
+			var i, l, tempId;
 
-		for (i = 0, l = children.length; i < l; l++) {
-			tempId = children[i].uuid;
-			getObject(children[i]);
-			children[i] = tempId;
+			for (i = 0, l = children.length; i < l; i++) {
+				tempId = children[i].uuid;
+				getObject(children[i]);
+				children[i] = tempId;
+			}	
 		}
-
 		addNode(object, 'object');
 	};
 
@@ -156,7 +160,7 @@ var retrieveSceneNodes = function(sceneId, versionNum, callback) {
 					count--;
 
 					if(count === 0){
-						callback&&callback(nodes);
+						callback&&callback(null, nodes);
 					}
 				});
 			}
@@ -218,13 +222,23 @@ exports.commit = function(req, res) {
 		RNode.create({
 			'sceneId': sceneId,
 			'versionNum': 0,
-			'preVersions': [],
+			'prevs': [],
 			'nodeMap': JSON.stringify(nodeMap)
 		}, function onEnd(err) {
 			if (err){
 				console.log("add scene err "+ err);
 			}
 		});
+		// VNode.create({
+		// 	'sceneId': sceneId,
+		// 	'versionNum': 0,
+		// 	'preVs': [],
+		// 	'nodeMap': JSON.stringify(nodeMap)
+		// }, function onEnd(err) {
+		// 	if (err){
+		// 		console.log("add scene err "+ err);
+		// 	}
+		// });
 
 		res.send({
 			'success': true,
@@ -232,7 +246,7 @@ exports.commit = function(req, res) {
 		});
 
 	}else{
-		Scene.find({'uuid':sceneId}, function onEnd(err, scene) {
+		Scene.findOne({'uuid':sceneId}, function onEnd(err, scene) {
 			if (err){
 				console.log("find scene err "+ err);
 			}
@@ -240,42 +254,68 @@ exports.commit = function(req, res) {
 			var versionNum = scene.newestVersion + 1;
 			scene.newestVersion = versionNum;
 
-			//save scene info
-			scene.save();
 
-			retrieveSceneNodes(sceneId, preVersion, function onEnd(preVersionNodes) {
+			retrieveSceneNodes(sceneId, preVersion, function onEnd(err, preVersionNodes) {
 				deltaNodes = diff(preVersionNodes, nodes, versionNum);
 
-				//save scene nodes
-				deltaNodes.forEach(function each(node) {
-					SNode.create(node, function onEnd(err){
-						if (err){
-							console.log("save SNode err! "+ err);
+				if(deltaNodes.length > 0){
+					//save scene info
+					scene.save(function( err ){
+						if(!err){
+							console.log('User saved!');
 						}
 					});
-				});	
 
+					//save scene nodes
+					deltaNodes.forEach(function each(node) {
+						SNode.create(node, function onEnd(err){
+							if (err){
+								console.log("save SNode err! "+ err);
+							}
+						});
+					});	
 
-				nodes.forEach(function each(node) {
-					nodeMap[node.uuid] = node.versionNum;
-				});
+					nodes.forEach(function each(node) {
+						nodeMap[node.uuid] = node.versionNum;
+					});
 
-				//save version node
-				RNode.create({
-					'sceneId': sceneId,
-					'versionNum': versionNum,
-					'preVersions': [preVersion],
-					'nodeMap': JSON.stringify(nodeMap)
-				}, function onEnd(err) {
-					if (err){
-						console.log("add scene err "+ err);
-					}
-				});
+					//save version node
+					RNode.create({
+						'sceneId': sceneId,
+						'versionNum': versionNum,
+						'prevs': [preVersion],
+						'nodeMap': JSON.stringify(nodeMap)
+					}, function onEnd(err) {
+						if (err){
+							console.log("add scene err "+ err);
+						}
+					});
+					// var rNode = new RNode({
+					// 	'sceneId': sceneId,
+					// 	'versionNum': versionNum,
+					// 	'nodeMap': JSON.stringify(nodeMap),
+					// 	'preVersion': JSON.stringify(preVersion)
+					// });
+					// //rNode.preVersion = JSON.stringify(preVersion);
 
-				res.send({
-					'success': true,
-					'versionNum': versionNum
-				});
+					// rNode.save(function onEnd(err) {
+					// 	if (err){
+					// 		console.log("add scene err "+ err);
+					// 	}
+					// });
+
+					res.send({
+						'success': true,
+						'versionNum': versionNum
+					});					
+				}else{
+					console.log("no change to be committed!\n");
+					res.send({
+						'success': false,
+						'errInfo': 'no change to be committed'
+					});
+				}
+
 			});
 
 		});
