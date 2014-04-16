@@ -32,6 +32,7 @@ app.post('/addGeoAsset', routes.addGeoAsset);
 app.get('/getGeoAsset', routes.getGeoAsset);
 app.post('/saveScene', routes.saveScene);
 app.get('/loadScene', routes.loadScene);
+app.get('/getAllScenes', routes.getAllScenes);
 
 app.get('/retrieve', rc.retrieve);
 app.post('/commit', rc.commit);

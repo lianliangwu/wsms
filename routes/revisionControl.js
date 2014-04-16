@@ -185,10 +185,10 @@ exports.retrieve = function(req, res) {
 
 exports.commit = function(req, res) {
 	var preVersion = req.body.preVersion;
-	var scene = req.body.scene;
+	var scene = JSON.parse(req.body.scene);
 	var sceneId = req.body.sceneId;
 
-	var nodes = getNodesFromScene(JSON.parse(scene));
+	var nodes = getNodesFromScene(scene);
 	var deltaNodes, nodeMap = {};
 
 	if (preVersion < 0){//first commit
@@ -197,6 +197,7 @@ exports.commit = function(req, res) {
 		//save scene info
 		Scene.create({
 			'uuid': sceneId,
+			'name': scene.object.name,
 			'newestVersion': 0
 		}, function onEnd(err){
 			if (err){

@@ -88,10 +88,12 @@ input.Number {
 			padding: 5px 0px;
 			background: #eee;
 			width: 140px;
+			z-index: 100;
 		}
 
 		#menubar .menu:hover .options {
 			display: block;
+			z-index: 100;
 		}
 
 			#menubar .menu .options hr {
@@ -146,10 +148,24 @@ input.Number {
 
 #assetwin {
     position: absolute;
-    top: 42px;
-    right: 20px;
     width: 500px;
-    bottom: 42px;
+    height: 500px;
+}
+#scenewin {
+    position: absolute;
+    width: 500px;   
+    z-index: 10;
+}
+#versionwin {
+    position: absolute;
+    width: 500px;   
+    z-index: 10;
+}
+#scenewin #sceneSelect{
+	height: 200px;
+	width: 90%;
+	margin: auto;
+	margin-top: 20px;
 }
 
 #toolbar {

@@ -176,7 +176,17 @@ input.Number {
 		border: solid 1px #5A5A5A;
 
 	}
-
+#assetwin {
+    position: absolute;
+    width: 500px;
+    bottom: 42px;
+}
+#scenewin {
+    position: absolute;
+    width: 500px;
+    bottom: 42px;	
+    z-index: 10;
+}
 #toolbar {
 	position: absolute;
 	left: 0px;

@@ -280,6 +280,7 @@ Editor.prototype = {
 
 		this.scene = new THREE.Scene();//wzh reset 
 		this.signals.sceneReseted.dispatch();
+		this.signals.sceneGraphChanged.dispatch();
 
 	},
 

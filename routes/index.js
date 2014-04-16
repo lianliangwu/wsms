@@ -160,4 +160,14 @@ exports.loadScene = function(req, res){
 			'scene':JSON.parse(scene.data)
 		});
 	});
-}
+};
+
+exports.getAllScenes = function(req, res) {
+	Scene.getAllScenes(function(err, scenes){
+		res.send({
+			'success': true,
+			'scenes':scenes
+		});
+	});
+};
+

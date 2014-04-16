@@ -55,12 +55,16 @@
 		<script src="js/Loader.js"></script>
 		<script src="js/Engine.js"></script>
 		<script src="js/Assetwin.js"></script>
+		<script src="js/Scenewin.js"></script>
+		<script src="js/Versionwin.js"></script>		
 		<script src="js/RevisionControl.js"></script>
 		<script src="js/Menubar.js"></script>
 		<script src="js/Menubar.File.js"></script>
+		<script src="js/Menubar.Scene.js"></script>		
 		<script src="js/Menubar.Edit.js"></script>
 		<script src="js/Menubar.Add.js"></script>
 		<script src="js/Menubar.View.js"></script>
+		<script src="js/Menubar.Window.js"></script>		
 		<script src="js/Menubar.Help.js"></script>
 		<script src="js/Sidebar.js"></script>
 		<script src="js/Sidebar.Renderer.js"></script>
@@ -99,9 +103,18 @@
 
 			var sidebar = new Sidebar( editor ).setId( 'sidebar' );
 			document.body.appendChild( sidebar.dom );
+			
+			var scenewin = new Scenewin( editor ).setId( 'scenewin' ); 
+			document.body.appendChild( scenewin.dom );
+			editor.scenewin = scenewin;
 
 			var assetwin = new Assetwin( editor ).setId( 'assetwin' ); 
 			document.body.appendChild( assetwin.dom );
+			editor.assetwin = assetwin;
+
+			var versionwin = new Versionwin( editor ).setId( 'versionwin' ); 
+			document.body.appendChild( versionwin.dom );
+			editor.versionwin = versionwin;
 			//
 
 			editor.setTheme( editor.config.getKey( 'theme' ) );
