@@ -1,4 +1,4 @@
-var Scenewin = function ( editor ) {
+var Viewer = function ( editor ) {
 	var sceneMap = {};
 
 	var container = new UI.Window("Viewer");
