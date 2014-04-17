@@ -14,12 +14,21 @@ var Scenewin = function ( editor ) {
 	} );
 	var loadSceneBtn = new UI.Button( 'Load Scene' ).setMarginLeft( '7px' ).onClick( function () {
 		var uuid = sceneSelect.getValue();	
+		//load the newest version
 		editor.revCon.retrieve(uuid, sceneMap[uuid].newestVersion);
 	} );
 	var shareSceneBtn = new UI.Button( 'Share Scene' ).setMarginLeft( '7px' ).onClick( function () {
 		var email = prompt("share scene with:","");
 	} );
 	var versionBtn = new UI.Button( 'View Versions' ).setMarginLeft( '7px' ).onClick( function () {
+		var uuid = sceneSelect.getValue();
+		if(!uuid){
+			alert("no scene selected!")
+		}else{
+			editor.versionwin.show(sceneSelect.getValue());	
+		}
+	} );
+	var removeBtn = new UI.Button( 'Remove Scene' ).setMarginLeft( '7px' ).onClick( function () {
 
 	} );
 
@@ -60,6 +69,7 @@ var Scenewin = function ( editor ) {
 	sceneControlRow.add( loadSceneBtn );
 	sceneControlRow.add( shareSceneBtn );
 	sceneControlRow.add( versionBtn );
+	sceneControlRow.add( removeBtn );	
 	sceneControlRow.setMargin("10px");
 	sceneControlRow.setTextAlign('center');
 

@@ -34,6 +34,7 @@ app.post('/saveScene', routes.saveScene);
 app.get('/loadScene', routes.loadScene);
 app.get('/getAllScenes', routes.getAllScenes);
 
+app.get('/getAllVersions', rc.getAllVersions);
 app.get('/retrieve', rc.retrieve);
 app.post('/commit', rc.commit);
 

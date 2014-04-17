@@ -46,6 +46,10 @@
 		<script src="js/libs/ui.three.js"></script>
 		<script src="js/libs/ui.component.js"></script>
 		<script src="js/libs/tween.min.js"></script>
+		<script src="js/libs/d3.js" charset="utf-8"></script>
+		<script src="js/libs/dagre-d3.js"></script>
+		<script src="js/libs/underscore.js"></script>
+
 
 		<script src="js/Storage.js"></script>
 
@@ -85,6 +89,7 @@
 		<script src="js/Viewport.js"></script>
 
 		<script src="js/workflow.js"></script>
+
 		<script>
 
 			window.URL = window.URL || window.webkitURL;
@@ -115,6 +120,7 @@
 			var versionwin = new Versionwin( editor ).setId( 'versionwin' ); 
 			document.body.appendChild( versionwin.dom );
 			editor.versionwin = versionwin;
+			//versionwin.draw();
 			//
 
 			editor.setTheme( editor.config.getKey( 'theme' ) );

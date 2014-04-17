@@ -168,12 +168,36 @@ var retrieveSceneNodes = function(sceneId, versionNum, callback) {
 	});
 };
 
+exports.getAllVersions = function(req, res) {
+	var sceneId = req.query.sceneId;
+
+	RNode.getAllVersions(sceneId, function(err, versions){
+		if(err){
+			console.log("get all versions err: "+ err);
+		}
+
+		versions = versions.map(function(version){
+			version.nodeMap = null;
+			return version;
+		});
+
+		res.send({
+			'success': true,
+			'versions':versions
+		});
+	});
+};
+
 exports.retrieve = function(req, res) {
 	var versionNum = req.query.versionNum;
 	var sceneId = req.query.sceneId;
 
 
 	retrieveSceneNodes(sceneId, versionNum, function onEnd(err, nodes){
+
+		if(err){
+			console.log("retrieve scene err: "+ err);
+		}
 		var scene = getSceneFromNodes(nodes, sceneId);
 
 		res.send({
@@ -230,16 +254,6 @@ exports.commit = function(req, res) {
 				console.log("add scene err "+ err);
 			}
 		});
-		// VNode.create({
-		// 	'sceneId': sceneId,
-		// 	'versionNum': 0,
-		// 	'preVs': [],
-		// 	'nodeMap': JSON.stringify(nodeMap)
-		// }, function onEnd(err) {
-		// 	if (err){
-		// 		console.log("add scene err "+ err);
-		// 	}
-		// });
 
 		res.send({
 			'success': true,
@@ -291,19 +305,6 @@ exports.commit = function(req, res) {
 							console.log("add scene err "+ err);
 						}
 					});
-					// var rNode = new RNode({
-					// 	'sceneId': sceneId,
-					// 	'versionNum': versionNum,
-					// 	'nodeMap': JSON.stringify(nodeMap),
-					// 	'preVersion': JSON.stringify(preVersion)
-					// });
-					// //rNode.preVersion = JSON.stringify(preVersion);
-
-					// rNode.save(function onEnd(err) {
-					// 	if (err){
-					// 		console.log("add scene err "+ err);
-					// 	}
-					// });
 
 					res.send({
 						'success': true,

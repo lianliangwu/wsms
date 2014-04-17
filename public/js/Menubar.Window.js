@@ -23,7 +23,7 @@ Menubar.Window = function ( editor ) {
 	option.setTextContent( 'Scene Window' );
 	option.onClick( function () {
 
-		editor.scenewin.toggle();
+		editor.scenewin.show();
 
 	} );
 	options.add( option );
@@ -35,7 +35,7 @@ Menubar.Window = function ( editor ) {
 	option.setTextContent( 'Asset Window' );
 	option.onClick( function () {
 
-		editor.assetwin.toggle();
+		editor.assetwin.show();
 
 	} );
 	options.add( option );
@@ -47,7 +47,7 @@ Menubar.Window = function ( editor ) {
 	option.setTextContent( 'Version Window' );
 	option.onClick( function () {
 
-		editor.versionwin.toggle();
+		editor.versionwin.show();
 
 	} );
 	options.add( option );	

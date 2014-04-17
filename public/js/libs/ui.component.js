@@ -204,6 +204,82 @@
 
 		return Window;
 	})();	
+
+	UI.DAG = function( url ) {
+
+		UI.Element.call( this );
+
+		var scope = this;
+
+		var dom = document.createElement( 'div' );
+		dom.className = 'DAG';
+
+		dom.innerHTML = '<svg><g transform="translate(20,20)"/></svg>';
+
+		this.dom = dom;
+
+		return this;
+	};
+
+	UI.DAG.prototype = Object.create( UI.Element.prototype );
+
+	UI.DAG.prototype.draw = function ( states, edges ) {
+	    var renderer = new dagreD3.Renderer();
+	    var oldDrawNodes = renderer.drawNodes();
+
+	    states = states.map(function(s) {
+	                  return { id: s, value: { label: s } };       
+	             });
+
+
+	    renderer.drawNodes(function(graph, root) {
+	      var svgNodes = oldDrawNodes(graph, root);
+	      svgNodes.attr("id", function(u) {
+	        return "node-" + u; 
+	      });
+	      return svgNodes;
+	    });
+
+	    //
+	    var layout = dagreD3.layout()
+	                        .rankDir("LR");    
+	    var result = renderer.layout(layout).run(dagreD3.json.decode(states, edges), d3.select("svg g"));
+
+	    d3.select("svg")
+	      .attr("width", result.graph().width + 40)
+	      .attr("height", result.graph().height + 40);
+
+
+	    //  
+        this.nodes = this.dom.getElementsByClassName('node');
+
+        _.each(this.nodes, function onEach(node){
+          node.valueStr = node.getElementsByTagName('tspan')[0].innerHTML;  
+          node.selected = false;
+          node.rect = node.getElementsByTagName('rect')[0];
+          node.style.cursor = "pointer";
+
+          node.addEventListener('click',function(e) {
+            e.preventDefault();
+			this.selected = this.selected === true? false: true;
+			if(this.selected){
+				this.rect.style.fill = "#7f7";
+			}else{
+				this.rect.style.fill = "#fff";
+			}            
+          },false)               
+        });        
+		return this;
+	};	
+	UI.DAG.prototype.getSelected = function(){
+		var selected = [];
+		_.each(this.nodes, function onEach(node){
+			if(node.selected === true){
+				selected.push(node.valueStr);
+			}
+		});
+		return selected;
+	};
 })();
 
 

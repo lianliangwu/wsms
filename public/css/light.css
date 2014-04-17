@@ -153,21 +153,43 @@ input.Number {
 }
 #scenewin {
     position: absolute;
-    width: 500px;   
+    width: 600px;   
     z-index: 10;
 }
+	#scenewin #sceneSelect{
+		height: 200px;
+		width: 90%;
+		margin: auto;
+		margin-top: 20px;
+	}
+
 #versionwin {
     position: absolute;
-    width: 500px;   
+    width: 800px;
     z-index: 10;
 }
-#scenewin #sceneSelect{
-	height: 200px;
-	width: 90%;
-	margin: auto;
-	margin-top: 20px;
-}
 
+	#versionwin text {
+	  font-weight: 300;
+	  font-family: "Helvetica Neue", Helvetica, Arial, sans-serf;
+	  font-size: 10px;
+	}
+
+	#versionwin .node rect {
+	  stroke-width: 2px;
+	  stroke: #333;
+	  fill: #fff;
+	}
+
+	#versionwin .edgeLabel rect {
+	  fill: #fff;
+	}
+
+	#versionwin .edgePath path {
+	  stroke: #333;
+	  stroke-width: 1.5px;
+	  fill: none;
+	}
 #toolbar {
 	position: absolute;
 	left: 0px;
