@@ -107,46 +107,46 @@ Menubar.Edit = function ( editor ) {
 
 	options.add( new UI.HorizontalRule() );
 
-	//save scene
+	// //save scene
 
-	var option = new UI.Panel();
-	option.setClass( 'option' );
-	option.setTextContent( 'Save Scene' );
-	option.onClick(function(){
-		editor.saveScene();
-	});
-	options.add( option );
+	// var option = new UI.Panel();
+	// option.setClass( 'option' );
+	// option.setTextContent( 'Save Scene' );
+	// option.onClick(function(){
+	// 	editor.saveScene();
+	// });
+	// options.add( option );
 
-	//load scene
+	// //load scene
 
-	var option = new UI.Panel();
-	option.setClass( 'option' );
-	option.setTextContent( 'Load Scene' );
-	option.onClick( function () {
+	// var option = new UI.Panel();
+	// option.setClass( 'option' );
+	// option.setTextContent( 'Load Scene' );
+	// option.onClick( function () {
 
-		editor.loadScene('9BE88E13-8F5C-406F-8B0D-22A91D7DA7A1');	
+	// 	editor.loadScene('9BE88E13-8F5C-406F-8B0D-22A91D7DA7A1');	
 
-	} );
-	options.add( option );
+	// } );
+	// options.add( option );
 
-	//commit scene
+	// //commit scene
 
-	var option = new UI.Panel();
-	option.setClass( 'option' );
-	option.setTextContent( 'Commit' );
-	option.onClick(function(){
-		editor.revCon.commit();
-	});
-	options.add( option );
+	// var option = new UI.Panel();
+	// option.setClass( 'option' );
+	// option.setTextContent( 'Commit' );
+	// option.onClick(function(){
+	// 	editor.revCon.commit();
+	// });
+	// options.add( option );
 
-	//retrieve scene
-	var option = new UI.Panel();
-	option.setClass( 'option' );
-	option.setTextContent( 'Retrieve' );
-	option.onClick(function(){
-		editor.revCon.retrieve();
-	});
-	options.add( option );
+	// //retrieve scene
+	// var option = new UI.Panel();
+	// option.setClass( 'option' );
+	// option.setTextContent( 'Retrieve' );
+	// option.onClick(function(){
+	// 	editor.revCon.retrieve();
+	// });
+	// options.add( option );
 
 
 	options.add( new UI.HorizontalRule() );	

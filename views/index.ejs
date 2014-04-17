@@ -60,7 +60,9 @@
 		<script src="js/Engine.js"></script>
 		<script src="js/Assetwin.js"></script>
 		<script src="js/Scenewin.js"></script>
-		<script src="js/Versionwin.js"></script>		
+		<script src="js/Versionwin.js"></script>
+		<script src="js/Mergewin.js"></script>
+		<script src="js/Viewerwin.js"></script>		
 		<script src="js/RevisionControl.js"></script>
 		<script src="js/Menubar.js"></script>
 		<script src="js/Menubar.File.js"></script>
@@ -120,8 +122,10 @@
 			var versionwin = new Versionwin( editor ).setId( 'versionwin' ); 
 			document.body.appendChild( versionwin.dom );
 			editor.versionwin = versionwin;
-			//versionwin.draw();
-			//
+
+			var mergewin = new Mergewin( editor ).setId( 'mergewin' ); 
+			document.body.appendChild( mergewin.dom );
+			editor.mergewin = mergewin;
 
 			editor.setTheme( editor.config.getKey( 'theme' ) );
 

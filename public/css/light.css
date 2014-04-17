@@ -165,7 +165,7 @@ input.Number {
 
 #versionwin {
     position: absolute;
-    width: 800px;
+    width: 500px;
     z-index: 10;
 }
 
@@ -190,6 +190,11 @@ input.Number {
 	  stroke-width: 1.5px;
 	  fill: none;
 	}
+#mergewin {
+    position: absolute;
+    width: 500px;
+    height: 500px;
+}
 #toolbar {
 	position: absolute;
 	left: 0px;

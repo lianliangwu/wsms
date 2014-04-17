@@ -5,7 +5,6 @@ var Versionwin = function ( editor ) {
 
   var versionDag = new UI.DAG();
   versionDag.setOverflow('scroll');
-  versionDag.setHeight('500px');
 
   var sceneControlRow = new UI.Panel();
 
@@ -16,7 +15,7 @@ var Versionwin = function ( editor ) {
         editor.revCon.retrieve(container.sceneId, versions[0]);
       }
     }else{
-      alert("can't retrieve multiple versions!");
+      alert("please select a single version.");
     }
   } );
   var commitBtn = new UI.Button( 'Commit' ).setMarginLeft( '7px' ).onClick( function () {
@@ -26,7 +25,14 @@ var Versionwin = function ( editor ) {
     
   } );
   var mergeBtn = new UI.Button( 'Merge' ).setMarginLeft( '7px' ).onClick( function () {
-
+    var versions = versionDag.getSelected();
+    if(versions.length === 3){
+      if(container.sceneId){
+        editor.mergewin.show(container.sceneId, versions[0], versions[1]);
+      }
+    }else{
+      alert("please select at least two versions.");
+    }
   } );
 
   sceneControlRow.add( retrieveBtn );
@@ -44,7 +50,10 @@ var Versionwin = function ( editor ) {
     container.dom.style.display = "";
     if(sceneId){
       this.sceneId = sceneId;
-      this.loadVersions(sceneId);
+      this.loadVersions();
+    }else{
+      this.sceneId = editor.scene.uuid;
+      this.loadVersions();
     }
   };
 

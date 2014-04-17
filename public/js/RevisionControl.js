@@ -181,9 +181,7 @@ var RevisionControl = function(editor){
 
 	this.retrieve = function(sceneId, versionNum) {
 		var scope = this;
-		// sceneId = "D295CF6E-F268-48BB-A72B-35B9E0808BC9";
-		// versionNum = prompt("choose the version to retrive:","");
-		//versionNum = 4;
+
 		//save scene
 		var formData = new FormData();  
 
@@ -244,6 +242,34 @@ var RevisionControl = function(editor){
 				var result = JSON.parse(xhr.responseText);
 				currentVersion = result.versionNum;
 				commitable = true; // allow for committing
+			} else {
+			  alert('An error occurred!');
+			}
+		};
+
+		// Send the Data.
+		xhr.send(formData);
+	};
+
+	this.merge = function(sceneId, versionA, versionB, versionC, callback) {
+		var scope = this;
+
+		//save scene
+		var formData = new FormData();  
+
+		// Set up the request.
+		var xhr = new XMLHttpRequest();
+
+		// Open the connection.
+		xhr.open('GET', 'merge?sceneId=' + sceneId + '&versionA=' + versionA + '&versionB=' + versionB + '&versionC=' +versionC, true);
+
+		// Set up a handler for when the request finishes.
+		xhr.onload = function () {
+			if (xhr.status === 200 && xhr.readyState === 4) {
+
+				var scene = JSON.parse(xhr.responseText).scene;
+
+				
 			} else {
 			  alert('An error occurred!');
 			}

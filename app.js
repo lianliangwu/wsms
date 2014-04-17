@@ -37,6 +37,7 @@ app.get('/getAllScenes', routes.getAllScenes);
 app.get('/getAllVersions', rc.getAllVersions);
 app.get('/retrieve', rc.retrieve);
 app.post('/commit', rc.commit);
+app.get('/merge', rc.merge);
 
 http.createServer(app).listen(app.get('port'), function(){
   console.log('Express server listening on port ' + app.get('port'));

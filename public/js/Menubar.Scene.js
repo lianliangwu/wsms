@@ -35,7 +35,7 @@ Menubar.Scene = function ( editor ) {
 	option.setTextContent( 'Retrieve' );
 	option.onClick( function () {
 
-		editor.revCon.retrieve();
+		editor.versionwin.show();
 
 	} );
 	options.add( option );

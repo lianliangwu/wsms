@@ -135,6 +135,9 @@ var diff = function(versionA, versionB, versionNum) {
 	return deltaNodes;
 };
 
+/**
+ * retrieve all the nodes according to nodeMap
+ */
 var retrieveSceneNodes = function(sceneId, versionNum, callback) {
 	var nodes = [];
 	var count = 0;
@@ -166,6 +169,10 @@ var retrieveSceneNodes = function(sceneId, versionNum, callback) {
 			}
 		}
 	});
+};
+
+var threeWayMerge = function(versionA, versionB, ancestor, callback) {
+	
 };
 
 exports.getAllVersions = function(req, res) {
@@ -205,6 +212,34 @@ exports.retrieve = function(req, res) {
 			'scene': scene
 		});
 	})
+};
+
+exports.merge = function(req, res) {
+	var sceneId = req.query.sceneId;
+	var versionA = req.query.versionA;
+	var versionB = req.query.versionB;
+	var versionC = req.query.versionC; // ancestor version
+
+	var temp;
+	if (versionC > versionA){
+		temp = versionA;
+		versionA = versionC;
+		versionC = temp;
+	}
+	if (versionC > versionB){
+		temp = versionB;
+		versionB = versionC;
+		versionC = temp;
+	}
+	
+	var scene = threeWayMerge(versionA, versionB, versionC, function(err, scene, infoList){
+		res.send({
+			'success': true,
+			'scene': scene,
+			'infoList': infoList
+		});
+	});
+
 };
 
 exports.commit = function(req, res) {
@@ -317,10 +352,7 @@ exports.commit = function(req, res) {
 						'errInfo': 'no change to be committed'
 					});
 				}
-
 			});
-
 		});
-
 	}
 }
