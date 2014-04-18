@@ -1,7 +1,10 @@
+/*
+ * wzhscript 2014.4.18
+**/
 var Scene = require('../models/scene.js');
 var SNode = require('../models/sNode.js');
 var RNode = require('../models/rNode.js');
-var VNode = require('../models/vNode.js');
+var maps = ['map', 'bumpMap', 'lightMap', 'normalMap', 'specularMap', 'envMap'];
 
 var getSceneFromNodes = function(nodes, rootId) {
 	var scene = {};
@@ -171,8 +174,328 @@ var retrieveSceneNodes = function(sceneId, versionNum, callback) {
 	});
 };
 
-var threeWayMerge = function(versionA, versionB, ancestor, callback) {
-	
+var threeWayMerge = function(nodesA, nodesB, nodesC, callback) {
+	var nodeMapA = {}, nodeMapB = {}, nodeMapC = {};
+	var nodesD = [];
+	var ids = [];
+	var infoMap = {};
+	var currentLog;
+
+	var nodeCmp = function(nodeA, nodeB) {
+		var str1 = nodeA.data;
+		var str2 = nodeB.data;
+
+		return str1 === str2 ? true : false;
+	};	
+	var valueCmp = function(keyA, keyB){
+		var str1 = keyA + "";
+		var str2 = keyB + "";
+
+		return str1 === str2 ? true : false;
+	};
+
+	var dependencyMerge = function(nodeA, nodeB, nodeC, nodeD) {
+		var refMapA, refMapB, refMapC;
+		var childrenA = nodeA.children;
+		var childrenB = nodeB.children;
+		var childrenC = nodeC.children;
+		var childrenD = nodeD.children;
+
+		//check if the subgraph has been modified, comparing with version C 
+		var checkModified = function(nodeMap, uuid) {
+			if(nodeCmp(nodeMap[uuid], nodeMapC[uuid])){
+				var node = JSON.parse(nodeMap[uuid].data);
+				var nodeC = JSON.parse(nodeMapC[uuid].data);
+
+				//object 
+				var children = node.children;
+				if(typeof children !== 'undefined'){
+					children.forEach(function onEach(ref) {
+						if(!checkModified(nodeMap, ref)){
+							return false;
+						}
+					});
+				}
+				// geometry, material and texture 
+				if(node.type === 'Mesh'){
+					if(!nodeCmp(nodeMap[node.geometry], nodeMapC[node.geometry])){
+						return false;
+					}
+					if(!nodeCmp(nodeMap[node.material], nodeMapC[node.material])){
+						return false;
+					}
+
+					//texture diff
+					var material = JSON.parse(nodeMap[node.material].data);
+					var materialC = JSON.parse(nodeMapC[node.material].data);
+					maps.forEach(function (map){
+						var ref = material[map];
+						if(typeof ref !== 'undefined'){
+							if(!nodeCmp(nodeMap[ref], nodeMapC[ref])){
+								return false;
+							}
+						}
+					});
+				}
+
+				return true;
+			}else{
+				return false;
+			}
+		};
+		//build reference map
+		childrenA.forEach(function onEach(ref) {
+			refMapA[ref] = true;
+		});
+		childrenB.forEach(function onEach(ref) {
+			refMapB[ref] = true;
+		});
+		childrenC.forEach(function onEach(ref) {
+			refMapC[ref] = true;
+		});
+
+		childrenA.forEach(function onEach(ref) {
+			if (refMapB[ref]){// case 1
+				childrenD.push(ref);
+			}
+			if (typeof refMapC[ref] === 'undefined'){// case 5
+				childrenD.push(ref);
+				// merge log
+				currentLog.subScenes.push({
+					'uuid':ref,
+					'versionA': 'added',
+					'versionB': 'unchanged',
+					'result': 'versionA',
+					'type': 'merged'
+				});
+			}
+		});
+		childrenB.forEach(function onEach(ref) {
+			if (typeof refMapC[ref] === 'undefined'){// case 6
+				childrenD.push(ref);
+				// merge log
+				currentLog.subScenes.push({
+					'uuid':ref,
+					'versionA': 'unchanged',
+					'versionB': 'added',
+					'result': 'versionB',
+					'type': 'merged'
+				});				
+			}
+		});
+		childrenC.forEach(function onEach(ref) {
+			if (typeof refMapA[ref] === 'undefined' && refMapB[ref]){// case 2
+				if(checkModified(nodeMapB, ref)){
+					//log conflict
+					//default choice
+					currentLog.subScenes.push({
+						'uuid':ref,
+						'versionA': 'removed',
+						'versionB': 'changed',
+						'result': 'versionA',
+						'type': 'conflicted'
+					});	
+					currentLog.isConflicted = true;
+				}else{
+					//log merge
+					//removed by A
+					currentLog.subScenes.push({
+						'uuid':ref,
+						'versionA': 'removed',
+						'versionB': 'unchanged',
+						'result': 'versionA',
+						'type': 'merged'
+					});	
+					currentLog.isMerged = true;
+				}
+			}
+			if(typeof refMapB[ref] === 'undefined' && refMapA[ref]){// case 3
+				if(checkModified(nodeMapA, ref)){
+					//log conflict
+					childrenD.push(ref);//default choice
+					currentLog.subScenes.push({
+						'uuid':ref,
+						'versionA': 'changed',
+						'versionB': 'removed',
+						'result': 'versionA',
+						'type': 'conflicted'
+					});	
+					currentLog.isConflicted = true;
+				}else{
+					//log merge
+					currentLog.subScenes.push({
+						'uuid':ref,
+						'versionA': 'unchanged',
+						'versionB': 'removed',
+						'result': 'versionA',
+						'type': 'merged'
+					});	
+					currentLog.isMerged = true;
+					//removed by B
+				}
+
+			}
+		});
+
+	};
+
+	var attrMerge = function(id) {
+		var keys = {};
+		var nodeA = JSON.parse(nodeMapA[id].data);
+		var nodeB = JSON.parse(nodeMapB[id].data);
+		var nodeC = JSON.parse(nodeMapC[id].data);
+		var nodeD = {};
+
+		// keys<- distinct {‘key' in nodeA, nodeB and nodeC}
+		for(var key in nodeA){
+			if (nodeA.hasOwnProperty(key) && (typeof keys[key] === 'undefined')){
+				keys[key] = true;
+			}
+		}
+		for(var key in nodeB){
+			if (nodeB.hasOwnProperty(key) && (typeof keys[key] === 'undefined')){
+				keys[key] = true;
+			}
+		}
+		for(var key in nodeC){
+			if (nodeC.hasOwnProperty(key) && (typeof keys[key] === 'undefined')){
+				keys[key] = true;
+			}
+		}
+
+		for(var key in keys){
+			if(kes.hasOwnProperty(key)){
+				if (valueCmp(nodeA[key], nodeB[key])){// case 1 , 2
+					nodeD[key] = nodeA[key];
+				}else if(valueCmp(nodeB[key], nodeC[key])){// case 3
+					nodeD[key] = nodeA[key];
+					
+					currentLog.attrLog.push({
+						'key': key,
+						'versionA': 'changed',
+						'versionB': 'unchanged',
+						'result': 'versionA',
+						'type': 'merged'
+					});
+					currentLog.isMerged = true;
+				}else if(valueCmp(nodeA[key], nodeC[key])){// case 4
+					nodeD[key] = nodeB[key];
+					
+					currentLog.attrLog.push({
+						'key': key,
+						'versionA': 'unchanged',
+						'versionB': 'changed',
+						'result': 'versionB',
+						'type':'merged'
+					});
+					currentLog.isMerged = true;
+				}else{// case 5
+					if(key === 'children'){
+						nodeD.children = [];
+						dependencyMerge(nodeA, nodeB, nodeC, nodeD);
+					}else{
+						nodeD[key] = nodeA[key];// default choice
+						
+						currentLog.attrLog.push({
+							'key': key,
+							'versionA': 'changed',
+							'versionB': 'changed',
+							'result': 'versionA',
+							'type': 'conflicted'							
+						});
+						currentLog.isConflicted = true;
+					}
+				}
+			}
+		}
+
+		var temp = nodeD;
+		nodeD = {
+			'uuid': nodeA.uuid,
+			'type': 'object',
+			'children': temp.children,
+			'data': JSON.stringify(temp)
+		};
+		return nodeD;
+
+	};
+
+	//build nodemap
+	nodesA.forEach(function onEach(node) {
+		nodeMapA[node.uuid] = node;
+	});
+
+	nodesB.forEach(function onEach(node) {
+		nodeMapB[node.uuid] = node;
+	});
+
+	nodesC.forEach(function onEach(node) {
+		nodeMapC[node.uuid] = node;
+	});
+
+	//ids <- distinct {'id' in (A N B)}
+	//nodesD <- (C - A)U(C - B)
+	nodesA.forEach(function onEach(node) {
+		var uuid = node.uuid;
+
+		if (typeof nodeMapB[uuid] !== 'undefined'){
+			ids.push(uuid);
+		}
+		if (typeof nodeMapC[uuid] === 'undefined'){
+			nodesD.push(node);
+		}
+	});
+
+	nodesB.forEach(function onEach(node){
+		var uuid = node.uuid;
+		if (typeof nodeMapC[uuid] === 'undefined'){
+			nodesD.push(node);
+		}
+	});
+
+	ids.forEach(function onEach(id){
+		infoMap[id] = {
+			isMerged: false,
+			isConflicted: false,
+			nodeLog:{},
+			attrLog:[],
+			subScenes:[]
+		};
+		currentLog = infoMap[id];
+
+		if(nodeCmp(nodeMapA[id], nodeMapB[id])){// case 1 and 2
+			nodesD.push(nodeMapA[id]);
+		}else if(nodeCmp(nodeMapB[id], nodeMapC[id])){// case 3
+			nodesD.push(attrMerge(id));
+			//merge log
+			currentLog.nodeLog = {
+				'uuid': id,
+				'versionA': 'changed',
+				'versionB': 'unchanged',
+				'result': 'versionA'
+			};
+		}else if(nodeCmp(nodeMapA[id], nodeMapC[id])){// case 4
+			nodesD.push(attrMerge(id));
+			//merge log
+			currentLog.nodeLog = {
+				'uuid': id,
+				'versionA': 'unchanged',
+				'versionB': 'changed',
+				'result': 'versionB'
+			};
+		}else{// case 5
+			nodesD.push(attrMerge(id));
+			//merge log
+			currentLog.nodeLog = {
+				'uuid': id,
+				'versionA': 'changed',
+				'versionB': 'changed',
+				'result': 'compound'
+			};
+		}
+	});
+
+	callback&&callback(null, nodesD, infoMap);
 };
 
 exports.getAllVersions = function(req, res) {
@@ -231,15 +554,49 @@ exports.merge = function(req, res) {
 		versionB = versionC;
 		versionC = temp;
 	}
-	
-	var scene = threeWayMerge(versionA, versionB, versionC, function(err, scene, infoList){
-		res.send({
-			'success': true,
-			'scene': scene,
-			'infoList': infoList
-		});
-	});
 
+	var nodesA, nodesB, nodesC;
+	retrieveSceneNodes(sceneId, versionA, function onEnd(err, nodes) {
+		if(!err){
+			nodesA = nodes;
+			if(nodesA && nodesB && nodesC){
+				merge();
+			}
+		}
+	});
+	retrieveSceneNodes(sceneId, versionB, function onEnd(err, nodes) {
+		if(!err){
+			nodesB = nodes;
+			if(nodesA && nodesB && nodesC){
+				merge();
+			}
+		}
+	});
+	retrieveSceneNodes(sceneId, versionC, function onEnd(err, nodes) {
+		if(!err){
+			nodesC = nodes;
+			if(nodesA && nodesB && nodesC){
+				merge();
+			}
+		}
+	});
+	
+	var merge = function() {
+		threeWayMerge(nodesA, nodesB, nodesC, function(err, nodesD, infoMap){
+			if(!err){
+				var sceneA = getSceneFromNodes(nodesA,sceneId);
+				var sceneB = getSceneFromNodes(nodesB,sceneId);
+				var mergedScene = getSceneFromNodes(nodesD,sceneId);
+				res.send({
+					'success': true,
+					'sceneA': sceneA,
+					'sceneB': sceneB,
+					'mergedScene': scene,
+					'infoMap': infoMap
+				});
+			}
+		});		
+	};
 };
 
 exports.commit = function(req, res) {

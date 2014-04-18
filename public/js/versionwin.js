@@ -28,7 +28,7 @@ var Versionwin = function ( editor ) {
     var versions = versionDag.getSelected();
     if(versions.length === 3){
       if(container.sceneId){
-        editor.mergewin.show(container.sceneId, versions[0], versions[1]);
+        editor.mergewin.show(container.sceneId, versions[0], versions[1]);V
       }
     }else{
       alert("please select at least two versions.");
