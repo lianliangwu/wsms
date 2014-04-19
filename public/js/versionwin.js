@@ -4,7 +4,7 @@ var Versionwin = function ( editor ) {
 
 
   var versionDag = new UI.DAG();
-  versionDag.setOverflow('scroll');
+ // versionDag.setOverflow('scroll');
 
   var sceneControlRow = new UI.Panel();
 
@@ -12,7 +12,7 @@ var Versionwin = function ( editor ) {
     var versions = versionDag.getSelected();
     if(versions.length === 1){
       if(container.sceneId){
-        editor.revCon.retrieve(container.sceneId, versions[0]);
+        editor.revCon.retrieve(container.sceneId, versions[0], editor.viewerwin.editor);
       }
     }else{
       alert("please select a single version.");

@@ -195,6 +195,11 @@ input.Number {
     width: 500px;
     height: 500px;
 }
+#viewerwin {
+    position: absolute;
+    width: 500px;
+    height: 500px;	
+}
 #toolbar {
 	position: absolute;
 	left: 0px;

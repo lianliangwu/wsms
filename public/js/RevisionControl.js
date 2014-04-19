@@ -179,9 +179,11 @@ var RevisionControl = function(editor){
 		return scene;
 	};
 
-	this.retrieve = function(sceneId, versionNum) {
+	this.retrieve = function(sceneId, versionNum, viewer) {
 		var scope = this;
-
+		if(!viewer){
+			viewer = editor;
+		}
 		//save scene
 		var formData = new FormData();  
 
@@ -200,9 +202,9 @@ var RevisionControl = function(editor){
 				scene = getThreeSG(scene);
 				var loader = new THREE.ObjectLoader();
 				var result = loader.parse( scene );
-				editor.setScene( result );
+				viewer.setScene( result );
 
-				editor.loadAssets();
+				viewer.loadAssets();
 				currentVersion = versionNum;
 				
 			} else {

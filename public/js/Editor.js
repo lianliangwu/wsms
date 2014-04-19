@@ -1,7 +1,7 @@
 var Editor = function () {
 
-	var SIGNALS = signals; // where did signals come from?
-
+	var SIGNALS = signals; 
+	
 	this.signals = {
 
 		// actions

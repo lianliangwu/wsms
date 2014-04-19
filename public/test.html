@@ -1,95 +1,35 @@
-<!doctype html>
+<html>
+  <head>
+    <title>My first Three.js app</title>
+    <style>canvas { width: 100%; height: 100% }</style>
+  </head>
+  <body>
+    <script src="js/libs/three.min.js"></script>
+    <script>
+      var scene = new THREE.Scene();
+      var camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
 
-<meta charset="utf-8">
-<title>Dagre D3 Renderer Demo</title>
+      var renderer = new THREE.WebGLRenderer();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      document.body.appendChild(renderer.domElement);
 
-<script src="js/libs/d3.js" charset="utf-8"></script>
-<script src="js/libs/dagre-d3.js"></script>
+      var geometry = new THREE.CubeGeometry(1,1,1);
+      var material = new THREE.MeshBasicMaterial({color: 0x00ff00});
+      var cube = new THREE.Mesh(geometry, material);
+      scene.add(cube);
 
-<style>
-svg {
-  border: 1px solid black;
-  overflow: hidden;
-}
+      camera.position.z = 5;
 
-text {
-  font-weight: 300;
-  font-family: "Helvetica Neue", Helvetica, Arial, sans-serf;
-  font-size: 10px;
-}
+      var render = function () {
+        requestAnimationFrame(render);
 
-.node rect {
-  stroke-width: 2px;
-  stroke: #333;
-  fill: #fff;
-}
+        cube.rotation.x += 0.1;
+        cube.rotation.y += 0.1;
 
-#node-CLOSED rect {
-  fill: #f77;
-}
+        renderer.render(scene, camera);
+      };
 
-#node-ESTAB rect {
-  fill: #7f7;
-}
-
-.edgeLabel rect {
-  fill: #fff;
-}
-
-.edgePath path {
-  stroke: #333;
-  stroke-width: 1.5px;
-  fill: none;
-}
-</style>
-
-<body onLoad="draw();">
-
-<svg width=650 height=680><g transform="translate(20,20)"/></svg>
-
-<script>
-// States and transitions from RFC 793
-var states = [ "CLOSED", "LISTEN", "SYN RCVD", "SYN SENT",
-               "ESTAB", "FINWAIT-1", "CLOSE WAIT", "FINWAIT-2",
-               "CLOSING", "LAST-ACK", "TIME WAIT" ]
-         .map(function(s) {
-            return { id: s, value: { label: s } };       
-         });
-var edges = [
-  { u: "CLOSED",     v: "LISTEN",     value: { label: "open" } },
-  { u: "LISTEN",     v: "SYN RCVD",   value: { label: "rcv SYN" } },
-  { u: "LISTEN",     v: "SYN SENT",   value: { label: "send" } },
-  { u: "LISTEN",     v: "CLOSED",     value: { label: "close" } },
-  { u: "SYN RCVD",   v: "FINWAIT-1",  value: { label: "close" } },
-  { u: "SYN RCVD",   v: "ESTAB",      value: { label: "rcv ACK of SYN" } },
-  { u: "SYN SENT",   v: "SYN RCVD",   value: { label: "rcv SYN" } },
-  { u: "SYN SENT",   v: "ESTAB",      value: { label: "rcv SYN, ACK" } },
-  { u: "SYN SENT",   v: "CLOSED",     value: { label: "close" } },
-  { u: "ESTAB",      v: "FINWAIT-1",  value: { label: "close" } },
-  { u: "ESTAB",      v: "CLOSE WAIT", value: { label: "rcv FIN" } },
-  { u: "FINWAIT-1",  v: "FINWAIT-2",  value: { label: "rcv ACK of FIN" } },
-  { u: "FINWAIT-1",  v: "CLOSING",    value: { label: "rcv FIN" } },
-  { u: "CLOSE WAIT", v: "LAST-ACK",   value: { label: "close" } },
-  { u: "FINWAIT-2",  v: "TIME WAIT",  value: { label: "rcv FIN" } },
-  { u: "CLOSING",    v: "TIME WAIT",  value: { label: "rcv ACK of FIN" } },
-  { u: "LAST-ACK",   v: "CLOSED",     value: { label: "rcv ACK of FIN" } },
-  { u: "TIME WAIT",  v: "CLOSED",     value: { label: "timeout=2MSL" } }
-];
-function draw(states, edges) {
-
-  var renderer = new dagreD3.Renderer();
-  var oldDrawNodes = renderer.drawNodes();
-  renderer.drawNodes(function(graph, root) {
-    var svgNodes = oldDrawNodes(graph, root);
-    svgNodes.attr("id", function(u) {
-      return "node-" + u; 
-    });
-    return svgNodes;
-  });
-  var layout = renderer.run(dagreD3.json.decode(states, edges), d3.select("svg g"));
-  d3.select("svg")
-    .attr("width", layout.graph().width + 40)
-    .attr("height", layout.graph().height + 40);
-}
-draw(states, edges);
-</script>
+      render();
+    </script>
+  </body>
+</html>

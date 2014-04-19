@@ -52,6 +52,17 @@ Menubar.Window = function ( editor ) {
 	} );
 	options.add( option );	
 
+	// viewer
+
+	var option = new UI.Panel();
+	option.setClass( 'option' );
+	option.setTextContent( 'Viewer Window' );
+	option.onClick( function () {
+
+		editor.viewerwin.show();
+
+	} );
+	options.add( option );	
 
 	return container;
 
