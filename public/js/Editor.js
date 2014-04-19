@@ -18,6 +18,7 @@ var Editor = function () {
 		rendererChanged: new SIGNALS.Signal(),
 
 		sceneReseted: new SIGNALS.Signal(),
+		sceneLoaded: new SIGNALS.Signal(),
 		sceneGraphChanged: new SIGNALS.Signal(),
 
 		cameraChanged: new SIGNALS.Signal(),
@@ -304,6 +305,7 @@ Editor.prototype = {
 
 		this.signals.sceneGraphChanged.active = true;
 		this.signals.sceneGraphChanged.dispatch();
+		this.signals.sceneLoaded.dispatch();
 
 	},
 

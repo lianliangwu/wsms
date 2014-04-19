@@ -6,6 +6,11 @@
 	  return el;
 	}	
 
+	function getNumber (value) {
+		var r = parseInt(value);
+		return isNaN(r) ? 0 : r;
+	}
+
 	function mouseX (e) {
 	  if (e.pageX) {
 	    return e.pageX;
@@ -168,8 +173,15 @@
 			dom.style.paddingBottom = "25px";
 			dom.style.border = "1px solid gray";
 			dom.style.backgroundColor = "#fff";
+			dom.style.position = "absolute";
 			dom.style.left = '10px';
 			dom.style.top = '32px';
+			dom.style.width = "500px";
+			dom.style.height = "500px";
+			dom.style.zIndex = String(this.getIndex());
+			dom.addEventListener('click', function onClick(event){
+				dom.style.zIndex = String(scope.getIndex());
+			}, false);
 
 			var head = document.createElement('div');
 			head.style.backgroundColor = "#eee";
@@ -314,7 +326,7 @@
 			}else{
 				this.preStatus = {
 					'width': this.dom.offsetWidth + 'px',
-					'height': this.dom.offsetHeight + 'px',
+					'height': this.dom.offsetHeight - this.head.offsetHeight - this.footer.offsetHeight + 'px',
 					'left': this.dom.style.left,
 					'top': this.dom.style.top
 				};
@@ -325,6 +337,7 @@
 				this.dom.style.top = "0px";
 			}
 			this.isMaxed = this.isMaxed ? false : true;
+
 			this.signals.windowResized.dispatch();
 			return this;
 		};		
@@ -348,21 +361,68 @@
 		};
 
 		Window.prototype.getWidth = function(){
-			return this.dom.offsetWidth - 2;
+			return this.dom.offsetWidth;
 		};
 
 		Window.prototype.getHeight = function(){
-			return this.dom.offsetHeight - this.head.offsetHeight - this.footer.offsetHeight;
+			return this.dom.offsetHeight;
 		};
 
 		Window.prototype.setWidth = function(width){
-			this.dom.style.width = width + 'px';
+			var borderL = getNumber(this.dom.style.borderLeftWidth);
+			var borderR = getNumber(this.dom.style.borderRightWidth);
+			var paddingL = getNumber(this.dom.style.paddingLeft);
+			var paddingR = getNumber(this.dom.style.paddingRight);
+
+			this.dom.style.width = width - borderL - borderR - paddingL - paddingR + 'px';
 			this.signals.windowResized.dispatch();
 		};
 		Window.prototype.setHeight = function(height){
-			this.dom.style.height = height + 'px';
+			var borderT = getNumber(this.dom.style.borderTopWidth);
+			var borderB = getNumber(this.dom.style.borderBottomWidth);
+			var paddingT = getNumber(this.dom.style.paddingTop);
+			var paddingB = getNumber(this.dom.style.paddingBottom);
+
+			this.dom.style.height = height - borderT - borderB - paddingT - paddingB + 'px';
 			this.signals.windowResized.dispatch();
 		};
+		Window.prototype.getInnerWidth = function(){
+			var borderL = getNumber(this.dom.style.borderLeftWidth);
+			var borderR = getNumber(this.dom.style.borderRightWidth);
+			var paddingL = getNumber(this.dom.style.paddingLeft);
+			var paddingR = getNumber(this.dom.style.paddingRight);
+
+			return this.getWidth() - borderL - borderR - paddingL - paddingR;			
+		};
+		Window.prototype.getInnerHeight = function(){
+			var borderT = getNumber(this.dom.style.borderTopWidth);
+			var borderB = getNumber(this.dom.style.borderBottomWidth);
+			var paddingT = getNumber(this.dom.style.paddingTop);
+			var paddingB = getNumber(this.dom.style.paddingBottom);
+
+			return this.getHeight() - borderT - borderB - paddingT - paddingB;
+		};
+		Window.prototype.setPosition = function(position){
+			if(position.top !== undefined){
+				this.dom.style.top = position.top;
+			}
+			if(position.left !== undefined){
+				this.dom.style.left = position.left;
+			}
+			if(position.bottom !== undefined){
+				this.dom.style.bottom = position.bottom;
+			}
+			if(position.right !== undefined){
+				this.dom.style.right = position.right;
+			}
+		};
+		Window.prototype.getIndex = function(){
+			var index = 0;//static variable 
+			return function(){
+				index++;
+				return index;
+			};
+		}();
 
 		return Window;
 	})();	
@@ -680,6 +740,10 @@
 			
 		} );
 
+		signals.sceneLoaded.add( function () {
+			loadAssets();
+		});
+
 		signals.sceneGraphChanged.add( function () {
 
 			render();
@@ -927,11 +991,71 @@
 
 		renderer.autoClear = false;
 		renderer.autoUpdateScene = false;	
+		renderer.setClearColor( '#aaaaaa' );		
 		dom.appendChild( renderer.domElement );
 
 		animate();
 
 		//
+		function loadAssets() {
+			var asset  = editor.asset;
+			var url;
+			editor.scene.traverse(function eachChild(child) {
+
+				if (editor.getObjectType(child) === 'Mesh'){
+
+					var assets = child.userData.assets;
+					for ( var type in assets ) {
+						if (assets.hasOwnProperty(type)){
+							switch(type){
+								case 'geometry':
+									asset.getGeoAsset(assets[type], function onEnd(geometry) {
+										setGeometry(geometry);
+									});	
+								break;
+								default:
+									asset.getImgAsset(assets[type].assetId, function onEnd(img, name) {
+										setTexture(type, img, name, assets[type]);
+									});
+								break;
+							}
+						}
+					}					
+					
+					var setGeometry = function(data){
+						var loader = new THREE.JSONLoader();
+						var result = loader.parse( data );
+						var geometry = result.geometry;
+
+
+						//change the mesh with new geometry and old material
+						geometry.uuid = child.geometry.uuid;
+						var mesh = new THREE.Mesh( geometry, child.material );
+						editor.addObject( mesh );
+
+						mesh.name = child.name;
+						mesh.applyMatrix(child.matrix);
+						mesh.uuid = child.uuid;
+						mesh.userData = child.userData;			
+						
+						editor.removeObject(child);			
+					}
+
+					var setTexture = function(type, img, name, uuid) {
+						var texture = new THREE.Texture( img );
+						var mapRow = editor.materialSiderbar.mapRow;
+						texture.sourceFile = name;
+						texture.needsUpdate = true;
+						texture.uuid = uuid;
+
+						editor.select(child);
+						mapRow.texture.setValue(texture);
+						mapRow.checkbox.setValue(true);
+						editor.materialSiderbar.update();
+					};
+				}
+			});
+		}		
 
 		function updateMaterials() {
 
@@ -992,8 +1116,12 @@
 		this.editor = editor;
 
 		this.render = function(width, height) {
-			renderer.setSize( width, height );
-			renderer.setClearColor( '#aaaaaa' );		
+			render();
+		};
+		this.resize = function(width, height) {
+			camera.aspect = width / height;
+			camera.updateProjectionMatrix();
+			renderer.setSize( width, height );	
 			render();
 		};
 

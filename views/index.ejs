@@ -57,14 +57,13 @@
 		<script src="js/Asset.js"></script>		
 		<script src="js/Config.js"></script>
 		<script src="js/Loader.js"></script>
-		<script src="js/Engine.js"></script>
-		<script src="js/Assetwin.js"></script>
-		<script src="js/Scenewin.js"></script>
-		<script src="js/Versionwin.js"></script>
-		<script src="js/Mergewin.js"></script>
-		<script src="js/Viewerwin.js"></script>	
-		<script src="js/Viewerwin2.js"></script>				
+		<script src="js/Engine.js"></script>			
 		<script src="js/RevisionControl.js"></script>
+		<script src="js/Window.AssetWin.js"></script>
+		<script src="js/Window.SceneWin.js"></script>
+		<script src="js/Window.VersionWin.js"></script>
+		<script src="js/Window.MergeWin.js"></script>
+		<script src="js/Window.ViewerWin.js"></script>			
 		<script src="js/Menubar.js"></script>
 		<script src="js/Menubar.File.js"></script>
 		<script src="js/Menubar.Scene.js"></script>		
@@ -112,25 +111,25 @@
 			var sidebar = new Sidebar( editor ).setId( 'sidebar' );
 			document.body.appendChild( sidebar.dom );
 			
-			var scenewin = new Scenewin( editor ).setId( 'scenewin' ); 
-			document.body.appendChild( scenewin.dom );
-			editor.scenewin = scenewin;
+			var sceneWin = new SceneWin( editor ).setId( 'sceneWin' ); 
+			document.body.appendChild( sceneWin.dom );
+			editor.sceneWin = sceneWin;
 
-			var assetwin = new Assetwin( editor ).setId( 'assetwin' ); 
-			document.body.appendChild( assetwin.dom );
-			editor.assetwin = assetwin;
+			var assetWin = new AssetWin( editor ).setId( 'assetWin' ); 
+			document.body.appendChild( assetWin.dom );
+			editor.assetWin = assetWin;
 
-			var versionwin = new Versionwin( editor ).setId( 'versionwin' ); 
-			document.body.appendChild( versionwin.dom );
-			editor.versionwin = versionwin;
+			var versionWin = new VersionWin( editor ).setId( 'versionWin' ); 
+			document.body.appendChild( versionWin.dom );
+			editor.versionWin = versionWin;
 
-			var mergewin = new Mergewin( editor ).setId( 'mergewin' ); 
-			document.body.appendChild( mergewin.dom );
-			editor.mergewin = mergewin;
+			var mergeWin = new MergeWin( editor ).setId( 'mergeWin' ); 
+			document.body.appendChild( mergeWin.dom );
+			editor.mergeWin = mergeWin;
 
-			var viewerwin = new Viewerwin(editor).setId('viewerwin');
-			document.body.appendChild( viewerwin.dom );
-			editor.viewerwin = viewerwin;
+			var viewerWin = new ViewerWin(editor).setId('viewerWin');
+			document.body.appendChild( viewerWin.dom );
+			editor.viewerWin = viewerWin;
 
 
 			editor.setTheme( editor.config.getKey( 'theme' ) );

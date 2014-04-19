@@ -1,4 +1,4 @@
-var Versionwin = function ( editor ) {
+var VersionWin = function ( editor ) {
 
   var container = new UI.Window("Version Viewer");
 
@@ -12,7 +12,11 @@ var Versionwin = function ( editor ) {
     var versions = versionDag.getSelected();
     if(versions.length === 1){
       if(container.sceneId){
-        editor.revCon.retrieve(container.sceneId, versions[0], editor.viewerwin.editor);
+        editor.revCon.retrieve(container.sceneId, versions[0], function onEnd(err, scene){
+          if(!err){
+            editor.setScene(scene);
+          }
+        });
       }
     }else{
       alert("please select a single version.");
@@ -28,8 +32,10 @@ var Versionwin = function ( editor ) {
     var versions = versionDag.getSelected();
     if(versions.length === 3){
       if(container.sceneId){
-        editor.mergewin.show(container.sceneId, versions[0], versions[1]);V
+        editor.mergeWin.show(container.sceneId, versions[0], versions[1], versions[2]);
       }
+    }else if(versions.length === 2){
+      alert('not supported yet!');
     }else{
       alert("please select at least two versions.");
     }

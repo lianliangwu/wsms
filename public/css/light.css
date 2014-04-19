@@ -146,60 +146,45 @@ input.Number {
 		font-size: 12px;
 	}
 
-#assetwin {
-    position: absolute;
-    width: 500px;
-    height: 500px;
-}
-#scenewin {
+#sceneWin {
     position: absolute;
     width: 600px;   
     z-index: 10;
 }
-	#scenewin #sceneSelect{
+	#sceneWin #sceneSelect{
 		height: 200px;
 		width: 90%;
 		margin: auto;
 		margin-top: 20px;
 	}
 
-#versionwin {
+#versionWin {
     position: absolute;
     width: 500px;
     z-index: 10;
 }
 
-	#versionwin text {
+	#versionWin text {
 	  font-weight: 300;
 	  font-family: "Helvetica Neue", Helvetica, Arial, sans-serf;
 	  font-size: 10px;
 	}
 
-	#versionwin .node rect {
+	#versionWin .node rect {
 	  stroke-width: 2px;
 	  stroke: #333;
 	  fill: #fff;
 	}
 
-	#versionwin .edgeLabel rect {
+	#versionWin .edgeLabel rect {
 	  fill: #fff;
 	}
 
-	#versionwin .edgePath path {
+	#versionWin .edgePath path {
 	  stroke: #333;
 	  stroke-width: 1.5px;
 	  fill: none;
 	}
-#mergewin {
-    position: absolute;
-    width: 500px;
-    height: 500px;
-}
-#viewerwin {
-    position: absolute;
-    width: 500px;
-    height: 500px;	
-}
 #toolbar {
 	position: absolute;
 	left: 0px;

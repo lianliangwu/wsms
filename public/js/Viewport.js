@@ -238,8 +238,11 @@ var Viewport = function ( editor ) {
 	signals.sceneReseted.add( function () {
 
 		scene = editor.scene;
-		
 	} );
+
+	signals.sceneLoaded.add( function () {
+		loadAssets();
+	});
 
 	signals.sceneGraphChanged.add( function () {
 
@@ -511,6 +514,65 @@ var Viewport = function ( editor ) {
 	animate();
 
 	//
+	function loadAssets() {
+		var asset  = editor.asset;
+		var url;
+		editor.scene.traverse(function eachChild(child) {
+
+			if (editor.getObjectType(child) === 'Mesh'){
+
+				var assets = child.userData.assets;
+				for ( var type in assets ) {
+					if (assets.hasOwnProperty(type)){
+						switch(type){
+							case 'geometry':
+								asset.getGeoAsset(assets[type], function onEnd(geometry) {
+									setGeometry(geometry);
+								});	
+							break;
+							default:
+								asset.getImgAsset(assets[type].assetId, function onEnd(img, name) {
+									setTexture(type, img, name, assets[type]);
+								});
+							break;
+						}
+					}
+				}					
+				
+				var setGeometry = function(data){
+					var loader = new THREE.JSONLoader();
+					var result = loader.parse( data );
+					var geometry = result.geometry;
+
+
+					//change the mesh with new geometry and old material
+					geometry.uuid = child.geometry.uuid;
+					var mesh = new THREE.Mesh( geometry, child.material );
+					editor.addObject( mesh );
+
+					mesh.name = child.name;
+					mesh.applyMatrix(child.matrix);
+					mesh.uuid = child.uuid;
+					mesh.userData = child.userData;			
+					
+					editor.removeObject(child);			
+				}
+
+				var setTexture = function(type, img, name, uuid) {
+					var texture = new THREE.Texture( img );
+					var mapRow = editor.materialSiderbar.mapRow;
+					texture.sourceFile = name;
+					texture.needsUpdate = true;
+					texture.uuid = uuid;
+
+					editor.select(child);
+					mapRow.texture.setValue(texture);
+					mapRow.checkbox.setValue(true);
+					editor.materialSiderbar.update();
+				};
+			}
+		});
+	}
 
 	function updateInfo() {
 

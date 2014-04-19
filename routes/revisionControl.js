@@ -38,7 +38,7 @@ var getSceneFromNodes = function(nodes, rootId) {
 		var children = object.children;
 		var i, l, tempObject, tempId;
 
-		if(typeof children !== 'undefined'){
+		if( children !== undefined){
 			for (i = 0, l = children.length; i < l; i++) {
 				tempId = children[i];
 				tempObject = JSON.parse(nodeMap[tempId].data);
@@ -73,7 +73,7 @@ var getNodesFromScene = function(scene) {
 
 	//translate scene tree into object nodes recursively
 	var getObject = function(object) {
-		if(typeof object.children !== 'undefined'){
+		if( object.children !== undefined){
 			var children = object.children;
 			var i, l, tempId;
 
@@ -95,7 +95,7 @@ var getNodesFromScene = function(scene) {
 		addNode(e, 'material');
 	});
 	scene.textures.forEach(function each(e) {
-		addNode(e, 'texture')
+		addNode(e, 'texture');
 	});
 
 	return nodes;
@@ -121,8 +121,8 @@ var diff = function(versionA, versionB, versionNum) {
 		mapA[e.uuid] = e;
 	});
 
-	versionB.forEach(function each(e, index, array) {
-		if(typeof mapA[e.uuid] === 'undefined'){
+	versionB.forEach(function each(e) {
+		if( mapA[e.uuid] === undefined){
 			e.versionNum = versionNum;
 			deltaNodes.push(e);
 		}else{
@@ -150,25 +150,27 @@ var retrieveSceneNodes = function(sceneId, versionNum, callback) {
 		'versionNum': versionNum
 	},function onEnd(err, rNode) {
 		var nodeMap = JSON.parse(rNode.nodeMap);
+		var uuid;
+		var result = function(err, node) {
+			if (err){
+				console.log("find snode err "+ err);
+			}
 
-		for ( var uuid in nodeMap ) {
+			nodes.push(node);
+			count--;
+
+			if(count === 0){
+				callback&&callback(null, nodes);
+			}
+		}; 
+
+		for ( uuid in nodeMap ) {
 			if (nodeMap.hasOwnProperty(uuid)){
 				count++;
 				SNode.findOne({
 					"uuid": uuid,
 					"versionNum": nodeMap[uuid]
-				}, function onEnd(err, node) {
-					if (err){
-						console.log("find snode err "+ err);
-					}
-
-					nodes.push(node);
-					count--;
-
-					if(count === 0){
-						callback&&callback(null, nodes);
-					}
-				});
+				}, result);
 			}
 		}
 	});
@@ -188,14 +190,14 @@ var threeWayMerge = function(nodesA, nodesB, nodesC, callback) {
 		return str1 === str2 ? true : false;
 	};	
 	var valueCmp = function(keyA, keyB){
-		var str1 = keyA + "";
-		var str2 = keyB + "";
+		var str1 = String(keyA);
+		var str2 = String(keyB);
 
 		return str1 === str2 ? true : false;
 	};
 
 	var dependencyMerge = function(nodeA, nodeB, nodeC, nodeD) {
-		var refMapA, refMapB, refMapC;
+		var refMapA = {}, refMapB = {}, refMapC = {};
 		var childrenA = nodeA.children;
 		var childrenB = nodeB.children;
 		var childrenC = nodeC.children;
@@ -209,7 +211,7 @@ var threeWayMerge = function(nodesA, nodesB, nodesC, callback) {
 
 				//object 
 				var children = node.children;
-				if(typeof children !== 'undefined'){
+				if(children !== undefined){
 					children.forEach(function onEach(ref) {
 						if(!checkModified(nodeMap, ref)){
 							return false;
@@ -227,10 +229,9 @@ var threeWayMerge = function(nodesA, nodesB, nodesC, callback) {
 
 					//texture diff
 					var material = JSON.parse(nodeMap[node.material].data);
-					var materialC = JSON.parse(nodeMapC[node.material].data);
 					maps.forEach(function (map){
 						var ref = material[map];
-						if(typeof ref !== 'undefined'){
+						if(ref !== undefined){
 							if(!nodeCmp(nodeMap[ref], nodeMapC[ref])){
 								return false;
 							}
@@ -239,9 +240,8 @@ var threeWayMerge = function(nodesA, nodesB, nodesC, callback) {
 				}
 
 				return true;
-			}else{
-				return false;
 			}
+				return false;
 		};
 		//build reference map
 		childrenA.forEach(function onEach(ref) {
@@ -258,7 +258,7 @@ var threeWayMerge = function(nodesA, nodesB, nodesC, callback) {
 			if (refMapB[ref]){// case 1
 				childrenD.push(ref);
 			}
-			if (typeof refMapC[ref] === 'undefined'){// case 5
+			if (refMapC[ref] === undefined){// case 5
 				childrenD.push(ref);
 				// merge log
 				currentLog.subScenes.push({
@@ -271,7 +271,7 @@ var threeWayMerge = function(nodesA, nodesB, nodesC, callback) {
 			}
 		});
 		childrenB.forEach(function onEach(ref) {
-			if (typeof refMapC[ref] === 'undefined'){// case 6
+			if ( refMapC[ref] === undefined){// case 6
 				childrenD.push(ref);
 				// merge log
 				currentLog.subScenes.push({
@@ -284,7 +284,7 @@ var threeWayMerge = function(nodesA, nodesB, nodesC, callback) {
 			}
 		});
 		childrenC.forEach(function onEach(ref) {
-			if (typeof refMapA[ref] === 'undefined' && refMapB[ref]){// case 2
+			if ( refMapA[ref] === undefined && refMapB[ref]){// case 2
 				if(checkModified(nodeMapB, ref)){
 					//log conflict
 					//default choice
@@ -309,7 +309,7 @@ var threeWayMerge = function(nodesA, nodesB, nodesC, callback) {
 					currentLog.isMerged = true;
 				}
 			}
-			if(typeof refMapB[ref] === 'undefined' && refMapA[ref]){// case 3
+			if( refMapB[ref] === undefined && refMapA[ref]){// case 3
 				if(checkModified(nodeMapA, ref)){
 					//log conflict
 					childrenD.push(ref);//default choice
@@ -345,50 +345,61 @@ var threeWayMerge = function(nodesA, nodesB, nodesC, callback) {
 		var nodeB = JSON.parse(nodeMapB[id].data);
 		var nodeC = JSON.parse(nodeMapC[id].data);
 		var nodeD = {};
+		var key;
 
 		// keys<- distinct {‘key' in nodeA, nodeB and nodeC}
-		for(var key in nodeA){
-			if (nodeA.hasOwnProperty(key) && (typeof keys[key] === 'undefined')){
+		for(key in nodeA){
+			if (nodeA.hasOwnProperty(key) && ( keys[key] === undefined)){
 				keys[key] = true;
 			}
 		}
-		for(var key in nodeB){
-			if (nodeB.hasOwnProperty(key) && (typeof keys[key] === 'undefined')){
+		for(key in nodeB){
+			if (nodeB.hasOwnProperty(key) && ( keys[key] === undefined)){
 				keys[key] = true;
 			}
 		}
-		for(var key in nodeC){
-			if (nodeC.hasOwnProperty(key) && (typeof keys[key] === 'undefined')){
+		for(key in nodeC){
+			if (nodeC.hasOwnProperty(key) && ( keys[key] === undefined)){
 				keys[key] = true;
 			}
 		}
 
-		for(var key in keys){
-			if(kes.hasOwnProperty(key)){
+		for(key in keys){
+			if(keys.hasOwnProperty(key)){
 				if (valueCmp(nodeA[key], nodeB[key])){// case 1 , 2
 					nodeD[key] = nodeA[key];
 				}else if(valueCmp(nodeB[key], nodeC[key])){// case 3
-					nodeD[key] = nodeA[key];
-					
-					currentLog.attrLog.push({
-						'key': key,
-						'versionA': 'changed',
-						'versionB': 'unchanged',
-						'result': 'versionA',
-						'type': 'merged'
-					});
-					currentLog.isMerged = true;
+					if(key === 'children'){
+						nodeD.children = [];
+						dependencyMerge(nodeA, nodeB, nodeC, nodeD);
+					}else{
+						nodeD[key] = nodeA[key];
+						
+						currentLog.attrLog.push({
+							'key': key,
+							'versionA': 'changed',
+							'versionB': 'unchanged',
+							'result': 'versionA',
+							'type': 'merged'
+						});
+						currentLog.isMerged = true;
+					}
 				}else if(valueCmp(nodeA[key], nodeC[key])){// case 4
-					nodeD[key] = nodeB[key];
-					
-					currentLog.attrLog.push({
-						'key': key,
-						'versionA': 'unchanged',
-						'versionB': 'changed',
-						'result': 'versionB',
-						'type':'merged'
-					});
-					currentLog.isMerged = true;
+					if(key === 'children'){
+						nodeD.children = [];
+						dependencyMerge(nodeA, nodeB, nodeC, nodeD);
+					}else{
+						nodeD[key] = nodeB[key];
+						
+						currentLog.attrLog.push({
+							'key': key,
+							'versionA': 'unchanged',
+							'versionB': 'changed',
+							'result': 'versionB',
+							'type':'merged'
+						});
+						currentLog.isMerged = true;
+					}					
 				}else{// case 5
 					if(key === 'children'){
 						nodeD.children = [];
@@ -438,17 +449,17 @@ var threeWayMerge = function(nodesA, nodesB, nodesC, callback) {
 	nodesA.forEach(function onEach(node) {
 		var uuid = node.uuid;
 
-		if (typeof nodeMapB[uuid] !== 'undefined'){
+		if ( nodeMapB[uuid] !== undefined){
 			ids.push(uuid);
 		}
-		if (typeof nodeMapC[uuid] === 'undefined'){
+		if ( nodeMapC[uuid] === undefined){
 			nodesD.push(node);
 		}
 	});
 
 	nodesB.forEach(function onEach(node){
 		var uuid = node.uuid;
-		if (typeof nodeMapC[uuid] === 'undefined'){
+		if ( nodeMapC[uuid] === undefined){
 			nodesD.push(node);
 		}
 	});
@@ -534,7 +545,7 @@ exports.retrieve = function(req, res) {
 			'success': true,
 			'scene': scene
 		});
-	})
+	});
 };
 
 exports.merge = function(req, res) {
@@ -542,6 +553,24 @@ exports.merge = function(req, res) {
 	var versionA = req.query.versionA;
 	var versionB = req.query.versionB;
 	var versionC = req.query.versionC; // ancestor version
+	var nodesA, nodesB, nodesC;
+
+	var merge = function() {
+		threeWayMerge(nodesA, nodesB, nodesC, function(err, nodesD, infoMap){
+			if(!err){
+				var sceneA = getSceneFromNodes(nodesA,sceneId);
+				var sceneB = getSceneFromNodes(nodesB,sceneId);
+				var mergedScene = getSceneFromNodes(nodesD,sceneId);
+				res.send({
+					'success': true,
+					'sceneA': sceneA,
+					'sceneB': sceneB,
+					'mergedScene': mergedScene,
+					'infoMap': infoMap
+				});
+			}
+		});		
+	};
 
 	var temp;
 	if (versionC > versionA){
@@ -555,7 +584,6 @@ exports.merge = function(req, res) {
 		versionC = temp;
 	}
 
-	var nodesA, nodesB, nodesC;
 	retrieveSceneNodes(sceneId, versionA, function onEnd(err, nodes) {
 		if(!err){
 			nodesA = nodes;
@@ -580,23 +608,6 @@ exports.merge = function(req, res) {
 			}
 		}
 	});
-	
-	var merge = function() {
-		threeWayMerge(nodesA, nodesB, nodesC, function(err, nodesD, infoMap){
-			if(!err){
-				var sceneA = getSceneFromNodes(nodesA,sceneId);
-				var sceneB = getSceneFromNodes(nodesB,sceneId);
-				var mergedScene = getSceneFromNodes(nodesD,sceneId);
-				res.send({
-					'success': true,
-					'sceneA': sceneA,
-					'sceneB': sceneB,
-					'mergedScene': scene,
-					'infoMap': infoMap
-				});
-			}
-		});		
-	};
 };
 
 exports.commit = function(req, res) {
@@ -712,4 +723,4 @@ exports.commit = function(req, res) {
 			});
 		});
 	}
-}
+};

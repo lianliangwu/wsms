@@ -179,11 +179,9 @@ var RevisionControl = function(editor){
 		return scene;
 	};
 
-	this.retrieve = function(sceneId, versionNum, viewer) {
+	this.retrieve = function(sceneId, versionNum, callback) {
 		var scope = this;
-		if(!viewer){
-			viewer = editor;
-		}
+
 		//save scene
 		var formData = new FormData();  
 
@@ -202,10 +200,9 @@ var RevisionControl = function(editor){
 				scene = getThreeSG(scene);
 				var loader = new THREE.ObjectLoader();
 				var result = loader.parse( scene );
-				viewer.setScene( result );
 
-				viewer.loadAssets();
 				currentVersion = versionNum;
+				callback&&callback(null, result);
 				
 			} else {
 			  alert('An error occurred!');
@@ -268,9 +265,20 @@ var RevisionControl = function(editor){
 		// Set up a handler for when the request finishes.
 		xhr.onload = function () {
 			if (xhr.status === 200 && xhr.readyState === 4) {
+				var loader = new THREE.ObjectLoader();
+				var result = JSON.parse(xhr.responseText);
+				var scene;
 
-				var scene = JSON.parse(xhr.responseText).scene;
+				scene = getThreeSG(result.sceneA);
+				result.sceneA = loader.parse( scene );
 
+				scene = getThreeSG(result.sceneB);
+				result.sceneB = loader.parse( scene );				
+
+				scene = getThreeSG(result.mergedScene);
+				result.mergedScene = loader.parse( scene );
+				
+				callback&&callback(null, result);
 				
 			} else {
 			  alert('An error occurred!');
