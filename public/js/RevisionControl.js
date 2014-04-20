@@ -100,9 +100,9 @@ var RevisionControl = function(editor){
 		return scene;
 	};
 	//get wsms SG from current scene
-	var getWSG = function() {
+	var getWSG = function(scene) {
 		var exporter = new THREE.ObjectExporter();
-		var scene = exporter.parse(editor.scene);
+		scene = exporter.parse(scene);
 		var geometries = scene.geometries;
 		var materials = scene.materials;
 		var textures = [];
@@ -213,20 +213,32 @@ var RevisionControl = function(editor){
 		xhr.send(formData);
 	};
 
-	this.commit = function() {
+	this.commit = function(preVersions, scene) {
 		if(!commitable){
 			console.log("unable to commit!");
 		}
-		commitable = false; //prevent user from committing
-		var scene = getWSG();
-		var uuid = scene.object.uuid;
+		//prevent user from committing
+		commitable = false; 
+
+		if(preVersions === undefined){
+			preVersions = [];
+			if( currentVersion >= 0){
+				preVersions.push(currentVersion);
+			}	
+		}
+
+		if(scene === undefined){
+			scene = editor.scene;			
+		}
+		wsg = getWSG(scene);
+		var uuid = wsg.object.uuid;
 		//save scene
 		var formData = new FormData();  
 
-		// Add the file to the request.
+		// Add requests.
 		formData.append('sceneId', uuid);
-		formData.append('preVersion', currentVersion);
-		formData.append('scene', JSON.stringify(scene));
+		formData.append('preVersions', JSON.stringify(preVersions));
+		formData.append('scene', JSON.stringify(wsg));
 
 		// Set up the request.
 		var xhr = new XMLHttpRequest();

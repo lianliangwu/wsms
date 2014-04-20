@@ -25,7 +25,7 @@ var SceneWin = function ( editor ) {
 		if(!uuid){
 			alert("no scene selected!")
 		}else{
-			editor.versionwin.show(sceneSelect.getValue());	
+			editor.versionWin.show(sceneSelect.getValue());	
 		}
 	} );
 	var removeBtn = new UI.Button( 'Remove Scene' ).setMarginLeft( '7px' ).onClick( function () {

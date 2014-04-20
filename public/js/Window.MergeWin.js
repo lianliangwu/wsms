@@ -3,12 +3,16 @@ var MergeWin = function ( editor ) {
 	var viewer = new UI.Viewer();
 	var sceneWinA = new ViewerWin();
 	var sceneWinB = new ViewerWin();
+	var mergeInfoWin;
+
 
 	document.body.appendChild( sceneWinA.dom );
 	document.body.appendChild( sceneWinB.dom );
 
 	container.add(viewer);
 	container.editor = viewer.editor;
+	container.hide();
+
 
 	container.signals.windowResized.add(function(){
 		viewer.resize(container.getWidth(), container.getHeight());
@@ -16,6 +20,42 @@ var MergeWin = function ( editor ) {
 	container.signals.windowOpened.add(function(){
 		viewer.resize(container.getWidth(), container.getHeight());
 	});
+
+	container.render = function(){
+		//viewer.render(container.getWidth(), container.getHeight());
+	};
+	container.setScene = function(scene){
+		viewer.editor.setScene(scene);
+	};
+	
+	container.show = function(sceneId, versionA, versionB, versionC) {
+		container.dom.style.display = "";
+		viewer.resize(container.getWidth(), container.getHeight());
+		if(sceneId && versionA && versionB){
+			var temp;
+			if (versionC > versionA){
+				temp = versionA;
+				versionA = versionC;
+				versionC = temp;
+			}
+			if (versionC > versionB){
+				temp = versionB;
+				versionB = versionC;
+				versionC = temp;
+			}			
+			editor.revCon.merge(sceneId, versionA, versionB, versionC, function(err, result) {
+
+				mergeInfoWin = new MergeInfoWin(versionA, versionB);
+				
+				mergeInfoWin.onCommit = function(){
+					editor.revCon.commit([versionA, versionB], viewer.editor.scene);
+				};
+				document.body.appendChild( mergeInfoWin.dom );
+
+				init(result.sceneA, result.sceneB, result.mergedScene, result.infoMap);
+			});
+		}
+	};
 
 	function init(sceneA, sceneB, mergedScene, infoMap){
 		var height = document.body.scrollHeight;
@@ -46,25 +86,10 @@ var MergeWin = function ( editor ) {
 		container.setWidth(width/3*2);
 		container.setHeight(height);				
 		viewer.editor.setScene(mergedScene);
-	};
 
-	container.render = function(){
-		//viewer.render(container.getWidth(), container.getHeight());
-	};
-	container.setScene = function(scene){
-		viewer.editor.setScene(scene);
-	};
-	container.hide();
-
-	container.show = function(sceneId, versionA, versionB, versionC) {
-		container.dom.style.display = "";
-		viewer.resize(container.getWidth(), container.getHeight());
-		if(sceneId && versionA && versionB){
-			editor.revCon.merge(sceneId, versionA, versionB, versionC, function(err, result) {
-				init(result.sceneA, result.sceneB, result.mergedScene, result.infoMap);
-			});
-		}
-	};
+		mergeInfoWin.setInfo(infoMap);
+		mergeInfoWin.show();
+	};	
 
 	return container;
 

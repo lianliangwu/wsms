@@ -6,6 +6,10 @@ var SNode = require('../models/sNode.js');
 var RNode = require('../models/rNode.js');
 var maps = ['map', 'bumpMap', 'lightMap', 'normalMap', 'specularMap', 'envMap'];
 
+function isArray(obj) {   
+  return Object.prototype.toString.call(obj) === '[object Array]';    
+}
+
 var getSceneFromNodes = function(nodes, rootId) {
 	var scene = {};
 	var nodeMap = {};
@@ -102,10 +106,10 @@ var getNodesFromScene = function(scene) {
 };
 
 /**
- * update nodes in versionB with the right versionNum
+ * update node in nodesB with the right versionNum
  * return the delta nodes
  */
-var diff = function(versionA, versionB, versionNum) {
+var diff = function(nodesA, nodesB, versionNum) {
 	var mapA = {};
 	var deltaNodes = [];
 
@@ -117,21 +121,38 @@ var diff = function(versionA, versionB, versionNum) {
 	};
 
 	//build node map
-	versionA.forEach(function each(e) {
-		mapA[e.uuid] = e;
+	nodesA.forEach(function each(e) {
+		if(mapA[e.uuid] === undefined){
+			mapA[e.uuid] = {};
+		}
+		mapA[e.uuid][e.versionNum] = e;
 	});
 
-	versionB.forEach(function each(e) {
-		if( mapA[e.uuid] === undefined){
-			e.versionNum = versionNum;
-			deltaNodes.push(e);
+	nodesB.forEach(function each(node) {
+		var versionMap = mapA[node.uuid];
+		var isChanged;
+
+		if( versionMap === undefined){
+			node.versionNum = versionNum;
+			deltaNodes.push(node);
 		}else{
-			if (!cmp(e, mapA[e.uuid])){
-				e.versionNum = versionNum;
-				deltaNodes.push(e);
-			}else{
-				e.versionNum = mapA[e.uuid].versionNum;
+			isChanged = true;
+
+			//compare with each version 
+			for(var key in versionMap){
+				if(versionMap.hasOwnProperty(key)){
+
+					if(cmp(node,versionMap[key])){
+						node.versionNum = key;
+						isChanged = false;
+					}
+				}
 			}
+
+			if(isChanged){
+				node.versionNum = versionNum;
+				deltaNodes.push(node);	
+			}		
 		}
 	});
 
@@ -141,16 +162,18 @@ var diff = function(versionA, versionB, versionNum) {
 /**
  * retrieve all the nodes according to nodeMap
  */
-var retrieveSceneNodes = function(sceneId, versionNum, callback) {
+var retrieveSceneNodes = function(sceneId, versionNums, callback) {
 	var nodes = [];
 	var count = 0;
 
-	RNode.findOne({
-		'sceneId': sceneId,
-		'versionNum': versionNum
-	},function onEnd(err, rNode) {
+	if(!isArray(versionNums)){
+		versionNums = [versionNums];
+	}
+	
+	var retrieveNodes = function(err, rNode){
 		var nodeMap = JSON.parse(rNode.nodeMap);
 		var uuid;
+
 		var result = function(err, node) {
 			if (err){
 				console.log("find snode err "+ err);
@@ -159,29 +182,43 @@ var retrieveSceneNodes = function(sceneId, versionNum, callback) {
 			nodes.push(node);
 			count--;
 
-			if(count === 0){
+			if(count === 0){// finish when no I/O request exists
 				callback&&callback(null, nodes);
 			}
 		}; 
 
 		for ( uuid in nodeMap ) {
 			if (nodeMap.hasOwnProperty(uuid)){
-				count++;
+				count++;//count I/O request 
 				SNode.findOne({
 					"uuid": uuid,
 					"versionNum": nodeMap[uuid]
 				}, result);
 			}
 		}
+	};
+
+	versionNums.forEach(function onEach(versionNum){
+		RNode.findOne({
+			'sceneId': sceneId,
+			'versionNum': versionNum
+		},retrieveNodes);		
 	});
+
 };
 
-var threeWayMerge = function(nodesA, nodesB, nodesC, callback) {
+var threeWayMerge = function(options, callback) {
 	var nodeMapA = {}, nodeMapB = {}, nodeMapC = {};
 	var nodesD = [];
 	var ids = [];
 	var infoMap = {};
 	var currentLog;
+	var nodesA = options.nodesA;
+	var nodesB = options.nodesB;
+	var nodesC = options.nodesC;
+	var versionA = options.strA;
+	var versionB = options.strB;
+	var log;
 
 	var nodeCmp = function(nodeA, nodeB) {
 		var str1 = nodeA.data;
@@ -202,6 +239,7 @@ var threeWayMerge = function(nodesA, nodesB, nodesC, callback) {
 		var childrenB = nodeB.children;
 		var childrenC = nodeC.children;
 		var childrenD = nodeD.children;
+		var log;
 
 		//check if the subgraph has been modified, comparing with version C 
 		var checkModified = function(nodeMap, uuid) {
@@ -261,51 +299,60 @@ var threeWayMerge = function(nodesA, nodesB, nodesC, callback) {
 			if (refMapC[ref] === undefined){// case 5
 				childrenD.push(ref);
 				// merge log
-				currentLog.subScenes.push({
+				log = {
 					'uuid':ref,
-					'versionA': 'added',
-					'versionB': 'unchanged',
-					'result': 'versionA',
+					'result': versionA,
 					'type': 'merged'
-				});
+				};
+				log[versionA] = 'added';
+				log[versionB] = 'unchanged';
+
+				currentLog.subScene.push(log);
 			}
 		});
 		childrenB.forEach(function onEach(ref) {
 			if ( refMapC[ref] === undefined){// case 6
 				childrenD.push(ref);
 				// merge log
-				currentLog.subScenes.push({
+				log = {
 					'uuid':ref,
-					'versionA': 'unchanged',
-					'versionB': 'added',
-					'result': 'versionB',
+					'result': versionB,
 					'type': 'merged'
-				});				
+				};
+				log[versionA] = 'unchanged';
+				log[versionB] = 'added';	
+							
+				currentLog.subScene.push(log);				
 			}
 		});
 		childrenC.forEach(function onEach(ref) {
+
 			if ( refMapA[ref] === undefined && refMapB[ref]){// case 2
 				if(checkModified(nodeMapB, ref)){
 					//log conflict
 					//default choice
-					currentLog.subScenes.push({
+					log = {
 						'uuid':ref,
-						'versionA': 'removed',
-						'versionB': 'changed',
-						'result': 'versionA',
+						'result': versionA,
 						'type': 'conflicted'
-					});	
+					};
+					log[versionA] = 'removed';
+					log[versionB] = 'changed';
+
+					currentLog.subScene.push(log);	
 					currentLog.isConflicted = true;
 				}else{
 					//log merge
 					//removed by A
-					currentLog.subScenes.push({
+					log = {
 						'uuid':ref,
-						'versionA': 'removed',
-						'versionB': 'unchanged',
-						'result': 'versionA',
+						'result': versionA,
 						'type': 'merged'
-					});	
+					};
+					log[versionA] = 'removed';
+					log[versionB] = 'unchanged';	
+
+					currentLog.subScene.push(log);	
 					currentLog.isMerged = true;
 				}
 			}
@@ -313,23 +360,26 @@ var threeWayMerge = function(nodesA, nodesB, nodesC, callback) {
 				if(checkModified(nodeMapA, ref)){
 					//log conflict
 					childrenD.push(ref);//default choice
-					currentLog.subScenes.push({
+
+					log = {
 						'uuid':ref,
-						'versionA': 'changed',
-						'versionB': 'removed',
-						'result': 'versionA',
+						'result': versionA,
 						'type': 'conflicted'
-					});	
+					};
+					log[versionA] = 'changed';
+					log[versionB] = 'removed';					
+					currentLog.subScene.push(log);	
 					currentLog.isConflicted = true;
 				}else{
 					//log merge
-					currentLog.subScenes.push({
+					log = {
 						'uuid':ref,
-						'versionA': 'unchanged',
-						'versionB': 'removed',
-						'result': 'versionA',
+						'result': versionA,
 						'type': 'merged'
-					});	
+					};
+					log[versionA] = 'unchanged';
+					log[versionB] = 'removed';
+					currentLog.subScene.push(log);	
 					currentLog.isMerged = true;
 					//removed by B
 				}
@@ -346,6 +396,7 @@ var threeWayMerge = function(nodesA, nodesB, nodesC, callback) {
 		var nodeC = JSON.parse(nodeMapC[id].data);
 		var nodeD = {};
 		var key;
+		var log;
 
 		// keys<- distinct {‘key' in nodeA, nodeB and nodeC}
 		for(key in nodeA){
@@ -374,14 +425,15 @@ var threeWayMerge = function(nodesA, nodesB, nodesC, callback) {
 						dependencyMerge(nodeA, nodeB, nodeC, nodeD);
 					}else{
 						nodeD[key] = nodeA[key];
-						
-						currentLog.attrLog.push({
-							'key': key,
-							'versionA': 'changed',
-							'versionB': 'unchanged',
-							'result': 'versionA',
+
+						log = {
+							'key':key,
+							'result': versionA,
 							'type': 'merged'
-						});
+						};
+						log[versionA] = 'changed';
+						log[versionB] = 'unchanged';						
+						currentLog.attrLog.push(log);
 						currentLog.isMerged = true;
 					}
 				}else if(valueCmp(nodeA[key], nodeC[key])){// case 4
@@ -390,14 +442,16 @@ var threeWayMerge = function(nodesA, nodesB, nodesC, callback) {
 						dependencyMerge(nodeA, nodeB, nodeC, nodeD);
 					}else{
 						nodeD[key] = nodeB[key];
-						
-						currentLog.attrLog.push({
-							'key': key,
-							'versionA': 'unchanged',
-							'versionB': 'changed',
-							'result': 'versionB',
-							'type':'merged'
-						});
+
+						log = {
+							'key':key,
+							'result': versionB,
+							'type': 'merged'
+						};
+						log[versionA] = 'unchanged';
+						log[versionB] = 'changed';
+
+						currentLog.attrLog.push(log);
 						currentLog.isMerged = true;
 					}					
 				}else{// case 5
@@ -406,14 +460,16 @@ var threeWayMerge = function(nodesA, nodesB, nodesC, callback) {
 						dependencyMerge(nodeA, nodeB, nodeC, nodeD);
 					}else{
 						nodeD[key] = nodeA[key];// default choice
-						
-						currentLog.attrLog.push({
-							'key': key,
-							'versionA': 'changed',
-							'versionB': 'changed',
-							'result': 'versionA',
-							'type': 'conflicted'							
-						});
+
+						log = {
+							'key':key,
+							'result': versionA,
+							'type': 'conflicted'
+						};
+						log[versionA] = 'changed';
+						log[versionB] = 'changed';
+
+						currentLog.attrLog.push(log);
 						currentLog.isConflicted = true;
 					}
 				}
@@ -470,7 +526,7 @@ var threeWayMerge = function(nodesA, nodesB, nodesC, callback) {
 			isConflicted: false,
 			nodeLog:{},
 			attrLog:[],
-			subScenes:[]
+			subScene:[]
 		};
 		currentLog = infoMap[id];
 
@@ -481,28 +537,29 @@ var threeWayMerge = function(nodesA, nodesB, nodesC, callback) {
 			//merge log
 			currentLog.nodeLog = {
 				'uuid': id,
-				'versionA': 'changed',
-				'versionB': 'unchanged',
-				'result': 'versionA'
+				'result': versionA
 			};
+			currentLog.nodeLog[versionA] = 'changed';
+			currentLog.nodeLog[versionB] = 'unchanged';	
+
 		}else if(nodeCmp(nodeMapA[id], nodeMapC[id])){// case 4
 			nodesD.push(attrMerge(id));
 			//merge log
 			currentLog.nodeLog = {
 				'uuid': id,
-				'versionA': 'unchanged',
-				'versionB': 'changed',
-				'result': 'versionB'
+				'result': versionB
 			};
+			currentLog.nodeLog[versionA] = 'unchanged';
+			currentLog.nodeLog[versionB] = 'changed';			
 		}else{// case 5
 			nodesD.push(attrMerge(id));
 			//merge log
 			currentLog.nodeLog = {
 				'uuid': id,
-				'versionA': 'changed',
-				'versionB': 'changed',
 				'result': 'compound'
 			};
+			currentLog.nodeLog[versionA] = 'changed';
+			currentLog.nodeLog[versionB] = 'changed';				
 		}
 	});
 
@@ -556,7 +613,14 @@ exports.merge = function(req, res) {
 	var nodesA, nodesB, nodesC;
 
 	var merge = function() {
-		threeWayMerge(nodesA, nodesB, nodesC, function(err, nodesD, infoMap){
+		var options = {
+			'nodesA': nodesA,
+			'nodesB': nodesB,
+			'nodesC': nodesC,
+			strA: 'Version' + versionA,
+			strB: 'Version' + versionB
+		};
+		threeWayMerge(options, function(err, nodesD, infoMap){
 			if(!err){
 				var sceneA = getSceneFromNodes(nodesA,sceneId);
 				var sceneB = getSceneFromNodes(nodesB,sceneId);
@@ -571,18 +635,6 @@ exports.merge = function(req, res) {
 			}
 		});		
 	};
-
-	var temp;
-	if (versionC > versionA){
-		temp = versionA;
-		versionA = versionC;
-		versionC = temp;
-	}
-	if (versionC > versionB){
-		temp = versionB;
-		versionB = versionC;
-		versionC = temp;
-	}
 
 	retrieveSceneNodes(sceneId, versionA, function onEnd(err, nodes) {
 		if(!err){
@@ -611,14 +663,14 @@ exports.merge = function(req, res) {
 };
 
 exports.commit = function(req, res) {
-	var preVersion = req.body.preVersion;
+	var preVersions = JSON.parse(req.body.preVersions);
 	var scene = JSON.parse(req.body.scene);
 	var sceneId = req.body.sceneId;
 
 	var nodes = getNodesFromScene(scene);
 	var deltaNodes, nodeMap = {};
 
-	if (preVersion < 0){//first commit
+	if (preVersions.length === 0){//first commit
 		deltaNodes = nodes;
 
 		//save scene info
@@ -673,7 +725,7 @@ exports.commit = function(req, res) {
 			scene.newestVersion = versionNum;
 
 
-			retrieveSceneNodes(sceneId, preVersion, function onEnd(err, preVersionNodes) {
+			retrieveSceneNodes(sceneId, preVersions, function onEnd(err, preVersionNodes) {
 				deltaNodes = diff(preVersionNodes, nodes, versionNum);
 
 				if(deltaNodes.length > 0){
@@ -701,7 +753,7 @@ exports.commit = function(req, res) {
 					RNode.create({
 						'sceneId': sceneId,
 						'versionNum': versionNum,
-						'prevs': [preVersion],
+						'prevs': preVersions,
 						'nodeMap': JSON.stringify(nodeMap)
 					}, function onEnd(err) {
 						if (err){

@@ -185,6 +185,43 @@ input.Number {
 	  stroke-width: 1.5px;
 	  fill: none;
 	}
+#mergeInforWin {
+	padding-left: 5px;
+	padding-right: 5px;
+	color: #888;
+}
+	#mergeInforWin .title{
+		font-size: 16px;
+		color: #333;
+	}
+	#mergeInforWin .head{
+		padding-left: 5px;
+		padding-right: 5px;
+		left: -5px;
+	}
+	#mergeInforWin .footer{
+		padding-left: 5px;
+		padding-right: 5px;
+		left: -5px;
+	}
+	#mergeInforWin .FancySelect{
+		margin: 5px 0px;
+	}
+	#mergeInforWin .FancySelect .option .merged{
+		color: green;
+	}
+	#mergeInforWin .FancySelect .option .conflicted{
+		color: red;
+	}
+	#mergeInforWin .FancySelect .option .modified{
+		color: blue;
+	}
+	#mergeInforWin .FancySelect .option span {
+		width: 33%;
+		display: inline-block;
+		overflow: hidden;
+		text-align: center;		
+	}
 #toolbar {
 	position: absolute;
 	left: 0px;

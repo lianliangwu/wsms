@@ -189,6 +189,7 @@
 			head.style.top = '0px';
 			head.style.width = '100%';
 			head.style.height = '30px';
+			head.className = 'head';
 
 			var title = document.createElement('span');
 			title.style.color = "#888";
@@ -205,6 +206,7 @@
 			footer.style.bottom = '0px';
 			footer.style.width = '100%';
 			footer.style.height = '25px';	
+			footer.className = 'footer'
 
 			var closeBtn = document.createElement('img');
 			closeBtn.src = "img/close.png";

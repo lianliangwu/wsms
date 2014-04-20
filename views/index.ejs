@@ -62,6 +62,7 @@
 		<script src="js/Window.AssetWin.js"></script>
 		<script src="js/Window.SceneWin.js"></script>
 		<script src="js/Window.VersionWin.js"></script>
+		<script src="js/Window.MergeWin.MergeInfoWin.js"></script>		
 		<script src="js/Window.MergeWin.js"></script>
 		<script src="js/Window.ViewerWin.js"></script>			
 		<script src="js/Menubar.js"></script>
@@ -126,11 +127,6 @@
 			var mergeWin = new MergeWin( editor ).setId( 'mergeWin' ); 
 			document.body.appendChild( mergeWin.dom );
 			editor.mergeWin = mergeWin;
-
-			var viewerWin = new ViewerWin(editor).setId('viewerWin');
-			document.body.appendChild( viewerWin.dom );
-			editor.viewerWin = viewerWin;
-
 
 			editor.setTheme( editor.config.getKey( 'theme' ) );
 
