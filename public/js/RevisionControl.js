@@ -122,22 +122,6 @@ var RevisionControl = function(editor){
 			matMap[temp.uuid] = temp;
 		}
 
-		//build mesh map
-		var buildMeshMap = function(object) {
-			var i, l, children;
-			children = object.children;
-
-			if(object.type === "Mesh"){
-				meshMap[object.uuid] = object;
-			}
-			if(typeof children !== 'undefined'){
-				for(i = 0, l = children.length; i < l; i++){
-					buildMeshMap(children[i]);
-				}
-			}
-		};
-		buildMeshMap(scene.object);
-
 		var setGeometryNode = function(mesh, assetId) {
 			var geometry = geoMap[mesh.geometry];
 			geometry.data = {};
@@ -151,29 +135,60 @@ var RevisionControl = function(editor){
 		};	
 
 		//handle the assets info in userData
-		editor.scene.traverse(function eachChild(child) {
-		
-			if (editor.getObjectType(child) === 'Mesh'){
-				var mesh = meshMap[child.uuid];
-				var assets = child.userData.assets;
+		var handlUserData = function(object) {
+			var i, l, children;
+			children = object.children;
 
-				if(typeof assets !== 'undefined'){
+			if(object.type === "Mesh"){
+				var assets = object.userData.assets;
+
+				if(assets !== undefined){
 					for ( var type in assets ) {
 						if (assets.hasOwnProperty(type)){
 							switch(type){
 								case 'geometry':
-									setGeometryNode(mesh, assets[type]);
+									setGeometryNode(object, assets[type]);
 								break;
 								default:
-									setMaterialNode(mesh, type, assets[type]);
+									setMaterialNode(object, type, assets[type]);
 								break;
 							}
 						}
 					}
-					delete mesh.userData;					
+					delete object.userData;					
 				}
 			}
-		});
+			if(children !== undefined){
+				for(i = 0, l = children.length; i < l; i++){
+					handlUserData(children[i]);
+				}
+			}
+		};
+		handlUserData(scene.object);
+
+		// editor.scene.traverse(function eachChild(child) {
+		
+		// 	if (editor.getObjectType(child) === 'Mesh'){
+		// 		var mesh = meshMap[child.uuid];
+		// 		var assets = child.userData.assets;
+
+		// 		if(typeof assets !== 'undefined'){
+		// 			for ( var type in assets ) {
+		// 				if (assets.hasOwnProperty(type)){
+		// 					switch(type){
+		// 						case 'geometry':
+		// 							setGeometryNode(mesh, assets[type]);
+		// 						break;
+		// 						default:
+		// 							setMaterialNode(mesh, type, assets[type]);
+		// 						break;
+		// 					}
+		// 				}
+		// 			}
+		// 			delete mesh.userData;					
+		// 		}
+		// 	}
+		// });
 
 		scene.textures = textures;
 		return scene;
