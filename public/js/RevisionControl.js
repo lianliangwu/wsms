@@ -166,30 +166,6 @@ var RevisionControl = function(editor){
 		};
 		handlUserData(scene.object);
 
-		// editor.scene.traverse(function eachChild(child) {
-		
-		// 	if (editor.getObjectType(child) === 'Mesh'){
-		// 		var mesh = meshMap[child.uuid];
-		// 		var assets = child.userData.assets;
-
-		// 		if(typeof assets !== 'undefined'){
-		// 			for ( var type in assets ) {
-		// 				if (assets.hasOwnProperty(type)){
-		// 					switch(type){
-		// 						case 'geometry':
-		// 							setGeometryNode(mesh, assets[type]);
-		// 						break;
-		// 						default:
-		// 							setMaterialNode(mesh, type, assets[type]);
-		// 						break;
-		// 					}
-		// 				}
-		// 			}
-		// 			delete mesh.userData;					
-		// 		}
-		// 	}
-		// });
-
 		scene.textures = textures;
 		return scene;
 	};

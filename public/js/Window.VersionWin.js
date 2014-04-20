@@ -4,7 +4,7 @@ var VersionWin = function ( editor ) {
 
 
   var versionDag = new UI.DAG();
- // versionDag.setOverflow('scroll');
+  versionDag.setOverflow('scroll');
 
   var sceneControlRow = new UI.Panel();
 

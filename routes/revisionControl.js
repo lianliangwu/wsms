@@ -251,18 +251,18 @@ var threeWayMerge = function(options, callback) {
 				var children = node.children;
 				if(children !== undefined){
 					children.forEach(function onEach(ref) {
-						if(!checkModified(nodeMap, ref)){
-							return false;
+						if(checkModified(nodeMap, ref)){
+							return true;
 						}
 					});
 				}
 				// geometry, material and texture 
 				if(node.type === 'Mesh'){
 					if(!nodeCmp(nodeMap[node.geometry], nodeMapC[node.geometry])){
-						return false;
+						return true;
 					}
 					if(!nodeCmp(nodeMap[node.material], nodeMapC[node.material])){
-						return false;
+						return true;
 					}
 
 					//texture diff
@@ -271,15 +271,15 @@ var threeWayMerge = function(options, callback) {
 						var ref = material[map];
 						if(ref !== undefined){
 							if(!nodeCmp(nodeMap[ref], nodeMapC[ref])){
-								return false;
+								return true;
 							}
 						}
 					});
 				}
 
-				return true;
-			}
 				return false;
+			}
+				return true;
 		};
 		//build reference map
 		childrenA.forEach(function onEach(ref) {
@@ -308,6 +308,7 @@ var threeWayMerge = function(options, callback) {
 				log[versionB] = 'unchanged';
 
 				currentLog.subScene.push(log);
+				currentLog.isMerged = true;
 			}
 		});
 		childrenB.forEach(function onEach(ref) {
@@ -322,7 +323,8 @@ var threeWayMerge = function(options, callback) {
 				log[versionA] = 'unchanged';
 				log[versionB] = 'added';	
 							
-				currentLog.subScene.push(log);				
+				currentLog.subScene.push(log);	
+				currentLog.isMerged = true;			
 			}
 		});
 		childrenC.forEach(function onEach(ref) {
@@ -555,11 +557,29 @@ var threeWayMerge = function(options, callback) {
 			nodesD.push(attrMerge(id));
 			//merge log
 			currentLog.nodeLog = {
-				'uuid': id,
-				'result': 'compound'
+				'uuid': id
 			};
 			currentLog.nodeLog[versionA] = 'changed';
-			currentLog.nodeLog[versionB] = 'changed';				
+			currentLog.nodeLog[versionB] = 'changed';	
+
+			//check the result type
+			var result;
+			currentLog.attrLog.forEach(function onEach(attrLog) {
+				if(result === undefined){
+					result = attrLog.result;
+				}else if( result !== attrLog.result){
+					result = 'compund';
+				}
+			});
+			if(result !== 'compund'){
+				currentLog.subScene.forEach(function onEach(subScene) {
+					if( result !== subScene.result){
+						result = 'compund';
+					}
+				});				
+			}
+
+			currentLog.nodeLog.result = result;			
 		}
 	});
 

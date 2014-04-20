@@ -33,12 +33,12 @@ var MergeWin = function ( editor ) {
 		viewer.resize(container.getWidth(), container.getHeight());
 		if(sceneId && versionA && versionB){
 			var temp;
-			if (versionC > versionA){
+			if (Number(versionC) > Number(versionA)){
 				temp = versionA;
 				versionA = versionC;
 				versionC = temp;
 			}
-			if (versionC > versionB){
+			if (Number(versionC) > Number(versionB)){
 				temp = versionB;
 				versionB = versionC;
 				versionC = temp;

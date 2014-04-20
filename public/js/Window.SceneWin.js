@@ -9,15 +9,15 @@ var SceneWin = function ( editor ) {
 	} );
 
 	var sceneControlRow = new UI.Panel();
-	var newSceneBtn = new UI.Button( 'New Scene' ).setMarginLeft( '7px' ).onClick( function () {
+	var newSceneBtn = new UI.Button( 'New' ).setMarginLeft( '7px' ).onClick( function () {
 		editor.resetScene();
 	} );
-	var loadSceneBtn = new UI.Button( 'Load Scene' ).setMarginLeft( '7px' ).onClick( function () {
+	var loadSceneBtn = new UI.Button( 'Load' ).setMarginLeft( '7px' ).onClick( function () {
 		var uuid = sceneSelect.getValue();	
 		//load the newest version
 		editor.revCon.retrieve(uuid, sceneMap[uuid].newestVersion);
 	} );
-	var shareSceneBtn = new UI.Button( 'Share Scene' ).setMarginLeft( '7px' ).onClick( function () {
+	var shareSceneBtn = new UI.Button( 'Share' ).setMarginLeft( '7px' ).onClick( function () {
 		var email = prompt("share scene with:","");
 	} );
 	var versionBtn = new UI.Button( 'View Versions' ).setMarginLeft( '7px' ).onClick( function () {
@@ -28,7 +28,7 @@ var SceneWin = function ( editor ) {
 			editor.versionWin.show(sceneSelect.getValue());	
 		}
 	} );
-	var removeBtn = new UI.Button( 'Remove Scene' ).setMarginLeft( '7px' ).onClick( function () {
+	var removeBtn = new UI.Button( 'Remove' ).setMarginLeft( '7px' ).onClick( function () {
 
 	} );
 
@@ -68,8 +68,8 @@ var SceneWin = function ( editor ) {
 	sceneControlRow.add( newSceneBtn );
 	sceneControlRow.add( loadSceneBtn );
 	sceneControlRow.add( shareSceneBtn );
-	sceneControlRow.add( versionBtn );
-	sceneControlRow.add( removeBtn );	
+	sceneControlRow.add( removeBtn );
+	sceneControlRow.add( versionBtn );	
 	sceneControlRow.setMargin("10px");
 	sceneControlRow.setTextAlign('center');
 

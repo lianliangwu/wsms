@@ -238,6 +238,7 @@ var Viewport = function ( editor ) {
 	signals.sceneReseted.add( function () {
 
 		scene = editor.scene;
+		objects = [];
 	} );
 
 	signals.sceneLoaded.add( function () {
