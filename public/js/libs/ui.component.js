@@ -446,11 +446,16 @@
 	};
 
 	UI.DAG.prototype = Object.create( UI.Element.prototype );
+	UI.DAG.prototype.clear = function () {
+		this.dom.innerHTML = '<svg><g transform="translate(20,20)"/></svg>';
+	};
 
 	UI.DAG.prototype.draw = function ( states, edges ) {
 	    var renderer = new dagreD3.Renderer();
 	    var oldDrawNodes = renderer.drawNodes();
 
+
+	    this.clear();
 	    states = states.map(function(s) {
 	                  return { id: s, value: { label: s } };       
 	             });

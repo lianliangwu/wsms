@@ -19,8 +19,8 @@ var MergeInfoWin = function(verA, verB){
 	controlBtnRow.add(commitBtn);
 
 	container.add( new UI.Break() );
-	container.add( new UI.Text( 'Control Panel' ).setClass('title') );
-	container.add( new UI.Break(), new UI.Break() );
+	// container.add( new UI.Text( 'Control Panel' ).setClass('title') );
+	// container.add( new UI.Break(), new UI.Break() );
 	container.add(controlBtnRow);	
 
 	//node info list

@@ -503,7 +503,7 @@ var threeWayMerge = function(options, callback) {
 	});
 
 	//ids <- distinct {'id' in (A N B)}
-	//nodesD <- (C - A)U(C - B)
+	//nodesD <- (A - C)U(B - C)U(C - A)U(C - B)
 	nodesA.forEach(function onEach(node) {
 		var uuid = node.uuid;
 
@@ -518,6 +518,16 @@ var threeWayMerge = function(options, callback) {
 	nodesB.forEach(function onEach(node){
 		var uuid = node.uuid;
 		if ( nodeMapC[uuid] === undefined){
+			nodesD.push(node);
+		}
+	});
+
+	nodesC.forEach(function onEach(node){
+		var uuid = node.uuid;
+		if(nodeMapA[uuid] === undefined && nodeMapB[uuid] !== undefined){
+			nodesD.push(node);
+		}
+		if(nodeMapA[uuid] !== undefined && nodeMapB[uuid] === undefined){
 			nodesD.push(node);
 		}
 	});

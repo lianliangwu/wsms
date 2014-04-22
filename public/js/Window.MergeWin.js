@@ -66,27 +66,33 @@ var MergeWin = function ( editor ) {
 			top: '0px',
 			left: '0px'
 		});
-		sceneWinA.setWidth(width/3);
+		sceneWinA.setWidth(width/4*1.5);
 		sceneWinA.setHeight(height/2);
 		sceneWinA.setScene(sceneA);
 
 		sceneWinB.show();
 		sceneWinB.setPosition({
-			top: height/2 + 'px',
-			left: '0px'
+			top: '0px',
+			left: width/4*1.5 + '0px'
 		});
-		sceneWinB.setWidth(width/3);
+		sceneWinB.setWidth(width/4*1.5);
 		sceneWinB.setHeight(height/2);		
 		sceneWinB.setScene(sceneB);
 
 		container.setPosition({
-			top: '0px',
-			left: width/3 + 'px'
+			top: height/2 + 'px',
+			left: '0px'
 		});
-		container.setWidth(width/3*2);
-		container.setHeight(height);				
+		container.setWidth(width/4*3);
+		container.setHeight(height/2);				
 		viewer.editor.setScene(mergedScene);
 
+		mergeInfoWin.setPosition({
+			top: '0px',
+			left: width/4*3 + 'px'
+		});
+		mergeInfoWin.setWidth(width/4);
+		mergeInfoWin.setHeight(height);
 		mergeInfoWin.setInfo(infoMap);
 		mergeInfoWin.show();
 	};	
