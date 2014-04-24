@@ -47,4 +47,12 @@ var Engine = function(editor){
 	this.undo = function(){
 
 	}
+
+	this.updateObject = {
+		setMatrix: function ( object, matrix ) {
+			object.matrix = matrix;
+			object.matrix.decompose( object.position, object.quaternion, object.scale );
+			signals.objectChanged.dispatch( object );
+		}
+	};
 }

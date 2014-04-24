@@ -14,12 +14,29 @@ var MergeWin = function ( editor ) {
 	container.hide();
 
 
-	container.signals.windowResized.add(function(){
+	container.signals.windowResized.add(function onWindowResized(){
 		viewer.resize(container.getWidth(), container.getHeight());
 	});
-	container.signals.windowOpened.add(function(){
+	container.signals.windowOpened.add(function onWindowOpened(){
 		viewer.resize(container.getWidth(), container.getHeight());
 	});
+
+	//synchronize the object selection
+	sceneWinA.viewer.signals.objectSelected.add(function onObjectSelected(object){
+		if(object){
+			selectObject(object.uuid);			
+		}
+	});
+	sceneWinB.viewer.signals.objectSelected.add(function onObjectSelected(object){
+		if(object){
+			selectObject(object.uuid);			
+		}
+	});
+	viewer.signals.objectSelected.add(function onObjectSelected(object){
+		if(object){
+			selectObject(object.uuid);			
+		}
+	});		
 
 	container.render = function(){
 		//viewer.render(container.getWidth(), container.getHeight());
@@ -45,11 +62,15 @@ var MergeWin = function ( editor ) {
 			}			
 			editor.revCon.merge(sceneId, versionA, versionB, versionC, function(err, result) {
 
-				mergeInfoWin = new MergeInfoWin(versionA, versionB);
+				mergeInfoWin = new MergeInfoWin(versionA, versionB, viewer);
 				
-				mergeInfoWin.onCommit = function(){
+				mergeInfoWin.onCommit = function onCommit(){
 					editor.revCon.commit([versionA, versionB], viewer.editor.scene);
 				};
+				mergeInfoWin.onNodeSelected = function onNodeSelected(uuid){
+					selectObject(uuid);
+				};
+
 				document.body.appendChild( mergeInfoWin.dom );
 
 				init(result.sceneA, result.sceneB, result.mergedScene, result.infoMap);
@@ -97,6 +118,24 @@ var MergeWin = function ( editor ) {
 		mergeInfoWin.show();
 	};	
 
+	function selectObject(uuid){
+		var selected = sceneWinA.viewer.editor.selected;		
+		if(!selected || (selected&&selected.uuid !== uuid)){
+			sceneWinA.viewer.editor.selectByUuid(uuid);	
+		}
+
+		selected = sceneWinB.viewer.editor.selected;
+		if(!selected || (selected&&selected.uuid !== uuid)){
+			sceneWinB.viewer.editor.selectByUuid(uuid);	
+		}
+
+		selected = viewer.editor.selected
+		if(!selected || (selected&&selected.uuid !== uuid)){
+			viewer.editor.selectByUuid(uuid);	
+		}		
+	}
+	
+	container.viewer = viewer;
 	return container;
 
 }

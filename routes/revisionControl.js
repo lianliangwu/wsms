@@ -431,10 +431,14 @@ var threeWayMerge = function(options, callback) {
 						log = {
 							'key':key,
 							'result': versionA,
-							'type': 'merged'
+							'type': 'merged',
+							'value': {}
 						};
 						log[versionA] = 'changed';
-						log[versionB] = 'unchanged';						
+						log[versionB] = 'unchanged';
+						log.value[versionA] = nodeA[key];
+						log.value[versionB] = nodeB[key];	
+
 						currentLog.attrLog.push(log);
 						currentLog.isMerged = true;
 					}
@@ -448,10 +452,13 @@ var threeWayMerge = function(options, callback) {
 						log = {
 							'key':key,
 							'result': versionB,
-							'type': 'merged'
+							'type': 'merged',
+							'value': {}
 						};
 						log[versionA] = 'unchanged';
 						log[versionB] = 'changed';
+						log.value[versionA] = nodeA[key];
+						log.value[versionB] = nodeB[key];	
 
 						currentLog.attrLog.push(log);
 						currentLog.isMerged = true;
@@ -466,11 +473,14 @@ var threeWayMerge = function(options, callback) {
 						log = {
 							'key':key,
 							'result': versionA,
-							'type': 'conflicted'
+							'type': 'conflicted',
+							'value': {}
 						};
 						log[versionA] = 'changed';
 						log[versionB] = 'changed';
-
+						log.value[versionA] = nodeA[key];
+						log.value[versionB] = nodeB[key];	
+						
 						currentLog.attrLog.push(log);
 						currentLog.isConflicted = true;
 					}

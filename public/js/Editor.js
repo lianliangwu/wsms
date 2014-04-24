@@ -58,6 +58,7 @@ var Editor = function () {
 	this.geometries = {};
 	this.materials = {};
 	this.textures = {};
+	this.modifyInterface = {};
 
 	this.selected = null;
 	this.helpers = {};
@@ -494,6 +495,24 @@ Editor.prototype = {
 		this.signals.objectSelected.dispatch( object );
 
 	},
+	selectByUuid: function (uuid) {
+		var scope = this;
+		var found = false;
+
+		this.scene.traverse( function ( child ) {
+
+			if ( child.uuid === uuid ) {
+
+				scope.select( child );
+				found = true;
+			}
+
+		} );
+
+		if(!found){
+			scope.select(null);
+		}
+	},
 
 	selectById: function ( id ) {
 
@@ -510,23 +529,6 @@ Editor.prototype = {
 		} );
 
 	},
-
-	selectByUuid: function ( uuid ) {
-
-		var scope = this;
-
-		this.scene.traverse( function ( child ) {
-
-			if ( child.uuid === uuid ) {
-
-				scope.select( child );
-
-			}
-
-		} );
-
-	},
-
 	deselect: function () {
 
 		this.select( null );

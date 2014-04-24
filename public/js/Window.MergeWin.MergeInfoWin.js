@@ -1,8 +1,9 @@
-var MergeInfoWin = function(verA, verB){
+var MergeInfoWin = function(verA, verB, viewer){
 	var container = new UI.Window("Merged Information").setId("mergeInforWin");
 	var versionA = 'Version' + verA, versionB = 'Version' + verB;
 	var mergeInfoMap;
 	var selectedNode;
+	var SIGNALS = signals;
 
 	//control panel
 	var controlBtnRow = new UI.Panel();
@@ -55,6 +56,10 @@ var MergeInfoWin = function(verA, verB){
 			options[result] = result;
 		}
 		nodeResultType.setOptions(options).setValue(result);
+
+		if(container.onNodeSelected){
+			container.onNodeSelected(uuid);
+		}
 	} );
 
 	nodeResultRow.add( new UI.Text( 'Merge Result' ).setWidth( '40%' ) );
@@ -88,6 +93,24 @@ var MergeInfoWin = function(verA, verB){
 			options[result] = result;
 		}
 		attrResultType.setOptions(options).setValue(result);
+	});
+
+	attrResultType.onChange(function onChange(){
+		var uuid = nodeSelect.getValue();
+		var node = mergeInfoMap[uuid];
+		var key = attrSelect.getValue();
+		var version = attrResultType.getValue();
+		var object = viewer.editor.selected;
+		var value;
+
+		//get the related atrribute value of selected result version
+		_.each(node.attrLog, function onEach(attrLog){
+			if(key === attrLog.key){
+				value = attrLog.value[version];
+				updateObject(object, key, value);
+			}
+		});
+
 	});
 
 	attrResultRow.add( new UI.Text( 'Merge Result' ).setWidth( '40%' ) );
@@ -136,6 +159,7 @@ var MergeInfoWin = function(verA, verB){
 	container.add(subSceneResultRow);
 
 
+	//container configuration
 	container.setOverflow('scroll');
 	container.setWidth(300);
 	container.setLeft(document.body.scrollWidth/3 + 'px');
@@ -149,7 +173,7 @@ var MergeInfoWin = function(verA, verB){
 			var attrInfoMap = {}, subSceneInfoMap = {};
 			var col1, col2, col3;
 
-			_.each(nodeInfo.attrLog, function(attrLog){
+			_.each(nodeInfo.attrLog, function onEach(attrLog){
 
 				col1 = '<span><input style="width:90%" value="'+ attrLog.key +'" disabled></span>';
 				col2 = '<span>' + attrLog[versionA] + '</span>';
@@ -159,7 +183,7 @@ var MergeInfoWin = function(verA, verB){
 				attrInfoMap[attrLog.key] = attrLog;
 			});
 
-			_.each(nodeInfo.subScene, function(subScene){
+			_.each(nodeInfo.subScene, function onEach(subScene){
 
 				col1 = '<span><input style="width:90%" value="'+ subScene.uuid +'" disabled></span>';
 				col2 = '<span>' + subScene[versionA] + '</span>';
@@ -197,8 +221,24 @@ var MergeInfoWin = function(verA, verB){
 		};
 
 		mergeInfoMap = infoMap;
-		nodeSelect.setOptions(makeNodeOptions(infoMap));			
+		nodeSelect.setOptions(makeNodeOptions(infoMap));	
 	};
+
+	function updateObject(object, key, value){
+		var updateObject = viewer.editor.engine.updateObject;
+
+		if(key === 'matrix'){
+			var matrix = new THREE.Matrix4(
+				value[0],value[4],value[8],value[12],
+				value[1],value[5],value[9],value[13],
+				value[2],value[6],value[10],value[14],
+				value[3],value[7],value[11],value[15]);
+			updateObject.setMatrix(object, matrix);
+		}
+		if(key === 'name'){
+
+		}
+	}
 
 	return container;
 };

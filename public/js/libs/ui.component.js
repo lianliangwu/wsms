@@ -1121,6 +1121,7 @@
 
 		this.dom = dom;
 		this.editor = editor;
+		this.signals = editor.signals;
 
 		this.render = function(width, height) {
 			render();

@@ -18,7 +18,9 @@ var ViewerWin = function ( ) {
 	container.setScene = function(scene){
 		viewer.editor.setScene(scene);
 	};
+	
 	container.hide();
+	container.viewer = viewer;
 	return container;
 
 }

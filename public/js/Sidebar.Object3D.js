@@ -567,6 +567,16 @@ Sidebar.Object3D = function ( editor ) {
 
 	}
 
+	editor.modifyInterface.object = {
+		setMatrix: function ( matrix ) {
+			var object = editor.selected;
+			object.matrix = matrix;
+			object.matrix.decompose( object.position, object.quaternion, object.scale );
+			signals.objectChanged.dispatch( object );
+		}
+	};
+
+
 	return container;
 
 }
