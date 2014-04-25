@@ -1,4 +1,4 @@
-var MergeInfoWin = function(verA, verB, viewer){
+var MergeControlWin = function(verA, verB, viewer){
 	var container = new UI.Window("Merged Information").setId("mergeInforWin");
 	var versionA = 'Version' + verA, versionB = 'Version' + verB;
 	var mergeInfoMap;
@@ -72,9 +72,14 @@ var MergeInfoWin = function(verA, verB, viewer){
 	container.add(nodeSelect);
 	container.add(nodeResultRow);
 
+
 	//attr info list
 	var attrHeader = new UI.Panel();
 	var attrSelect = new UI.FancySelect();
+	var versionARow = new UI.Panel();
+	var valueA = new UI.Input().setWidth( '50%' ).setColor( '#444' ).setFontSize( '12px' );
+	var versionBRow = new UI.Panel();
+	var valueB = new UI.Input().setWidth( '50%' ).setColor( '#444' ).setFontSize( '12px' );	
 	var attrResultRow = new UI.Panel();
 	var attrResultType = new UI.Select().setWidth( '50%' ).setColor( '#444' ).setFontSize( '12px' );
 
@@ -83,17 +88,34 @@ var MergeInfoWin = function(verA, verB, viewer){
 	attrHeader.add( new UI.Text( versionB ).setWidth( '33%' ).setTextAlign('center') );	
 
 	attrSelect.onChange(function onChange(){
-		var key = attrSelect.getValue();
+		//set version values
+		var key = attrSelect.getValue();	
+		var uuid = nodeSelect.getValue();
+		var node = mergeInfoMap[uuid];		
+
+		_.each(node.attrLog, function onEach(attrLog){
+			if(key === attrLog.key){
+				valueA.setValue(attrLog.value[versionA]);
+				valueB.setValue(attrLog.value[versionB]);
+			}
+		});
+
+		//set result select
+		var result = selectedNode.attrInfoMap[key].result;
 		var options = {};	
 		options[versionA] = versionA;
-		options[versionB] = versionB;
-
-		var result = selectedNode.attrInfoMap[key].result;
+		options[versionB] = versionB;			
 		if(options[result] === undefined){
 			options[result] = result;
 		}
 		attrResultType.setOptions(options).setValue(result);
 	});
+
+	versionARow.add( new UI.Text( versionA ).setWidth( '40%' ) );
+	versionARow.add( valueA );	
+
+	versionBRow.add( new UI.Text( versionB ).setWidth( '40%' ) );
+	versionBRow.add( valueB );	
 
 	attrResultType.onChange(function onChange(){
 		var uuid = nodeSelect.getValue();
@@ -121,6 +143,8 @@ var MergeInfoWin = function(verA, verB, viewer){
 	container.add( new UI.Break(), new UI.Break() );
 	container.add(attrHeader);
 	container.add(attrSelect);
+	container.add(versionARow);
+	container.add(versionBRow);
 	container.add(attrResultRow);
 
 
@@ -236,7 +260,7 @@ var MergeInfoWin = function(verA, verB, viewer){
 			updateObject.setMatrix(object, matrix);
 		}
 		if(key === 'name'){
-
+			updateObject.setName(object, value);
 		}
 	}
 

@@ -3,7 +3,7 @@ var Engine = function(editor){
 	var signals = editor.signals;
 	var object = null;
 
-	var getByUuid = function ( uuid ) {//wzh
+	var getByUuid = function ( uuid ) {
 		var scope = this;
 		var object = null
 
@@ -20,14 +20,14 @@ var Engine = function(editor){
 		return object;
 	};
 
-	this.execute = function(op){
-		switch(op.type){
+	this.execute = function( op ){
+		switch( op.type ){
 		case 0://create node
-			editor.addObject(op.node);
+			editor.addObject( op.node );
 
 			break;
 		case 1://update node
-			object = getByUuid(op.nodeId);
+			object = getByUuid( op.nodeId );
 
 			if ( object != null ){
 				object[op.key] = op.after; 
@@ -44,7 +44,7 @@ var Engine = function(editor){
 		}
 	}
 
-	this.undo = function(){
+	this.undo = function () {
 
 	}
 
@@ -52,6 +52,10 @@ var Engine = function(editor){
 		setMatrix: function ( object, matrix ) {
 			object.matrix = matrix;
 			object.matrix.decompose( object.position, object.quaternion, object.scale );
+			signals.objectChanged.dispatch( object );
+		},
+		setName: function ( object, name) {
+			object.name = name;
 			signals.objectChanged.dispatch( object );
 		}
 	};
