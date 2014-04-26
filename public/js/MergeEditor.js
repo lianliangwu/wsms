@@ -20,7 +20,22 @@ var MergeEditor = function (viewerA, viewerB, viewerD) {
 };
 
 MergeEditor.prototype = {
-	selectNode: function (uuid){},
+	selectObject: function (uuid){
+		var selected = this.viewerA.editor.selected;		
+		if(!selected || (selected&&selected.uuid !== uuid)){
+			this.viewerA.editor.selectByUuid(uuid);	
+		}
+
+		selected = this.viewerB.editor.selected;
+		if(!selected || (selected&&selected.uuid !== uuid)){
+			this.viewerB.editor.selectByUuid(uuid);	
+		}
+
+		selected = this.viewerD.editor.selected
+		if(!selected || (selected&&selected.uuid !== uuid)){
+			this.viewerD.editor.selectByUuid(uuid);	
+		}			
+	},
 	updateObject: function () {},
 	updateGeometry: function () {},
 	updateMaterial: function () {},

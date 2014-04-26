@@ -1,55 +1,43 @@
 var MergeWin = function () {
-	var container = new UI.Window("Merge Window");
-	var viewer = new UI.Viewer();
 	var sceneWinA = new ViewerWin();
 	var sceneWinB = new ViewerWin();
-	var mergeControlWin;
-	var mergeEditor = MergeEditor();
+	var sceneWinD = new ViewerWin();
+	var mergeControlWin = new MergeControlWin();
+	var mergeEditor = new MergeEditor(sceneWinA.viewer, sceneWinB.viewer, sceneWinD.viewer);
 
 
 	document.body.appendChild( sceneWinA.dom );
 	document.body.appendChild( sceneWinB.dom );
+	document.body.appendChild( sceneWinD.dom );
 
-	container.add(viewer);
-	container.editor = viewer.editor;
-	container.hide();
+	mergeControlWin.onCommit = function onCommit(){
+		//editor.revCon.commit([versionA, versionB], viewer.editor.scene);
+	};
+	mergeControlWin.onNodeSelected = function onNodeSelected(uuid){
+		mergeEditor.selectObject(uuid);
+	};
 
-
-	container.signals.windowResized.add(function onWindowResized(){
-		viewer.resize(container.getWidth(), container.getHeight());
-	});
-	container.signals.windowOpened.add(function onWindowOpened(){
-		viewer.resize(container.getWidth(), container.getHeight());
-	});
+	document.body.appendChild( mergeControlWin.dom );	
 
 	//synchronize the object selection
 	sceneWinA.viewer.signals.objectSelected.add(function onObjectSelected(object){
 		if(object){
-			selectObject(object.uuid);			
+			mergeEditor.selectObject(object.uuid);			
 		}
 	});
 	sceneWinB.viewer.signals.objectSelected.add(function onObjectSelected(object){
 		if(object){
-			selectObject(object.uuid);			
+			mergeEditor.selectObject(object.uuid);			
 		}
 	});
-	viewer.signals.objectSelected.add(function onObjectSelected(object){
+	sceneWinD.viewer.signals.objectSelected.add(function onObjectSelected(object){
 		if(object){
-			selectObject(object.uuid);			
+			mergeEditor.selectObject(object.uuid);			
 		}
 	});		
-
-	container.render = function(){
-		//viewer.render(container.getWidth(), container.getHeight());
-	};
-	container.setScene = function(scene){
-		viewer.editor.setScene(scene);
-	};
 	
-	container.show = function(sceneId, versionA, versionB, versionC) {
-		container.dom.style.display = "";
-		viewer.resize(container.getWidth(), container.getHeight());
-		if(sceneId && versionA && versionB){
+	this.show = function(sceneId, versionA, versionB, versionC) {
+		if(sceneId && versionA && versionB && versionC){
 			var temp;
 			if (Number(versionC) > Number(versionA)){
 				temp = versionA;
@@ -60,29 +48,21 @@ var MergeWin = function () {
 				temp = versionB;
 				versionB = versionC;
 				versionC = temp;
-			}			
+			}	
+
 			editor.revCon.merge(sceneId, versionA, versionB, versionC, function(err, result) {
-
-				mergeControlWin = new mergeControlWin(versionA, versionB, viewer);
-				
-				mergeControlWin.onCommit = function onCommit(){
-					editor.revCon.commit([versionA, versionB], viewer.editor.scene);
-				};
-				mergeControlWin.onNodeSelected = function onNodeSelected(uuid){
-					selectObject(uuid);
-				};
-
-				document.body.appendChild( mergeControlWin.dom );
-
+				mergeControlWin.init(versionA, versionB, sceneWinD.viewer);
 				init(result.sceneA, result.sceneB, result.mergedScene, result.infoMap);
 			});
 		}
 	};
 
+	//set up the layout
 	function init(sceneA, sceneB, mergedScene, infoMap){
 		var height = document.body.scrollHeight;
 		var width = document.body.scrollWidth;
 
+		//version A
 		sceneWinA.show();
 		sceneWinA.setPosition({
 			top: '0px',
@@ -92,6 +72,7 @@ var MergeWin = function () {
 		sceneWinA.setHeight(height/2);
 		sceneWinA.setScene(sceneA);
 
+		//version B
 		sceneWinB.show();
 		sceneWinB.setPosition({
 			top: '0px',
@@ -101,14 +82,18 @@ var MergeWin = function () {
 		sceneWinB.setHeight(height/2);		
 		sceneWinB.setScene(sceneB);
 
-		container.setPosition({
+		//merged version D
+		sceneWinD.show();
+		sceneWinD.setPosition({
 			top: height/2 + 'px',
 			left: '0px'
 		});
-		container.setWidth(width/4*3);
-		container.setHeight(height/2);				
-		viewer.editor.setScene(mergedScene);
+		sceneWinD.setWidth(width/4*3);
+		sceneWinD.setHeight(height/2);				
+		sceneWinD.setScene(mergedScene);
 
+		//merge control window
+		mergeControlWin.show();
 		mergeControlWin.setPosition({
 			top: '0px',
 			left: width/4*3 + 'px'
@@ -116,28 +101,9 @@ var MergeWin = function () {
 		mergeControlWin.setWidth(width/4);
 		mergeControlWin.setHeight(height);
 		mergeControlWin.setInfo(infoMap);
-		mergeControlWin.show();
 	};	
-
-	function selectObject(uuid){
-		var selected = sceneWinA.viewer.editor.selected;		
-		if(!selected || (selected&&selected.uuid !== uuid)){
-			sceneWinA.viewer.editor.selectByUuid(uuid);	
-		}
-
-		selected = sceneWinB.viewer.editor.selected;
-		if(!selected || (selected&&selected.uuid !== uuid)){
-			sceneWinB.viewer.editor.selectByUuid(uuid);	
-		}
-
-		selected = viewer.editor.selected
-		if(!selected || (selected&&selected.uuid !== uuid)){
-			viewer.editor.selectByUuid(uuid);	
-		}		
-	}
 	
-	container.viewer = viewer;
-	return container;
+	return this;
 
 };
 
