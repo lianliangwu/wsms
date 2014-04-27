@@ -2,40 +2,24 @@ var MergeWin = function () {
 	var sceneWinA = new ViewerWin();
 	var sceneWinB = new ViewerWin();
 	var sceneWinD = new ViewerWin();
-	var mergeControlWin = new MergeControlWin();
 	var mergeEditor = new MergeEditor(sceneWinA.viewer, sceneWinB.viewer, sceneWinD.viewer);
+	var mergeControlWin = new MergeControlWin(mergeEditor);
 
 
 	document.body.appendChild( sceneWinA.dom );
 	document.body.appendChild( sceneWinB.dom );
 	document.body.appendChild( sceneWinD.dom );
-
-	mergeControlWin.onCommit = function onCommit(){
-		//editor.revCon.commit([versionA, versionB], viewer.editor.scene);
-	};
-	mergeControlWin.onNodeSelected = function onNodeSelected(uuid){
-		mergeEditor.selectObject(uuid);
-	};
-
 	document.body.appendChild( mergeControlWin.dom );	
-
-	//synchronize the object selection
-	sceneWinA.viewer.signals.objectSelected.add(function onObjectSelected(object){
-		if(object){
-			mergeEditor.selectObject(object.uuid);			
-		}
-	});
-	sceneWinB.viewer.signals.objectSelected.add(function onObjectSelected(object){
-		if(object){
-			mergeEditor.selectObject(object.uuid);			
-		}
-	});
-	sceneWinD.viewer.signals.objectSelected.add(function onObjectSelected(object){
-		if(object){
-			mergeEditor.selectObject(object.uuid);			
-		}
-	});		
 	
+	mergeEditor.signals.commitMerge.add(function () {
+		//editor.revCon.commit();
+	});
+
+	mergeEditor.signals.cancelMerge.add(function () {
+		
+	});
+
+
 	this.show = function(sceneId, versionA, versionB, versionC) {
 		if(sceneId && versionA && versionB && versionC){
 			var temp;
@@ -51,7 +35,6 @@ var MergeWin = function () {
 			}	
 
 			editor.revCon.merge(sceneId, versionA, versionB, versionC, function(err, result) {
-				mergeControlWin.init(versionA, versionB, sceneWinD.viewer);
 				init(result.sceneA, result.sceneB, result.mergedScene, result.infoMap);
 			});
 		}
@@ -100,7 +83,7 @@ var MergeWin = function () {
 		});
 		mergeControlWin.setWidth(width/4);
 		mergeControlWin.setHeight(height);
-		mergeControlWin.setInfo(infoMap);
+		mergeControlWin.init(versionA, versionB, result.infoMap);
 	};	
 	
 	return this;

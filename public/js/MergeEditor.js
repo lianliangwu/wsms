@@ -1,5 +1,6 @@
 var MergeEditor = function (viewerA, viewerB, viewerD) {
 	var SIGNALS = signals; 
+	var selectedNode = null;
 	
 	this.signals = {
 
@@ -14,13 +15,32 @@ var MergeEditor = function (viewerA, viewerB, viewerD) {
 
 	};
 
+	viewerA.signals.objectSelected.add(function onObjectSelected(object){
+		if(object){
+			this.selectObject(object.uuid);			
+		}
+	});
+	viewerB.signals.objectSelected.add(function onObjectSelected(object){
+		if(object){
+			this.selectObject(object.uuid);			
+		}
+	});
+	viewerD.signals.objectSelected.add(function onObjectSelected(object){
+		if(object){
+			this.selectObject(object.uuid);			
+		}
+	});		
+
 	this.viewerA = viewerA;
 	this.viewerB = viewerB;
 	this.viewerD = viewerD;
+	this.selectedNode = selectedNode;
 };
 
 MergeEditor.prototype = {
 	selectObject: function (uuid){
+		this.selectedNode = uuid;
+
 		var selected = this.viewerA.editor.selected;		
 		if(!selected || (selected&&selected.uuid !== uuid)){
 			this.viewerA.editor.selectByUuid(uuid);	
@@ -34,9 +54,26 @@ MergeEditor.prototype = {
 		selected = this.viewerD.editor.selected
 		if(!selected || (selected&&selected.uuid !== uuid)){
 			this.viewerD.editor.selectByUuid(uuid);	
-		}			
+		}
+
+		this.signals.nodeSelected.dispatch(uuid);		
 	},
-	updateObject: function () {},
+	updateObject: function (key, value) {
+		var updateObject = this.viewerD.editor.engine.updateObject;
+		var object = this.viewerD.editor.selected;
+
+		if(key === 'matrix'){
+			var matrix = new THREE.Matrix4(
+				value[0],value[4],value[8],value[12],
+				value[1],value[5],value[9],value[13],
+				value[2],value[6],value[10],value[14],
+				value[3],value[7],value[11],value[15]);
+			updateObject.setMatrix(object, matrix);
+		}
+		if(key === 'name'){
+			updateObject.setName(object, value);
+		}		
+	},
 	updateGeometry: function () {},
 	updateMaterial: function () {},
 	addScene: function () {},
