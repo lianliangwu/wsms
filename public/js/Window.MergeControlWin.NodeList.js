@@ -1,4 +1,4 @@
-var MergeControlWin.NodeList = function(mergeEditor){
+MergeControlWin.NodeList = function( mergeEditor ){
 	//node info list
 	var container = new UI.Panel();
 	var headerRow = new UI.Panel();
@@ -44,7 +44,7 @@ var MergeControlWin.NodeList = function(mergeEditor){
 		}
 	} );
 	
-	mergeEditor.signals.fancySelected.add(function (uuid) {
+	mergeEditor.signals.nodeSelected.add(function (uuid) {
 		if (uuid !== fancySelect.getValue()){
 			fancySelect.setValue(uuid);
 		}
@@ -61,25 +61,25 @@ var MergeControlWin.NodeList = function(mergeEditor){
 					nodeInfo = infoMap[uuid];
 					if( nodeInfo.isMerged || nodeInfo.isConflicted){
 						col1 = '<span><input style="width:90%" value="'+ uuid +'" disabled></span>';
-						col2 = '<span>' + nodeInfo.nodeLog[versionA] + '</span>';
-						col3 = '<span>' + nodeInfo.nodeLog[versionB] + '</span>';
+						col2 = '<span>' + nodeInfo.nodeLog[container.versionA] + '</span>';
+						col3 = '<span>' + nodeInfo.nodeLog[container.versionB] + '</span>';
 
 						options[uuid] = '<div class="' + (nodeInfo.isConflicted ? 'conflicted' : 'merged') + '">' + col1 + col2 + col3 + '</div>';
-						makeAttrOptions(nodeInfo);
 					}					
 				}
 			}
 
 			return options;			
-		};		
-
-		fancySelect.setOptions(makeNodeOptions(mergeInfoMap))
+		};	
 
 		container.mergeInfoMap = mergeInfoMap;
 		container.versionA = "Version" + versionA;
 		container.versionB = "Version" + versionB;
 		col2.setValue(container.versionA);
 		col3.setValue(container.versionB);		
+
+		fancySelect.setOptions(makeNodeOptions(mergeInfoMap))
+
 	};
 
 	return container;

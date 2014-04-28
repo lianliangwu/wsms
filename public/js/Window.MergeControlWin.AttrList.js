@@ -1,4 +1,4 @@
-var MergeControlWin.AttrList = function (mergeEditor) {
+MergeControlWin.AttrList = function (mergeEditor) {
 	var container = new UI.Panel();
 	var headerRow = new UI.Panel();
 	var fancySelect = new UI.FancySelect();
@@ -17,10 +17,10 @@ var MergeControlWin.AttrList = function (mergeEditor) {
 	headerRow.add(col2);
 	headerRow.add(col3);
 
-	versionARow.add( new UI.Text( versionA ).setWidth( '40%' ) );
+	versionARow.add( new UI.Text( 'versionA' ).setWidth( '40%' ) );
 	versionARow.add( valueA );	
 
-	versionBRow.add( new UI.Text( versionB ).setWidth( '40%' ) );
+	versionBRow.add( new UI.Text( 'versionB' ).setWidth( '40%' ) );
 	versionBRow.add( valueB );	
 
 	resultRow.add( new UI.Text( 'Merge Result' ).setWidth( '40%' ) );
@@ -37,13 +37,14 @@ var MergeControlWin.AttrList = function (mergeEditor) {
 
 	//event
 	fancySelect.onChange(function onChange(){
+		var versionA = container.versionA;
+		var versionB = container.versionB;
 		if(container.mergeInfoMap){
 			//set version values
-			var key = fancySelect.getValue();	
-			var uuid = nodeSelect.getValue();
-			var nodeInfo = container.mergeInfoMap[selectedNode];		
+			var key = fancySelect.getValue();
+			var nodeInfo = selectedNode;		
 
-			_.each(node.attrLog, function onEach(attrLog){
+			_.each(nodeInfo.attrLog, function onEach(attrLog){
 				if(key === attrLog.key){
 					valueA.setValue(attrLog.value[versionA]);
 					valueB.setValue(attrLog.value[versionB]);
@@ -64,24 +65,26 @@ var MergeControlWin.AttrList = function (mergeEditor) {
 
 	resultSelect.onChange(function onChange(){
 		if(container.mergeInfoMap){
-			var uuid = nodeSelect.getValue();
-			var node = container.mergeInfoMap[uuid];
+			var node = selectedNode;
 			var key = fancySelect.getValue();
 			var version = resultSelect.getValue();
 			var value;
 
 			//get the attribute value	
-			value = selectedNode.attrInfoMap[key].value[version];
+			value = node.attrInfoMap[key].value[version];
 			mergeEditor.updateNode(key, value);
 		}
 	});
 
 	mergeEditor.signals.nodeSelected.add(function onNodeSelect(uuid) {
-		var nodeInfo = containder.mergeInfoMap[uuid];
-		selectedNode = uuid;
-
-		fancySelect.setOptions(nodeInfo.attrOptions);
-		resultSelect.setOptions({});
+		if(container.mergeInfoMap){
+			var nodeInfo = container.mergeInfoMap[uuid];
+			selectedNode = nodeInfo;
+			if(nodeInfo){
+				fancySelect.setOptions(nodeInfo.attrOptions);
+				resultSelect.setOptions({});
+			}			
+		}	
 	});
 
 	container.setInfo = function(versionA, versionB, mergeInfoMap) {
@@ -93,8 +96,8 @@ var MergeControlWin.AttrList = function (mergeEditor) {
 			_.each(nodeInfo.attrLog, function onEach(attrLog){
 
 				col1 = '<span><input style="width:90%" value="'+ attrLog.key +'" disabled></span>';
-				col2 = '<span>' + attrLog[versionA] + '</span>';
-				col3 = '<span>' + attrLog[versionB] + '</span>';
+				col2 = '<span>' + attrLog[container.versionA] + '</span>';
+				col3 = '<span>' + attrLog[container.versionB] + '</span>';
 
 				attrOptions[attrLog.key] = '<div class="' + attrLog.type + '">' + col1 + col2 + col3 + '</div>';
 				attrInfoMap[attrLog.key] = attrLog;
@@ -103,6 +106,13 @@ var MergeControlWin.AttrList = function (mergeEditor) {
 			nodeInfo.attrOptions = attrOptions;
 			nodeInfo.attrInfoMap = attrInfoMap;
 		};	
+
+		container.mergeInfoMap = mergeInfoMap;
+		container.versionA = "Version" + versionA;
+		container.versionB = "Version" + versionB;
+		col2.setValue(container.versionA);
+		col3.setValue(container.versionB);
+
 
 		for(uuid in mergeInfoMap){
 			if(mergeInfoMap.hasOwnProperty(uuid)){
@@ -113,11 +123,6 @@ var MergeControlWin.AttrList = function (mergeEditor) {
 			}
 		}
 
-		container.mergeInfoMap = mergeInfoMap;
-		container.versionA = "Version" + versionA;
-		container.versionB = "Version" + versionB;
-		col2.setValue(container.versionA);
-		col3.setValue(container.versionB);
 	};
 
 	return container;

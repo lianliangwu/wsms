@@ -59,6 +59,7 @@ var Editor = function () {
 	this.materials = {};
 	this.textures = {};
 	this.modifyInterface = {};
+	this.preVersions = [-1];
 
 	this.selected = null;
 	this.helpers = {};

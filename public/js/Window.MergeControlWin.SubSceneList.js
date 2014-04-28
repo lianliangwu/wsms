@@ -1,9 +1,10 @@
-var MergeControlWin.SubSceneList = function (mergeEditor) {
+MergeControlWin.SubSceneList = function (mergeEditor) {
 	var container = new UI.Panel();
 	var headerRow = new UI.Panel();
 	var fancySelect = new UI.FancySelect();
  	var resultRow = new UI.Panel();
 	var resultSelect = new UI.Select().setWidth( '50%' ).setColor( '#444' ).setFontSize( '12px' );
+	var selectedNode = null;
 
 	var col1 = new UI.Text( 'Key' ).setWidth( '33%' ).setTextAlign('center');
 	var col2 = new UI.Text( 'VersionA' ).setWidth( '33%' ).setTextAlign('center');
@@ -23,24 +24,34 @@ var MergeControlWin.SubSceneList = function (mergeEditor) {
 	container.add(resultRow);
 
 	fancySelect.onChange(function onChange(){
-		var key = fancySelect.getValue();
-		var options = {};	
-		options[versionA] = versionA;
-		options[versionB] = versionB;
+		var versionA = container.versionA;
+		var versionB = container.versionB;
 
-		var result = selectedNode.subSceneInfoMap[key].result;
-		if(options[result] === undefined){
-			options[result] = result;
+		if(container.mergeInfoMap){
+			var key = fancySelect.getValue();
+			var nodeInfo = selectedNode;	
+			var options = {};	
+			options[versionA] = versionA;
+			options[versionB] = versionB;
+
+			var result = nodeInfo.subSceneInfoMap[key].result;
+			if(options[result] === undefined){
+				options[result] = result;
+			}
+			resultSelect.setOptions(options).setValue(result);
 		}
-		resultSelect.setOptions(options).setValue(result);
 	});
 
 	mergeEditor.signals.nodeSelected.add(function onNodeSelected(uuid){
-		var nodeInfo = containder.mergeInfoMap[uuid];
-		selectedNode = uuid;
+		if(container.mergeInfoMap){
+			var nodeInfo = container.mergeInfoMap[uuid];
+			selectedNode = nodeInfo;
 
-		attrSelect.setOptions(nodeInfo.subSceneOptions);
-		fancySelect.setOptions({});
+			if(nodeInfo){
+				fancySelect.setOptions(nodeInfo.subSceneOptions);
+				resultSelect.setOptions({});
+			}
+		}
 	});	
 
 	container.setInfo = function (versionA, versionB, mergeInfoMap) {
@@ -52,8 +63,8 @@ var MergeControlWin.SubSceneList = function (mergeEditor) {
 			_.each(nodeInfo.subScene, function onEach(subScene){
 
 				col1 = '<span><input style="width:90%" value="'+ subScene.uuid +'" disabled></span>';
-				col2 = '<span>' + subScene[versionA] + '</span>';
-				col3 = '<span>' + subScene[versionB] + '</span>';
+				col2 = '<span>' + subScene[container.versionA] + '</span>';
+				col3 = '<span>' + subScene[container.versionB] + '</span>';
 
 				subSceneOptions[subScene.uuid] = '<div class="' + subScene.type + '">' + col1 + col2 + col3 + '</div>';				
 				subSceneInfoMap[subScene.uuid] = subScene;
@@ -64,6 +75,12 @@ var MergeControlWin.SubSceneList = function (mergeEditor) {
 			nodeInfo.subSceneInfoMap = subSceneInfoMap;
 		};	
 
+		container.mergeInfoMap = mergeInfoMap;
+		container.versionA = "Version" + versionA;
+		container.versionB = "Version" + versionB;
+		col2.setValue(container.versionA);
+		col3.setValue(container.versionB);		
+
 		for(uuid in mergeInfoMap){
 			if(mergeInfoMap.hasOwnProperty(uuid)){
 				nodeInfo = mergeInfoMap[uuid];
@@ -73,11 +90,6 @@ var MergeControlWin.SubSceneList = function (mergeEditor) {
 			}
 		}
 
-		container.mergeInfoMap = mergeInfoMap;
-		container.versionA = "Version" + versionA;
-		container.versionB = "Version" + versionB;
-		col2.setValue(container.versionA);
-		col3.setValue(container.versionB);		
 	};
 
 	return container;

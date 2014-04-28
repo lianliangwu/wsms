@@ -1,4 +1,4 @@
-var MergeControlWin.ControlBtns = function (mergeEditor) {
+MergeControlWin.ControlBtns = function (mergeEditor) {
 	var container = new UI.Panel();
 	var btnRow = new UI.Panel();
 	

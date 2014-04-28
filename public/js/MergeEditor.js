@@ -1,7 +1,8 @@
 var MergeEditor = function (viewerA, viewerB, viewerD) {
 	var SIGNALS = signals; 
 	var selectedNode = null;
-	
+	var scope = this;
+
 	this.signals = {
 
 		// actions
@@ -17,17 +18,17 @@ var MergeEditor = function (viewerA, viewerB, viewerD) {
 
 	viewerA.signals.objectSelected.add(function onObjectSelected(object){
 		if(object){
-			this.selectObject(object.uuid);			
+			scope.selectObject(object.uuid);			
 		}
 	});
 	viewerB.signals.objectSelected.add(function onObjectSelected(object){
 		if(object){
-			this.selectObject(object.uuid);			
+			scope.selectObject(object.uuid);			
 		}
 	});
 	viewerD.signals.objectSelected.add(function onObjectSelected(object){
 		if(object){
-			this.selectObject(object.uuid);			
+			scope.selectObject(object.uuid);			
 		}
 	});		
 
@@ -58,7 +59,7 @@ MergeEditor.prototype = {
 
 		this.signals.nodeSelected.dispatch(uuid);		
 	},
-	updateObject: function (key, value) {
+	updateNode: function (key, value) {
 		var updateObject = this.viewerD.editor.engine.updateObject;
 		var object = this.viewerD.editor.selected;
 
