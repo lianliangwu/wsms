@@ -2,7 +2,8 @@ var mongoose = require("mongoose");
 
 var ImgSchema = new mongoose.Schema({
   uuid: String,
-  path: String
+  path: String,
+  name: String
 });
 
 ImgSchema.statics.findByUuid = function (uuid, callback){

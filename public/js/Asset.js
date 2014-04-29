@@ -32,9 +32,9 @@ var Asset = function(editor){
 		return output;
 	};
 
-	this.addImgAsset = function(file,uuid){
+	this.addImgAsset = function(file, uuid){
 
-		var formData = new FormData();  
+		var formData = new FormData(); 
 
 		// Add the file to the request.
 		formData.append('myImg', file, file.name);
@@ -97,12 +97,13 @@ var Asset = function(editor){
 		xhr.send();			
 	};
 
-	this.addGeoAsset = function(geometry){
+	this.addGeoAsset = function(geometry, name){
 		var geoAsset = exportGeometry(geometry);
 		var formData = new FormData();
 
 		formData.append('geometry', geoAsset);
-		formData.append('uuid', geometry.uuid);
+		formData.append('uuid', THREE.Math.generateUUID());
+		formData.append('name', name);
 
 		var xhr = new XMLHttpRequest();
 
@@ -170,27 +171,15 @@ var Asset = function(editor){
 	this.addGeoAssetOfObject = function(object) {
 
 		var scope = this;
-
-		if(editor.getObjectType(object) === 'Mesh'){
-
-			this.addGeoAsset(object.geometry);
-			signals.assetAdded.dispatch({
-				type: 'geometry',
-				target: object,
-				uuid: object.geometry.uuid
-			});
-			
-			return;
-		}
 		object.traverse( function ( child ) {
 
 			if(editor.getObjectType(child) === 'Mesh'){
 				
-				scope.addGeoAsset(object.geometry);
+				scope.addGeoAsset(object.geometry, object.name);
 				signals.assetAdded.dispatch({
 					type: 'geometry',
 					target: object,
-					uuid: geometry.uuid
+					uuid: object.geometry.uuid
 				});
 				return;
 			}

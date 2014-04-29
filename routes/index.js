@@ -6,10 +6,11 @@ var fs = require('fs');
  * GET home page.
  */
 
-function addGeoAsset(uuid, path){
+function addGeoAsset(uuid, path, name){
 	var newGeoAsset = new GeoAsset({
 		uuid: uuid,
-		path: path
+		path: path,
+		name: name
 	});
 
 	GeoAsset.findByUuid(newGeoAsset.uuid, function(err, geoAsset){
@@ -26,10 +27,11 @@ function addGeoAsset(uuid, path){
 	});
 }
 
-function addImgAsset(uuid, path){
+function addImgAsset(uuid, path, name){
 	var newImgAsset = new ImgAsset({
 		uuid: uuid,
-		path: path
+		path: path,
+		name: name
 	});
 
 	ImgAsset.findByUuid(newImgAsset.uuid, function(err, imgAsset){
@@ -97,7 +99,7 @@ exports.addGeoAsset = function(req, res){
 	fs.writeFile(newPath, req.body["geometry"], function (err) {
 		res.send({success: true});
 	});	
-	addGeoAsset(req.body["uuid"], "upload/" + req.body["uuid"] + ".js");
+	addGeoAsset(req.body["uuid"], "upload/" + req.body["uuid"] + ".js", req.body["name"]);
 };
 
 exports.getGeoAsset = function(req, res) {
@@ -117,11 +119,15 @@ exports.getGeoAsset = function(req, res) {
 exports.addImgAsset = function(req, res){
 	var uuid = req.body["uuid"];
 
+
 	fs.readFile(req.files.myImg.path, function (err, data) {
 	  
-	  var newPath = "./public/upload/" + req.files.myImg.name;
+	  var oldName = req.files.myImg.name;
+	  var arr = oldName.split('.');
+	  var newName = uuid + '.' + arr[arr.length - 1];
+	  var newPath = "./public/upload/" + newName;
 
-	  addImgAsset(uuid, "upload/" + req.files.myImg.name);
+	  addImgAsset(uuid, "upload/" + newName, oldName);
 	  fs.writeFile(newPath, data, function (err) {
 	    res.send({success: true});
 	  });

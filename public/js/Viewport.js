@@ -377,7 +377,7 @@ var Viewport = function ( editor ) {
 			assets[type] = uuid;
 			break;
 		default:
-			if (typeof assets[type] === 'undefined'){
+			if (assets[type] === undefined){
 				assets[type] = {
 					uuid: THREE.Math.generateUUID(),
 					assetId:null
