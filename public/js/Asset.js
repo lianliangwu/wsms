@@ -175,11 +175,11 @@ var Asset = function(editor){
 
 			if(editor.getObjectType(child) === 'Mesh'){
 				
-				scope.addGeoAsset(object.geometry, object.name);
+				scope.addGeoAsset(child.geometry, child.name);
 				signals.assetAdded.dispatch({
 					type: 'geometry',
-					target: object,
-					uuid: object.geometry.uuid
+					target: child,
+					uuid: child.geometry.uuid
 				});
 				return;
 			}

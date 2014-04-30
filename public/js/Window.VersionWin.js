@@ -50,6 +50,7 @@ var VersionWin = function ( editor ) {
 
   container.add( versionDag );
   container.add( sceneControlRow );
+  container.setLeft("400px");
   container.hide();
 
   container.show = function(sceneId){
@@ -111,5 +112,6 @@ var VersionWin = function ( editor ) {
     // Send the Data.
     xhr.send(formData);
   };
+
   return container;
 }
