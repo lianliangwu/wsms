@@ -523,56 +523,60 @@ var Viewport = function ( editor ) {
 			if (editor.getObjectType(child) === 'Mesh'){
 
 				var assets = child.userData.assets;
+				var uuid = child.uuid;
 				for ( var type in assets ) {
 					if (assets.hasOwnProperty(type)){
 						switch(type){
 							case 'geometry':
 								asset.getGeoAsset(assets[type], function onEnd(geometry) {
-									setGeometry(geometry);
+									setGeometry(uuid, geometry);
 								});	
 							break;
 							default:
-								asset.getImgAsset(assets[type].assetId, function onEnd(img, name) {
-									setTexture(type, img, name, assets[type]);
+								asset.getImgAsset(assets[type].assetId, function onEnd(img, sourceFile) {
+									setTexture(uuid, type, img, sourceFile, assets[type]);
 								});
 							break;
 						}
 					}
 				}					
-				
-				var setGeometry = function(data){
-					var loader = new THREE.JSONLoader();
-					var result = loader.parse( data );
-					var geometry = result.geometry;
-
-
-					//change the mesh with new geometry and old material
-					geometry.uuid = child.geometry.uuid;
-					var mesh = new THREE.Mesh( geometry, child.material );
-					editor.addObject( mesh );
-
-					mesh.name = child.name;
-					mesh.applyMatrix(child.matrix);
-					mesh.uuid = child.uuid;
-					mesh.userData = child.userData;			
-					
-					editor.removeObject(child);			
-				}
-
-				var setTexture = function(type, img, name, uuid) {
-					var texture = new THREE.Texture( img );
-					var mapRow = editor.materialSiderbar.mapRow;
-					texture.sourceFile = name;
-					texture.needsUpdate = true;
-					texture.uuid = uuid;
-
-					editor.select(child);
-					mapRow.texture.setValue(texture);
-					mapRow.checkbox.setValue(true);
-					editor.materialSiderbar.update();
-				};
 			}
 		});
+
+		var setGeometry = function(uuid, data){
+			editor.selectByUuid(uuid);
+			var object = editor.selected;
+			var loader = new THREE.JSONLoader();
+			var result = loader.parse( data );
+			var geometry = result.geometry;
+
+
+			//change the mesh with new geometry and old material
+			geometry.uuid = object.geometry.uuid;
+			var mesh = new THREE.Mesh( geometry, object.material );
+			editor.addObject( mesh );
+
+			mesh.name = object.name;
+			mesh.applyMatrix(object.matrix);
+			mesh.uuid = object.uuid;
+			mesh.userData = object.userData;			
+			
+			editor.removeObject(object);			
+		}
+
+		var setTexture = function(uuid, type, img, sourceFile, textureId) {
+			editor.selectByUuid(uuid);
+			var object = editor.selected;			
+			var texture = new THREE.Texture( img );
+			var mapRow = editor.materialSiderbar.mapRow;
+			texture.sourceFile = sourceFile;
+			texture.needsUpdate = true;
+			texture.uuid = textureId;
+
+			mapRow.texture.setValue(texture);
+			mapRow.checkbox.setValue(true);
+			editor.materialSiderbar.update();
+		};		
 	}
 
 	function updateInfo() {

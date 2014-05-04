@@ -97,12 +97,12 @@ var Asset = function(editor){
 		xhr.send();			
 	};
 
-	this.addGeoAsset = function(geometry, name){
+	this.addGeoAsset = function(geometry, uuid, name){
 		var geoAsset = exportGeometry(geometry);
 		var formData = new FormData();
 
 		formData.append('geometry', geoAsset);
-		formData.append('uuid', THREE.Math.generateUUID());
+		formData.append('uuid', uuid);
 		formData.append('name', name);
 
 		var xhr = new XMLHttpRequest();
@@ -174,12 +174,12 @@ var Asset = function(editor){
 		object.traverse( function ( child ) {
 
 			if(editor.getObjectType(child) === 'Mesh'){
-				
-				scope.addGeoAsset(child.geometry, child.name);
+				var uuid = THREE.Math.generateUUID();
+				scope.addGeoAsset(child.geometry, uuid, child.name);
 				signals.assetAdded.dispatch({
 					type: 'geometry',
 					target: child,
-					uuid: child.geometry.uuid
+					uuid: uuid
 				});
 				return;
 			}
