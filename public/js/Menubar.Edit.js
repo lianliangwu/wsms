@@ -105,7 +105,7 @@ Menubar.Edit = function ( editor ) {
 	options.add( option );
 
 
-	options.add( new UI.HorizontalRule() );
+	//options.add( new UI.HorizontalRule() );
 
 	// //save scene
 
@@ -149,7 +149,7 @@ Menubar.Edit = function ( editor ) {
 	// options.add( option );
 
 
-	options.add( new UI.HorizontalRule() );	
+	//options.add( new UI.HorizontalRule() );	
 
 	return container;
 
