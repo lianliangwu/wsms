@@ -378,6 +378,8 @@
 
 			this.dom.style.width = width - borderL - borderR - paddingL - paddingR + 'px';
 			this.signals.windowResized.dispatch();
+
+			return this;
 		};
 		Window.prototype.setHeight = function(height){
 			var borderT = getNumber(this.dom.style.borderTopWidth);
@@ -387,6 +389,8 @@
 
 			this.dom.style.height = height - borderT - borderB - paddingT - paddingB + 'px';
 			this.signals.windowResized.dispatch();
+
+			return this;
 		};
 		Window.prototype.getInnerWidth = function(){
 			var borderL = getNumber(this.dom.style.borderLeftWidth);
@@ -417,6 +421,8 @@
 			if(position.right !== undefined){
 				this.dom.style.right = position.right;
 			}
+
+			return this;
 		};
 		Window.prototype.getIndex = function(){
 			var index = 0;//static variable 

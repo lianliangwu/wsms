@@ -6,9 +6,9 @@ var VersionWin = function ( editor ) {
   var versionDag = new UI.DAG();
   versionDag.setOverflow('scroll');
 
-
   var controlPanel = new UI.Panel();
 
+  // version control
   var versionControlRow = new UI.Panel();
   var retrieveBtn = new UI.Button( 'Retrieve' ).setMarginLeft( '7px' ).onClick( retrieve );
   var commitBtn = new UI.Button( 'Commit' ).setMarginLeft( '7px' ).onClick( function () {} );
@@ -19,10 +19,10 @@ var VersionWin = function ( editor ) {
   versionControlRow.add( commitBtn );
   versionControlRow.add( removeBtn );
   versionControlRow.setMargin("10px");
-
   
   controlPanel.add(versionControlRow);
 
+  //branch control
   var branchControlRow = new UI.Panel();
   var newBranchBtn = new UI.Button('New').setMarginLeft( '7px' );
   var removeBranchBtn = new UI.Button('Remove').setMarginLeft( '7px' );
@@ -34,9 +34,9 @@ var VersionWin = function ( editor ) {
   branchControlRow.add(mergeBtn);
   branchControlRow.setMargin("10px");  
 
-  
   controlPanel.add(branchControlRow);
 
+  //tag control
   var tagControlRow = new UI.Panel();
   var newTagBtn = new UI.Button('New').setMarginLeft( '7px' );
   var removeTagBtn = new UI.Button('Remove').setMarginLeft( '7px' );
@@ -97,7 +97,7 @@ var VersionWin = function ( editor ) {
     }
   }
 
-  //
+  //draw version history graph
   function drawGraph() {
     var nodes = [], edges = [];              
 
