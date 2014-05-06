@@ -371,6 +371,7 @@
 		};
 
 		Window.prototype.setWidth = function(width){
+			width = parseInt(width);
 			var borderL = getNumber(this.dom.style.borderLeftWidth);
 			var borderR = getNumber(this.dom.style.borderRightWidth);
 			var paddingL = getNumber(this.dom.style.paddingLeft);
@@ -381,7 +382,15 @@
 
 			return this;
 		};
+		Window.prototype.setInnerWidth = function(width){
+			this.dom.style.width = width;
+			this.signals.windowResized.dispatch();
+
+			return this;
+		};
+
 		Window.prototype.setHeight = function(height){
+			height = parseInt(height);
 			var borderT = getNumber(this.dom.style.borderTopWidth);
 			var borderB = getNumber(this.dom.style.borderBottomWidth);
 			var paddingT = getNumber(this.dom.style.paddingTop);
@@ -392,13 +401,20 @@
 
 			return this;
 		};
+		Window.prototype.setInnerHeight = function(height){
+			this.dom.style.height = height;
+			this.signals.windowResized.dispatch();
+
+			return this;
+		};
+
 		Window.prototype.getInnerWidth = function(){
 			var borderL = getNumber(this.dom.style.borderLeftWidth);
 			var borderR = getNumber(this.dom.style.borderRightWidth);
 			var paddingL = getNumber(this.dom.style.paddingLeft);
 			var paddingR = getNumber(this.dom.style.paddingRight);
 
-			return this.getWidth() - borderL - borderR - paddingL - paddingR;			
+			return this.getWidth() - borderL - borderR - paddingL - paddingR + 'px';			
 		};
 		Window.prototype.getInnerHeight = function(){
 			var borderT = getNumber(this.dom.style.borderTopWidth);
@@ -406,7 +422,10 @@
 			var paddingT = getNumber(this.dom.style.paddingTop);
 			var paddingB = getNumber(this.dom.style.paddingBottom);
 
-			return this.getHeight() - borderT - borderB - paddingT - paddingB;
+			return this.getHeight() - borderT - borderB - paddingT - paddingB + 'px';
+		};
+		Window.prototype.getHeaderHeight = function(){
+			return this.dom.style.paddingTop;
 		};
 		Window.prototype.setPosition = function(position){
 			if(position.top !== undefined){
@@ -431,6 +450,7 @@
 				return index;
 			};
 		}();
+
 
 		return Window;
 	})();	
