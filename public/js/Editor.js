@@ -499,16 +499,19 @@ Editor.prototype = {
 	},
 	getObjectByUuid: function (uuid) {
 		var scope = this;
+		var r;
 
 
 		this.scene.traverse( function ( child ) {
 
 			if ( child.uuid === uuid ) {
 
-				return child;
+				r = child;
 			}
 
-		} );	
+		} );
+		
+		return r;	
 	},
 	selectByUuid: function (uuid) {
 		var scope = this;
