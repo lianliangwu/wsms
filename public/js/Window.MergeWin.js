@@ -1,4 +1,4 @@
-var MergeWin = function () {
+var MergeWin = function (editor) {
 	var sceneWinA = new ViewerWin();
 	var sceneWinB = new ViewerWin();
 	var sceneWinD = new ViewerWin();
@@ -90,7 +90,9 @@ var MergeWin = function () {
 		mergeControlWin.setWidth(width/4);
 		mergeControlWin.setHeight(height);
 		mergeControlWin.init(versionA, versionB, infoMap);
-	};	
+
+		mergeEditor.setDiffColor(infoMap);
+	}
 	
 	return this;
 

@@ -6,10 +6,14 @@ var ViewerWin = function ( ) {
 	container.add(viewer);
 	
 	container.signals.windowResized.add(function(){
-		viewer.resize(container.getInnerWidth(), container.getInnerHeight());
+		var width = parseInt(container.getInnerWidth());
+		var height = parseInt(container.getInnerHeight());
+		viewer.resize(width, height);
 	});
 	container.signals.windowOpened.add(function(){
-		viewer.resize(container.getInnerWidth(), container.getInnerHeight());
+		var width = parseInt(container.getInnerWidth());
+		var height = parseInt(container.getInnerHeight());
+		viewer.resize(width, height);
 	});
 
 	container.render = function(){

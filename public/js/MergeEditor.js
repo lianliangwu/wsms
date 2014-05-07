@@ -79,5 +79,19 @@ MergeEditor.prototype = {
 	updateMaterial: function () {},
 	addScene: function () {},
 	removeScene: function () {},
-	parentScene: function () {}
+	parentScene: function () {},
+	setDiffColor: function (infoMap) {
+		var object;
+		var type;
+		for(uuid in infoMap){
+			if(infoMap.hasOwnProperty(uuid)){
+				nodeInfo = infoMap[uuid];
+				type = nodeInfo.isConflicted ? 'conflicted' : 'merged';
+				object = this.viewerD.editor.getObjectByUuid(uuid);
+				if(this.viewerD.editor.getObjectType(object) === 'Mesh'){
+					this.viewerD.editor.diffColor.setColor(object, type);
+				}
+			}
+		}
+	}
 };

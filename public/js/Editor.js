@@ -45,7 +45,8 @@ var Editor = function () {
 	this.storage = new Storage();
 	this.asset = new Asset(this);	
 	this.loader = new Loader(this);
-	this.revCon = new RevisionControl(this); 
+	this.revCon = new RevisionControl(this);
+	this.diffColor = new DiffColor(this); 
 
 	this.scene = new THREE.Scene();
 	this.sceneHelpers = new THREE.Scene();
@@ -54,7 +55,7 @@ var Editor = function () {
 
 
 	this.scene.uuid = THREE.Math.generateUUID();//wzh
-	this.object = {};
+	//this.object = {};
 	this.geometries = {};
 	this.materials = {};
 	this.textures = {};
@@ -495,6 +496,19 @@ Editor.prototype = {
 
 		this.signals.objectSelected.dispatch( object );
 
+	},
+	getObjectByUuid: function (uuid) {
+		var scope = this;
+
+
+		this.scene.traverse( function ( child ) {
+
+			if ( child.uuid === uuid ) {
+
+				return child;
+			}
+
+		} );	
 	},
 	selectByUuid: function (uuid) {
 		var scope = this;
