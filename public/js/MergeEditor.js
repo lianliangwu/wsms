@@ -80,18 +80,102 @@ MergeEditor.prototype = {
 	addScene: function () {},
 	removeScene: function () {},
 	parentScene: function () {},
-	setDiffColor: function (infoMap) {
-		var object;
+	setDiffColor: function ( infoMap , versionNumA, versionNumB) {
+		var editorA = this.viewerA.editor;
+		var editorB = this.viewerB.editor;
+		var editorD = this.viewerD.editor;
+		var diffColor = editorD.diffColor;
+		var getObjectType = editorD.getObjectType;
+		var versionA = 'Version' + versionNumA;
+		var versionB = 'Version' + versionNumB;		
+		var objectA, objectB, objectD;
 		var type;
+
+
+		function paintSubScene( editor, object, type) {
+			object.traverse(function ( child) {
+				if(editor.getObjectType(object) === 'Mesh'){
+					diffColor.setColor(object, type);
+				}
+			});
+		}
+
+
 		for(uuid in infoMap){
 			if(infoMap.hasOwnProperty(uuid)){
 				nodeInfo = infoMap[uuid];
-				if(nodeInfo.isConflicted || nodeInfo.isMerged){
-					type = nodeInfo.isConflicted ? 'conflicted' : 'merged';
-					object = this.viewerD.editor.getObjectByUuid(uuid);
-					if(this.viewerD.editor.getObjectType(object) === 'Mesh'){
-						this.viewerD.editor.diffColor.setColor(object, type);
+
+				//version D
+				if(nodeInfo.isConflicted){
+					type = nodeInfo.attrLog.length === 0 ? 'structConflict' : 'nodeConflict';
+					objectD = editorD.getObjectByUuid(uuid);
+					
+					if(getObjectType(objectD) === 'Mesh'){
+						diffColor.setColor(objectD, type);
+					}else{
+						//paint the subScene rooted at the conflicted node
+						if(type === 'nodeConflict'){
+							paintSubScene(this.viewerD, objectD, type);
+						}else{
+							//paint every structure conflicted subScene 
+							_.each(nodeInfo.subScene, function onEach( subScene ){
+								var object = editorD.getObjectByUuid(subScene.uuid);
+								if(object !== undefined){
+									paintSubScene(editorD, object, type);
+								}
+							});
+						}
 					}					
+				}
+
+				if( nodeInfo.isMerged ){
+					type = nodeInfo.attrLog.length === 0 ? 'structureDiff' : 'nodeDiff';
+					objectA = editorA.getObjectByUuid( uuid );
+					objectB = editorB.getObjectByUuid( uuid );
+
+					//version A
+					if(type === 'nodeDiff'){
+						if(nodeInfo.nodeLog[versionA] !== 'unchanged'){
+							if(getObjectType( objectA ) === 'Mesh'){
+								diffColor.setColor( objectA, type );
+							}else{
+								//paint the subScene rooted at the changed node
+								paintSubScene( editorA, objectA, type );
+							}	
+						}						
+					}else{
+						//paint every structure changed subScene 
+						_.each(nodeInfo.subScene, function onEach( subScene ){
+							if(subScene[versionA] !== 'unchanged'){
+								var object = editorA.getObjectByUuid( subScene.uuid );
+								if( object !== undefined ){
+									paintSubScene( editorA, object, type );
+								}								
+							}
+						});
+					}
+
+					//version B
+					if(type === 'nodeDiff'){
+						if(nodeInfo.nodeLog[versionB] !== 'unchanged'){
+							if(getObjectType( objectB ) === 'Mesh'){
+								diffColor.setColor( objectB, type );
+							}else{
+								//paint the subScene rooted at the changed node
+								paintSubScene( editorB, objectB, type );
+							}	
+						}						
+					}else{
+						//paint every structure changed subScene 
+						_.each(nodeInfo.subScene, function onEach( subScene ){
+							if(subScene[versionB] !== 'unchanged'){
+								var object = editorB.getObjectByUuid( subScene.uuid );
+								if( object !== undefined ){
+									paintSubScene( editorB, object, type );
+								}								
+							}
+						});
+					}
 				}
 			}
 		}

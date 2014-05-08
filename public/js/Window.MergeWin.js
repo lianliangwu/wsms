@@ -4,7 +4,7 @@ var MergeWin = function (editor) {
 	var sceneWinD = new ViewerWin();
 	var mergeEditor = new MergeEditor(sceneWinA.viewer, sceneWinB.viewer, sceneWinD.viewer);
 	var mergeControlWin = new MergeControlWin(mergeEditor);
-	var versionA, versionB;
+	var versionNumA, versionNumB;
 
 	document.body.appendChild( sceneWinA.dom );
 	document.body.appendChild( sceneWinB.dom );
@@ -12,7 +12,7 @@ var MergeWin = function (editor) {
 	document.body.appendChild( mergeControlWin.dom );	
 	
 	mergeEditor.signals.commitMerge.add(function () {
-		editor.revCon.commit([versionA, versionB], sceneWinD.viewer.editor.sceneW);
+		editor.revCon.commit([versionNumA, versionNumB], sceneWinD.viewer.editor.sceneW);
 	});
 
 	mergeEditor.signals.cancelMerge.add(function () {
@@ -41,8 +41,8 @@ var MergeWin = function (editor) {
 				init(result.sceneA, result.sceneB, result.mergedScene, result.infoMap);
 			});
 
-			versionA = verA;
-			versionB = verB;			
+			versionNumA = verA;
+			versionNumB = verB;			
 		}
 	};
 
@@ -89,9 +89,9 @@ var MergeWin = function (editor) {
 		});
 		mergeControlWin.setWidth(width/4);
 		mergeControlWin.setHeight(height);
-		mergeControlWin.init(versionA, versionB, infoMap);
+		mergeControlWin.init(versionNumA, versionNumB, infoMap);
 
-		mergeEditor.setDiffColor(infoMap);
+		mergeEditor.setDiffColor(infoMap, versionNumA, versionNumB);
 	}
 	
 	return this;
