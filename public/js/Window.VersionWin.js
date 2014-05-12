@@ -1,6 +1,6 @@
 var VersionWin = function ( editor ) {
 
-  var container = new UI.Window("Version Viewer");
+  var container = new UI.Window("Version History");
 
 
   var versionDag = new UI.DAG();
@@ -14,7 +14,7 @@ var VersionWin = function ( editor ) {
   var commitBtn = new UI.Button( 'Commit' ).setMarginLeft( '7px' ).onClick( function () {} );
   var removeBtn = new UI.Button( 'Remove' ).setMarginLeft( '7px' ).onClick( function () {} );
   
-  versionControlRow.add( new UI.Text( 'Version Control' ).setWidth( '100px' ) );
+  versionControlRow.add( new UI.Text( 'Version :' ).setWidth( '100px' ) );
   versionControlRow.add( retrieveBtn );
   versionControlRow.add( commitBtn );
   versionControlRow.add( removeBtn );
@@ -28,7 +28,7 @@ var VersionWin = function ( editor ) {
   var removeBranchBtn = new UI.Button('Remove').setMarginLeft( '7px' );
   var mergeBtn = new UI.Button( 'Merge' ).setMarginLeft( '7px' ).onClick( merge );
 
-  branchControlRow.add( new UI.Text( 'Branch Control' ).setWidth( '100px' ) );
+  branchControlRow.add( new UI.Text( 'Branch :' ).setWidth( '100px' ) );
   branchControlRow.add(newBranchBtn);
   branchControlRow.add(removeBranchBtn);
   branchControlRow.add(mergeBtn);
@@ -41,7 +41,7 @@ var VersionWin = function ( editor ) {
   var newTagBtn = new UI.Button('New').setMarginLeft( '7px' );
   var removeTagBtn = new UI.Button('Remove').setMarginLeft( '7px' );
 
-  tagControlRow.add( new UI.Text( 'Tag Control' ).setWidth( '100px' ) );
+  tagControlRow.add( new UI.Text( 'Tag :' ).setWidth( '100px' ) );
   tagControlRow.add(newTagBtn);
   tagControlRow.add(removeTagBtn);
   tagControlRow.setMargin("10px");

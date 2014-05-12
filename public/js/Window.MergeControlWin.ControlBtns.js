@@ -9,8 +9,16 @@ MergeControlWin.ControlBtns = function (mergeEditor) {
 		mergeEditor.signals.commitMerge.dispatch();
 	} );
 
-	btnRow.add(cancelBtn);
-	btnRow.add(commitBtn);
+	var snap = new UI.Checkbox( true ).setMarginLeft('7px').setMarginTop('5px').onChange( function () {
+		mergeEditor.resetDiffColor(snap.getValue());
+	} );
+
+
+	btnRow.add( cancelBtn );
+	btnRow.add( commitBtn );
+	btnRow.add( new UI.Break() );
+	btnRow.add( snap );
+	btnRow.add( new UI.Text( 'color' ) );	
 
 	container.add( new UI.Break() );
 	container.add(btnRow);

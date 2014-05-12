@@ -80,11 +80,17 @@ MergeEditor.prototype = {
 	addScene: function () {},
 	removeScene: function () {},
 	parentScene: function () {},
+	resetDiffColor: function ( boo ) {
+		this.viewerA.editor.diffColor.resetColor( boo );
+//		this.viewerA.editor.signals.materialChanged.dispatch();
+		this.viewerB.editor.diffColor.resetColor( boo );
+//		this.viewerB.editor.signals.materialChanged.dispatch();
+		this.viewerD.editor.diffColor.resetColor( boo );
+	},
 	setDiffColor: function ( infoMap , versionNumA, versionNumB) {
 		var editorA = this.viewerA.editor;
 		var editorB = this.viewerB.editor;
 		var editorD = this.viewerD.editor;
-		var diffColor = editorD.diffColor;
 		var getObjectType = editorD.getObjectType;
 		var versionA = 'Version' + versionNumA;
 		var versionB = 'Version' + versionNumB;		
@@ -95,7 +101,7 @@ MergeEditor.prototype = {
 		function paintSubScene( editor, object, type) {
 			object.traverse(function ( child) {
 				if(editor.getObjectType(object) === 'Mesh'){
-					diffColor.setColor(object, type);
+					editor.diffColor.setColor(object, type);
 				}
 			});
 		}
@@ -111,7 +117,7 @@ MergeEditor.prototype = {
 					objectD = editorD.getObjectByUuid(uuid);
 					
 					if(getObjectType(objectD) === 'Mesh'){
-						diffColor.setColor(objectD, type);
+						objectD.diffColor.setColor(objectD, type);
 					}else{
 						//paint the subScene rooted at the conflicted node
 						if(type === 'nodeConflict'){
@@ -137,7 +143,7 @@ MergeEditor.prototype = {
 					if(type === 'nodeDiff'){
 						if(nodeInfo.nodeLog[versionA] !== 'unchanged'){
 							if(getObjectType( objectA ) === 'Mesh'){
-								diffColor.setColor( objectA, type );
+								editorA.diffColor.setColor( objectA, type );
 							}else{
 								//paint the subScene rooted at the changed node
 								paintSubScene( editorA, objectA, type );
@@ -159,7 +165,7 @@ MergeEditor.prototype = {
 					if(type === 'nodeDiff'){
 						if(nodeInfo.nodeLog[versionB] !== 'unchanged'){
 							if(getObjectType( objectB ) === 'Mesh'){
-								diffColor.setColor( objectB, type );
+								editorB.diffColor.setColor( objectB, type );
 							}else{
 								//paint the subScene rooted at the changed node
 								paintSubScene( editorB, objectB, type );
