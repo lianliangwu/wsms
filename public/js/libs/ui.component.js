@@ -514,6 +514,7 @@
           node.rect = node.getElementsByTagName('rect')[0];
           node.style.cursor = "pointer";
 
+          //toggle the color when clicked
           node.addEventListener('click',function(e) {
             e.preventDefault();
 			this.selected = this.selected === true? false: true;

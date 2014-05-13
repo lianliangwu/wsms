@@ -4,7 +4,9 @@
 var Scene = require('../models/scene.js');
 var SNode = require('../models/sNode.js');
 var RNode = require('../models/rNode.js');
-var maps = ['map', 'bumpMap', 'lightMap', 'normalMap', 'specularMap', 'envMap'];
+var Branch = require('../models/branch.js');
+var Tag = require('../models/tag.js');
+var textureMaps = ['map', 'bumpMap', 'lightMap', 'normalMap', 'specularMap', 'envMap'];
 
 function isArray(obj) {   
   return Object.prototype.toString.call(obj) === '[object Array]';    
@@ -267,7 +269,7 @@ var threeWayMerge = function(options, callback) {
 
 					//texture diff
 					var material = JSON.parse(nodeMap[node.material].data);
-					maps.forEach(function (map){
+					textureMaps.forEach(function (map){
 						var ref = material[map];
 						if(ref !== undefined){
 							if(!nodeCmp(nodeMap[ref], nodeMapC[ref])){
@@ -815,4 +817,193 @@ exports.commit = function(req, res) {
 			});
 		});
 	}
+};
+
+//checkout a branch, tag or a specific version
+exports.checkout = function(req, res) {
+	var param = req.query['param'];
+	var sceneId = req.query['sceneId'];
+
+	function getTagVersionNum(callback) {
+		Tag.findOne({
+			'sceneId': sceneId,
+			'name': param
+		}, function onEnd(err, tag) {
+			if(!err){
+				if(tag){
+					callback(tag.versionNum);
+				}
+			}
+		});
+	}
+
+	function getBranchVersionNum(callback) {
+		Branch.findOne({
+			'sceneId': sceneId,
+			'name': param
+		}, function onEnd(err, branch){
+			if(!err){
+				if(branch){
+					callback(branch.versionNum);
+				}else{
+					getTagVersionNum(callback);
+				}
+			}
+		});
+	}
+
+	getBranchVersionNum(function onEnd(versionNum) {
+		retrieveSceneNodes(sceneId, versionNum, function onEnd(err, nodes){
+
+			if(err){
+				console.log("retrieve scene err: "+ err);
+			}
+			if(!err){
+				var scene = getSceneFromNodes(nodes, sceneId);
+
+				res.send({
+					'success': true,
+					'scene': scene
+				});				
+			}
+		});	
+	});
+};
+
+exports.addBranch = function(req, res) {
+	Branch.create({
+		sceneId: req.body['sceneId'],
+		name: req.body['name'],
+		versionNum: req.body['versionNum'],
+		desc: req.body['desc']
+	},function onEnd(err, branch){
+		if(!err){
+			console.log('new branch added '+ branch.name);
+			res.send({
+				'success':true
+			});
+		}
+	});
+};
+
+exports.removeBranch = function(req, res) {
+	Branch.findOneAndRemove({
+		sceneId: req.body['sceneId'],
+		name: req.body['name']
+	}, function(err, branch){
+		if(!err){
+			console.log('branch removed ' + branch.name);
+			res.send({
+				'success':true
+			});			
+		}
+	});
+};
+
+exports.getBranches = function(req, res) {
+	Branch.find({
+		sceneId: req.query['sceneId']
+	}, function(err, branches) {
+		if(!err){
+			res.send({
+				'success': true,
+				'tags': branches
+			});
+		}
+	});
+};
+
+exports.addTag = function(req, res) {
+	Tag.create({
+		sceneId: req.body['sceneId'],
+		name: req.body['name'],
+		versionNum: req.body['versionNum'],
+		desc: req.body['desc']
+	},function onEnd(err, tag){
+		if(!err){
+			console.log('new tag added ' + tag.name);
+			res.send({
+				'success':true
+			});			
+		}
+	});
+};
+
+exports.getTags = function(req, res) {
+	Tag.find({
+		sceneId: req.query['sceneId']
+	}, function(err, tags) {
+		if(!err){
+			res.send({
+				'success': true,
+				'tags': tags
+			});
+		}
+	});
+};
+
+exports.removeTag = function(req, res) {
+	Tag.findOneAndRemove({
+		sceneId: req.body['sceneId'],
+		name: req.body['name']
+	}, function(err, tag){
+		if(!err){
+			console.log('tag removed ' + tag.name);
+			res.send({
+				'success':true
+			});			
+		}
+	});
+};
+
+//get all the versions, branches and tags of the specified scene
+exports.getVersionHistory = function(req, res) {
+	var sceneId = req.query.sceneId;
+	var versions, tags, branches;
+
+	function getAllVersions(callback) {
+		RNode.getAllVersions(sceneId, function onEnd(err, result) {
+			if(err){
+				console.log("get all versions err: "+ err);
+			}
+			if(!err){
+				versions = result.map(function(version){
+					version.nodeMap = null;
+					return version;
+				});
+				callback();
+			}
+		});
+	}
+	function getAllBranches(callback) {
+		Branch.getAllBranches(sceneId, function onEnd(err, result) {
+			if(err){
+				console.log("get all branches err: "+ err);
+			}
+			if(!err){
+				branches = result;
+				getAllVersions(callback);
+			}
+		});
+	} 
+	function getAllTags(callback) {
+		Tag.getAllBranches(sceneId, function onEnd(err, result) {
+			if(err){
+				console.log("get all tags err: "+ err);
+			}
+			if(!err){
+				tags = result;
+				getAllBranches(callback);
+			}
+		});
+	}
+
+	getAllTags(function() {
+		res.send({
+			'success': true,
+			'versions': versions,
+			'branches': branches,
+			'tags': tags
+		});
+	});
 };

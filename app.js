@@ -38,6 +38,13 @@ app.get('/getAllVersions', rc.getAllVersions);
 app.get('/retrieve', rc.retrieve);
 app.post('/commit', rc.commit);
 app.get('/merge', rc.merge);
+app.get('/checkout', rc.checkout);
+app.post('/addBranch', rc.addBranch);
+app.post('/removeBranch', rc.removeBranch);
+app.get('/getBranches', rc.getBranches);
+app.post('/addTag', rc.addTag);
+app.post('/removeTag', rc.addTag);
+app.get('/getTags', rc.getTags);
 
 http.createServer(app).listen(app.get('port'), function(){
   console.log('Express server listening on port ' + app.get('port'));
