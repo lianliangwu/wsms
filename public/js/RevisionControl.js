@@ -170,9 +170,7 @@ var RevisionControl = function(editor){
 		return scene;
 	};
 
-	this.retrieve = function(sceneId, versionNum, callback) {
-		var scope = this;
-
+	var retrieve = function(sceneId, versionNum, callback) {
 		//save scene
 		var formData = new FormData();  
 
@@ -204,7 +202,7 @@ var RevisionControl = function(editor){
 		xhr.send(formData);
 	};
 
-	this.commit = function(preVersions, scene) {
+	var commit = function(preVersions, scene) {
 		if(!commitable){
 			console.log("unable to commit!");
 		}
@@ -253,9 +251,7 @@ var RevisionControl = function(editor){
 		xhr.send(formData);
 	};
 
-	this.merge = function(sceneId, versionA, versionB, versionC, callback) {
-		var scope = this;
-
+	var merge = function(sceneId, versionA, versionB, versionC, callback) {
 		//save scene
 		var formData = new FormData();  
 
@@ -291,4 +287,102 @@ var RevisionControl = function(editor){
 		// Send the Data.
 		xhr.send(formData);
 	};
+
+	var checkOut = function(options) {
+		var params = {
+			'name': options.name,
+			'sceneId': editor.scene.uuid
+		};
+
+		Ajax.getJSON({
+			'url', 'checkOut',
+			'params', params
+		}, function onEnd(err, result) {
+
+		});
+	};
+
+	var addBranch = function(options, callback) {
+		var params = {
+			'name': options.name,
+			'desc': options.desc,
+			'sceneId': editor.scene.uuid,
+			'versionNum': currentVersion
+		};
+
+		Ajax.post({
+			'url': 'addBranch',
+			'params': params
+		}, callback);
+	};
+
+	var getBranches = function(options, callback) {
+		var params = {
+			'sceneId': options.sceneId
+		};
+
+		Ajax.getJSon({
+			'url': 'getBranches',
+			'params': params
+		}, callback;
+	};
+
+	var removeBranch = function(options, callback) {
+		var params = {
+			'name': options.name,
+			'sceneId': editor.scene.uuid
+		};
+
+		Ajax.post({
+			'url': 'removeBranch',
+			'params': params
+		}, callback);
+	};
+
+	var addTag = function(options, callback) {
+		var params = {
+			'name': options.name,
+			'desc': options.desc,
+			'sceneId': editor.scene.uuid,
+			'versionNum': currentVersion
+		};
+
+		Ajax.post({
+			'url': 'addTag',
+			'params': params
+		}, callback);
+	};
+
+	var getTags = function(options, callback) {
+		var params = {
+			'sceneId': options.sceneId
+		};
+
+		Ajax.getJSon({
+			'url': 'getTags',
+			'params': params
+		}, callback);		
+	};
+
+	var removeTag = function(options, callback) {
+		var params = {
+			'name': options.name,
+			'sceneId': editor.scene.uuid
+		};
+
+		Ajax.post({
+			'url': 'removeTag',
+			'params': params
+		}, callback);		
+	};
+
+	this.retrieve = retrieve;
+	this.commit = commit;
+	this.merge = merge;
+	this.addBranch = addBranch;
+	this.removeTag = removeTag;
+	this.getBranches = getBranches;
+	this.addTag = addTag;
+	this.getTags = getTags;
+	this.removeTag = removeTag;
 }

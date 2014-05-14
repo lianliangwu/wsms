@@ -819,8 +819,8 @@ exports.commit = function(req, res) {
 	}
 };
 
-//checkout a branch, tag or a specific version
-exports.checkout = function(req, res) {
+//checkOut a branch, tag or a specific version
+exports.checkOut = function(req, res) {
 	var param = req.query['param'];
 	var sceneId = req.query['sceneId'];
 
