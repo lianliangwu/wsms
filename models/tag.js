@@ -4,7 +4,7 @@ var TagSchema = new mongoose.Schema({
   sceneId: String,
   name: String,
   versionNum: String,
-  description: String
+  desc: String
 });
 
 TagSchema.statics.getAllTages = function(sceneId, callback) {

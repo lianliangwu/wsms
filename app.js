@@ -43,7 +43,7 @@ app.post('/addBranch', rc.addBranch);
 app.post('/removeBranch', rc.removeBranch);
 app.get('/getBranches', rc.getBranches);
 app.post('/addTag', rc.addTag);
-app.post('/removeTag', rc.addTag);
+app.post('/removeTag', rc.removeTag);
 app.get('/getTags', rc.getTags);
 
 http.createServer(app).listen(app.get('port'), function(){

@@ -295,8 +295,8 @@ var RevisionControl = function(editor){
 		};
 
 		Ajax.getJSON({
-			'url', 'checkOut',
-			'params', params
+			'url': 'checkOut',
+			'params': params
 		}, function onEnd(err, result) {
 
 		});
@@ -324,7 +324,7 @@ var RevisionControl = function(editor){
 		Ajax.getJSon({
 			'url': 'getBranches',
 			'params': params
-		}, callback;
+		}, callback);
 	};
 
 	var removeBranch = function(options, callback) {
@@ -380,7 +380,7 @@ var RevisionControl = function(editor){
 	this.commit = commit;
 	this.merge = merge;
 	this.addBranch = addBranch;
-	this.removeTag = removeTag;
+	this.removeBranch = removeBranch;
 	this.getBranches = getBranches;
 	this.addTag = addTag;
 	this.getTags = getTags;

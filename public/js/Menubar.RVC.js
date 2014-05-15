@@ -44,13 +44,13 @@ Menubar.RVC = function ( editor ) {
 	var option = new UI.Panel();
 	option.setClass( 'option' );
 	option.setTextContent( 'New Branch' );
-	option.onClick( function () {} );
+	option.onClick( addBranch );
 	options.add( option );
 
 	var option = new UI.Panel();
 	option.setClass( 'option' );
 	option.setTextContent( 'Remove Branch' );
-	option.onClick( function () {} );
+	option.onClick( removeBranch );
 	options.add( option );	
 
 	// Tag
@@ -59,13 +59,13 @@ Menubar.RVC = function ( editor ) {
 	var option = new UI.Panel();
 	option.setClass( 'option' );
 	option.setTextContent( 'New Tag' );
-	option.onClick( function () {} );
+	option.onClick( addTag );
 	options.add( option );
 
 	var option = new UI.Panel();
 	option.setClass( 'option' );
 	option.setTextContent( 'Remove Tag' );
-	option.onClick( function () {} );
+	option.onClick( removeTag );
 	options.add( option );	
 
 	// Version History
@@ -76,6 +76,52 @@ Menubar.RVC = function ( editor ) {
 	option.setTextContent( 'Version History' );
 	option.onClick( function () {} );
 	options.add( option );
+
+	function addBranch() {
+		var name = prompt('New branch name', '');
+		editor.revCon.addBranch({
+			'name': name,
+			'desc': ''
+		}, function onEnd(err) {
+			if(!err) {
+				alert('New branch added.');
+			}
+		});
+	}
+
+	function removeBranch() {
+		var name = prompt('Branch to be removed', '')
+		editor.revCon.removeBranch({
+			'name': name
+		}, function onEnd(err) {
+			if(!err) {
+				alert('Branch removed.');
+			}
+		})
+	}
+
+	function addTag() {
+		var name = prompt('New tag name', '');
+		editor.revCon.addTag({
+			'name': name,
+			'desc': ''
+		}, function onEnd(err) {
+			if(!err) {
+				alert('New tag added.');
+			}
+		});
+	}
+
+	function removeTag() {
+		var name = prompt('Tag to be removed', '')
+		editor.revCon.removeTag({
+			'name': name
+		}, function onEnd(err) {
+			if(!err) {
+				alert('Tag removed.');
+			}
+		})
+	}
 
 	return container;
 
