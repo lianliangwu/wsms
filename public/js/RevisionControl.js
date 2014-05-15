@@ -1,6 +1,5 @@
 var RevisionControl = function(editor){
 	var signals = editor.signals;
-	var currentVersion = -1;
 	var commitable = true;
 	var maps = ['map', 'bumpMap', 'lightMap', 'normalMap', 'specularMap', 'envMap'];
 
@@ -188,10 +187,10 @@ var RevisionControl = function(editor){
 
 				scene = getThreeSG(scene);
 				var loader = new THREE.ObjectLoader();
-				var result = loader.parse( scene );
+				var scene = loader.parse( scene );
 
-				currentVersion = versionNum;
-				callback&&callback(null, result);
+				scene.userData.currentVersion = versionNum;
+				callback&&callback(null, scene);
 				
 			} else {
 			  alert('An error occurred!');
@@ -211,8 +210,8 @@ var RevisionControl = function(editor){
 
 		if(preVersions === undefined){
 			preVersions = [];
-			if( currentVersion >= 0){
-				preVersions.push(currentVersion);
+			if( editor.scene.userData.currentVersion >= 0){
+				preVersions.push(editor.scene.userData.currentVersion);
 			}	
 		}
 
@@ -240,7 +239,7 @@ var RevisionControl = function(editor){
 			if (xhr.status === 200 && xhr.readyState === 4) {
 
 				var result = JSON.parse(xhr.responseText);
-				currentVersion = result.versionNum;
+				editor.scene.userData.currentVersion = result.versionNum;
 				commitable = true; // allow for committing
 			} else {
 			  alert('An error occurred!');
@@ -288,17 +287,24 @@ var RevisionControl = function(editor){
 		xhr.send(formData);
 	};
 
-	var checkOut = function(options) {
+	var checkout = function(options, callback) {
 		var params = {
 			'name': options.name,
 			'sceneId': editor.scene.uuid
 		};
 
 		Ajax.getJSON({
-			'url': 'checkOut',
+			'url': 'checkout',
 			'params': params
 		}, function onEnd(err, result) {
+			var scene = result.scene;
 
+			scene = getThreeSG(scene);
+			var loader = new THREE.ObjectLoader();
+			scene = loader.parse( scene );
+
+			scene.userData.currentVersion = result.versionNum;
+			callback&&callback(null, scene);
 		});
 	};
 
@@ -307,7 +313,7 @@ var RevisionControl = function(editor){
 			'name': options.name,
 			'desc': options.desc,
 			'sceneId': editor.scene.uuid,
-			'versionNum': currentVersion
+			'versionNum': editor.scene.userData.currentVersion
 		};
 
 		Ajax.post({
@@ -344,7 +350,7 @@ var RevisionControl = function(editor){
 			'name': options.name,
 			'desc': options.desc,
 			'sceneId': editor.scene.uuid,
-			'versionNum': currentVersion
+			'versionNum': editor.scene.userData.currentVersion
 		};
 
 		Ajax.post({
@@ -379,6 +385,7 @@ var RevisionControl = function(editor){
 	this.retrieve = retrieve;
 	this.commit = commit;
 	this.merge = merge;
+	this.checkout = checkout;
 	this.addBranch = addBranch;
 	this.removeBranch = removeBranch;
 	this.getBranches = getBranches;

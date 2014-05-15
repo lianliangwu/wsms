@@ -642,7 +642,8 @@ exports.retrieve = function(req, res) {
 
 		res.send({
 			'success': true,
-			'scene': scene
+			'scene': scene,
+			'versionNum': versionNum
 		});
 	});
 };
@@ -820,18 +821,21 @@ exports.commit = function(req, res) {
 };
 
 //checkOut a branch, tag or a specific version
-exports.checkOut = function(req, res) {
-	var param = req.query['param'];
+exports.checkout = function(req, res) {
+	var name = req.query['name'];
 	var sceneId = req.query['sceneId'];
 
 	function getTagVersionNum(callback) {
 		Tag.findOne({
 			'sceneId': sceneId,
-			'name': param
+			'name': name
 		}, function onEnd(err, tag) {
 			if(!err){
 				if(tag){
 					callback(tag.versionNum);
+				}
+				else{
+					callback(-1);
 				}
 			}
 		});
@@ -840,7 +844,7 @@ exports.checkOut = function(req, res) {
 	function getBranchVersionNum(callback) {
 		Branch.findOne({
 			'sceneId': sceneId,
-			'name': param
+			'name': name
 		}, function onEnd(err, branch){
 			if(!err){
 				if(branch){
@@ -853,6 +857,10 @@ exports.checkOut = function(req, res) {
 	}
 
 	getBranchVersionNum(function onEnd(versionNum) {
+		if(versionNum === -1){
+			versionNum = name;
+		}
+
 		retrieveSceneNodes(sceneId, versionNum, function onEnd(err, nodes){
 
 			if(err){
@@ -863,7 +871,8 @@ exports.checkOut = function(req, res) {
 
 				res.send({
 					'success': true,
-					'scene': scene
+					'scene': scene,
+					'versionNum': versionNum
 				});				
 			}
 		});	

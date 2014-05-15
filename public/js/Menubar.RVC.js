@@ -19,7 +19,7 @@ Menubar.RVC = function ( editor ) {
 	var option = new UI.Panel();
 	option.setClass( 'option' );
 	option.setTextContent( 'Checkout' );
-	option.onClick( function () {} );
+	option.onClick( checkout );
 	options.add( option );
 
 	// Commit
@@ -27,7 +27,7 @@ Menubar.RVC = function ( editor ) {
 	var option = new UI.Panel();
 	option.setClass( 'option' );
 	option.setTextContent( 'Commit' );
-	option.onClick( function () {} );
+	option.onClick( commit );
 	options.add( option );
 
 	// Merge
@@ -35,7 +35,7 @@ Menubar.RVC = function ( editor ) {
 	var option = new UI.Panel();
 	option.setClass( 'option' );
 	option.setTextContent( 'Merge' );
-	option.onClick( function () {} );
+	option.onClick( merge );
 	options.add( option );	
 
 	// Branch
@@ -43,7 +43,7 @@ Menubar.RVC = function ( editor ) {
 
 	var option = new UI.Panel();
 	option.setClass( 'option' );
-	option.setTextContent( 'New Branch' );
+	option.setTextContent( 'Add Branch' );
 	option.onClick( addBranch );
 	options.add( option );
 
@@ -58,7 +58,7 @@ Menubar.RVC = function ( editor ) {
 
 	var option = new UI.Panel();
 	option.setClass( 'option' );
-	option.setTextContent( 'New Tag' );
+	option.setTextContent( 'Add Tag' );
 	option.onClick( addTag );
 	options.add( option );
 
@@ -74,11 +74,40 @@ Menubar.RVC = function ( editor ) {
 	var option = new UI.Panel();
 	option.setClass( 'option' );
 	option.setTextContent( 'Version History' );
-	option.onClick( function () {} );
+	option.onClick( viewHistory );
 	options.add( option );
 
+	function checkout() {
+		var name = prompt('checkout', '');
+
+		if(!name) {
+			return;
+		}
+
+		editor.revCon.checkout({
+			'name': name
+		}, function onEnd(err, scene) {
+			if(!err){
+				//checkout success
+				editor.setScene(scene);
+				console.log('checkout success.');
+			}
+		});
+	}
+
+	function commit() {
+		editor.revCon.commit();
+	}
+
+	function merge() {}
+
 	function addBranch() {
-		var name = prompt('New branch name', '');
+		var name = prompt('add branch', '');
+
+		if(!name) {
+			return;
+		}
+
 		editor.revCon.addBranch({
 			'name': name,
 			'desc': ''
@@ -90,7 +119,12 @@ Menubar.RVC = function ( editor ) {
 	}
 
 	function removeBranch() {
-		var name = prompt('Branch to be removed', '')
+		var name = prompt('remove branch', '')
+
+		if(!name) {
+			return;
+		}
+
 		editor.revCon.removeBranch({
 			'name': name
 		}, function onEnd(err) {
@@ -101,7 +135,12 @@ Menubar.RVC = function ( editor ) {
 	}
 
 	function addTag() {
-		var name = prompt('New tag name', '');
+		var name = prompt('add tag', '');
+		
+		if(!name) {
+			return;
+		}
+
 		editor.revCon.addTag({
 			'name': name,
 			'desc': ''
@@ -113,7 +152,12 @@ Menubar.RVC = function ( editor ) {
 	}
 
 	function removeTag() {
-		var name = prompt('Tag to be removed', '')
+		var name = prompt('remove tag', '')
+		
+		if(!name) {
+			return;
+		}
+
 		editor.revCon.removeTag({
 			'name': name
 		}, function onEnd(err) {
@@ -122,6 +166,8 @@ Menubar.RVC = function ( editor ) {
 			}
 		})
 	}
+
+	function viewHistory() {}
 
 	return container;
 

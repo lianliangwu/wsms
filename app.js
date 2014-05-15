@@ -38,7 +38,7 @@ app.get('/getAllVersions', rc.getAllVersions);
 app.get('/retrieve', rc.retrieve);
 app.post('/commit', rc.commit);
 app.get('/merge', rc.merge);
-app.get('/checkOut', rc.checkOut);
+app.get('/checkout', rc.checkout);
 app.post('/addBranch', rc.addBranch);
 app.post('/removeBranch', rc.removeBranch);
 app.get('/getBranches', rc.getBranches);
