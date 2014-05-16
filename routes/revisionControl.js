@@ -12,6 +12,14 @@ function isArray(obj) {
   return Object.prototype.toString.call(obj) === '[object Array]';    
 }
 
+function isIn(key, obj) {
+	return obj[key] !== undefined;
+}
+
+function notIn(key, obj) {
+	return obj[key] === undefined;
+}
+
 var getSceneFromNodes = function(nodes, rootId) {
 	var scene = {};
 	var nodeMap = {};
@@ -48,6 +56,9 @@ var getSceneFromNodes = function(nodes, rootId) {
 			for (i = 0, l = children.length; i < l; i++) {
 				tempId = children[i];
 				tempObject = JSON.parse(nodeMap[tempId].data);
+				//
+				tempObject.children = nodeMap[tempId].children;
+
 				buildObject(tempObject);
 				children[i] = tempObject;
 			}			
@@ -88,6 +99,8 @@ var getNodesFromScene = function(scene) {
 				getObject(children[i]);
 				children[i] = tempId;
 			}	
+			//
+			delete object.children; 
 		}
 		addNode(object, 'object');
 	};
@@ -207,6 +220,298 @@ var retrieveSceneNodes = function(sceneId, versionNums, callback) {
 		},retrieveNodes);		
 	});
 
+};
+
+var autoMerge = function(options, callback) {
+	var nodeMapA = {}, nodeMapB = {}, nodeMapC = {};
+	var nodesD = [];
+	var nodesA = options.nodesA;
+	var nodesB = options.nodesB;
+	var nodesC = options.nodesC;
+	var versionA = options.strA;
+	var versionB = options.strB;
+	var idList = [];
+	
+	//build nodemap
+	nodesA.forEach(function onEach(node) {
+		nodeMapA[node.uuid] = node;
+	});
+
+	nodesB.forEach(function onEach(node) {
+		nodeMapB[node.uuid] = node;
+	});
+
+	nodesC.forEach(function onEach(node) {
+		nodeMapC[node.uuid] = node;
+	});	
+
+	var id;
+	var nodeD;
+	var mergedState;
+	var mergedChildren;
+
+	//push root node into list
+	idList.push(options.sceneId);
+
+	while(idList.length > 0){
+		id = idList.shift();
+
+		mergedState = stateMerge(id);
+		mergedChildren = structureMerge(id);
+		
+
+		//push Ca N Cb into idList
+		nodesA[id].children.forEach(function onEach(refA) {
+			nodesB[id].children.forEach(function onEach(refB) {
+				if(refA === refB){
+					idList.push(refA);
+				}
+			})
+		};
+
+		//build merged Node
+		nodeD = {
+			'uuid': id,
+			'type': mergedState.type,
+			'data': JSON.stringify(mergedState),
+			'children': mergedChildren
+		};	
+		nodesD.push(nodeD);	
+	}
+
+	function nodeCmp(nodeA, nodeB) {
+		var str1 = nodeA.data;
+		var str2 = nodeB.data;
+
+		return str1 === str2 ? true : false;
+	}
+
+	function valueCmp(keyA, keyB){
+		var str1 = String(keyA);
+		var str2 = String(keyB);
+
+		return str1 === str2 ? true : false;
+	}
+
+	function structureMerge(id) {
+		var mergedChildren;
+
+		if(valueCmp(nodeMapA[id].children, nodeMapB[id].children)){
+			return nodeMapA[id].children;
+		}
+
+		merge();
+		return mergedChildren;		
+
+		function getDiffType(id, Cr, Cc, Sr, Sc) {
+			if(isIn(id, Cr) && notIn(id, Cc) && notIn(id, Sc))
+				return 'add';
+			if(isIn(id, Cr) && notIn(id, Cc) && isIn(id, Sc))
+				return 'reparentIn';
+			if(notIn(id, Cr) && isIn(id, Sr) && isIn(id, Cc))
+				return 'reparentOut';
+			if(notIn(id, Cr) && notIn(id, Sr) && isIn(id, Cc))
+				return 'remove';
+			if(isIn(id, Cr) && isIn(id, Cc))
+				return 'retain';
+		}
+
+		//check if the subgraph has been modified, comparing with version C 
+		function checkModified(nodeMap, uuid) {
+			if(nodeCmp(nodeMap[uuid], nodeMapC[uuid])){
+				var node = JSON.parse(nodeMap[uuid].data);
+				var nodeC = JSON.parse(nodeMapC[uuid].data);
+
+				//object 
+				var children = node.children;
+				if(children !== undefined){
+					children.forEach(function onEach(ref) {
+						if(checkModified(nodeMap, ref)){
+							return true;
+						}
+					});
+				}
+				// geometry, material and texture 
+				if(node.type === 'Mesh'){
+					if(!nodeCmp(nodeMap[node.geometry], nodeMapC[node.geometry])){
+						return true;
+					}
+					if(!nodeCmp(nodeMap[node.material], nodeMapC[node.material])){
+						return true;
+					}
+
+					//texture diff
+					var material = JSON.parse(nodeMap[node.material].data);
+					textureMaps.forEach(function (map){
+						var ref = material[map];
+						if(ref !== undefined){
+							if(!nodeCmp(nodeMap[ref], nodeMapC[ref])){
+								return true;
+							}
+						}
+					});
+				}
+
+				return false;
+			}
+				return true;
+		}	
+
+		function merge() {
+			var childMapA = {};
+			var childMapB = {};
+			var childMapC = {};
+			var typeA, typeB;
+			
+			mergedChildren = [];
+
+			//build childMap
+			nodeMapA[id].children.forEach(function onEach(ref) {
+				childMapA[ref] = true;
+			});		
+			nodeMapB[id].children.forEach(function onEach(ref) {
+				childMapB[ref] = true;
+			});	
+			nodeMapC[id].children.forEach(function onEach(ref) {
+				childMapC[ref] = true;
+			});	
+
+			//Ca - Cc
+			nodeMapA[id].children.forEach(function onEach(ref) {
+				if(childMapC[ref] === undefined){
+					typeA = getDiffType(ref, childMapA, nodeMapA, childMapC, nodeMapC);	
+					if(typeA === 'add'){
+
+					}
+				}
+			});	
+
+			//Cb - Cc
+			nodeMapB[id].children.forEach(function onEach(ref) {
+				if(childrenC[ref] === undefined){
+					typeB = getDiffType(ref, childrenA, nodeMapA, childMapC, nodeMapC);
+					if(typeB === 'add'){
+
+					}
+				}
+			});
+
+
+			nodeMapC[id].children.forEach(function onEach(ref) {
+				typeA = getDiffType(ref, childMapA, nodeMapA, childMapC, nodeMapC);
+				typeB = getDiffType(ref, childMapB, nodeMapB, childMapC, nodeMapC);
+
+				//both remove
+				if(typeA === 'remove' || typeB === 'remove') {
+
+				}
+
+				//both retain
+				if(typeA === 'retain' || typeB === 'retain') {
+
+				}
+
+				//remove/reparent
+				if(typeA === 'remove' || typeB === 'reparentOut') {
+
+				}
+
+				if(typeA === 'reparentOut' || typeB === 'remove') {
+
+				}
+
+				//retain/reparent
+				if(typeA === 'retain' || typeB === 'reparentOut') {
+
+				}
+
+				if(typeA === 'reparentOut' || typeB === 'retain') {
+
+				}
+
+				//retain/remove
+				if(typeA === 'retain' || typeB === 'remove') {
+
+				}
+
+				if(typeA === 'remove' || typeB === 'retain') {
+
+				}
+
+				//reparent/reparent
+				if(typeA === 'reparentOut' || typeB === 'reparentOut'){
+
+				}
+			});
+
+			return mergedChildren;
+		}
+	}
+
+	function stateMerge(id) {
+		var nodeA = JSON.parse(nodeMapA[id].data);
+		var nodeB = JSON.parse(nodeMapB[id].data);
+		var nodeC = JSON.parse(nodeMapC[id].data);
+		var nodeD;
+
+		if(nodeCmp(nodeA, nodeB)){
+			return nodeA.data;
+		}
+		if(!nodeCmp(nodeA, nodeC) && nodeCmp(nodeB, nodeC)){
+			return nodeA.data;
+		}
+		if(nodeCmp(nodeA, nodeC) && !nodeCmp(nodeB, nodeC)){
+			return nodeB.data;
+		}
+
+		merge();
+		return nodeD;
+
+		function merge(status) {
+			var keys = {};
+			var key;
+			// keys<- distinct {‘key' in nodeA, nodeB and nodeC}
+			for(key in nodeA){
+				if (nodeA.hasOwnProperty(key) && ( keys[key] === undefined)){
+					keys[key] = true;
+				}
+			}
+			for(key in nodeB){
+				if (nodeB.hasOwnProperty(key) && ( keys[key] === undefined)){
+					keys[key] = true;
+				}
+			}
+			for(key in nodeC){
+				if (nodeC.hasOwnProperty(key) && ( keys[key] === undefined)){
+					keys[key] = true;
+				}
+			}	
+
+			for(key in keys){
+				if(keys.hasOwnProperty(key)){
+					//unchanged
+					if(valueCmp(nodeA[key], nodeC[key]) && valueCmp(nodeB[key], nodeC[key])){
+
+					}
+					//changed
+					if(!valueCmp(nodeA[key], nodeC[key]) && valueCmp(nodeB[key], nodeC[key])){
+
+					}
+					if(valueCmp(nodeA[key], nodeC[key]) && !valueCmp(nodeB[key], nodeC[key])){
+						
+					}
+					//change to the same state
+					if(valueCmp(nodeA[key], nodeB[key]) && !valueCmp(nodeA[key], nodeC[key]) && !valueCmp(nodeB[key], nodeC[key])){
+
+					}
+					//change to the different state
+					if(!valueCmp(nodeA[key], nodeB[key]) && !valueCmp(nodeA[key], nodeC[key]) && !valueCmp(nodeB[key], nodeC[key])){
+
+					}					
+				}
+			}		
+		}
+	}
 };
 
 var threeWayMerge = function(options, callback) {
@@ -676,7 +981,31 @@ exports.merge = function(req, res) {
 					'infoMap': infoMap
 				});
 			}
-		});		
+		});	
+
+		// var options = {
+		// 	'nodesA': nodesA,
+		// 	'nodesB': nodesB,
+		// 	'nodesC': nodesC,
+		// 	'versionA': versionA,
+		// 	'versionB': versionB,
+		// 	'sceneId': sceneId 
+		// };	
+		// autoMerge(options, function(err, nodesD, infoMap){
+		// 	if(!err){
+		// 		var sceneA = getSceneFromNodes(nodesA,sceneId);
+		// 		var sceneB = getSceneFromNodes(nodesB,sceneId);
+		// 		var mergedScene = getSceneFromNodes(nodesD,sceneId);
+		// 		res.send({
+		// 			'success': true,
+		// 			'sceneA': sceneA,
+		// 			'sceneB': sceneB,
+		// 			'mergedScene': mergedScene,
+		// 			'infoMap': infoMap
+		// 		});
+		// 	}
+		// });	
+
 	};
 
 	retrieveSceneNodes(sceneId, versionA, function onEnd(err, nodes) {
