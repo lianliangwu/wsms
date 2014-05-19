@@ -240,7 +240,7 @@ var autoMerge = function(options, callback) {
 	var versionA = options.strA;
 	var versionB = options.strB;
 	var sceneId = options.sceneId;
-	var idQueue = [];
+	var uuidQueue = [];
 	var reparentLogA = {};
 	var reparentLogB = {};
 	
@@ -257,38 +257,104 @@ var autoMerge = function(options, callback) {
 		nodeMapC[node.uuid] = node;
 	});	
 
-	var id;
-	var nodeD;
+	var uuid;
 	var mergedState;
 	var mergedChildren;
 
 	//push root node into list
-	idQueue.push(sceneId);
+	uuidQueue.push(sceneId);
 
-	while(idQueue.length > 0){
-		id = idQueue.shift();
+	while(uuidQueue.length > 0){
+		uuid = uuidQueue.shift();
 
-		mergedState = stateMerge(id);
-		mergedChildren = structureMerge(id);
+		mergedState = stateMerge(uuid);
+		mergedChildren = structureMerge(uuid);
 		
 
-		//push Ca N Cb into idQueue
-		nodesA[id].children.forEach(function onEach(refA) {
-			nodesB[id].children.forEach(function onEach(refB) {
+		//push Ca N Cb into uuidQueue
+		nodesA[uuid].children.forEach(function onEach(refA) {
+			nodesB[uuid].children.forEach(function onEach(refB) {
 				if(refA === refB){
-					idQueue.push(refA);
+					uuidQueue.push(refA);
 				}
 			})
 		});
 
-		//build merged Node
-		nodeD = {
-			'uuid': id,
+		addNodeToD({
+			'uuid': mergedState.uuid,
 			'type': mergedState.type,
 			'data': JSON.stringify(mergedState),
 			'children': mergedChildren
-		};	
-		nodesD.push(nodeD);	
+		});	
+	}
+
+
+	var toNode;
+
+	for(uuid in reparentLogA){
+		if(reparentLogA.hasOwnProperty(uuid)){
+
+			toNode = nodeMapD[reparentLogA[uuid].to];
+			toNode.children.push(uuid);
+		}
+	}
+
+
+	function addNodeToD(node) {
+		nodesD.push(node);
+		nodeMapD[node.uuid] = node;
+
+
+		var state = JSON.parse(node.data);
+
+		for(var key in state){
+			if(state.hasOwnProperty(key)){
+				if(isRef(key)){
+					var uuid = state[key];
+
+					//check if added before
+					if(nodeMapD[uuid] !== undefined){
+						continue;
+					}
+
+					//if exist either in A or B, directly add it to D
+					if(nodeMapA[uuid] !== undefined && nodeMapB[uuid] === undefined){
+						addNodeToD(nodeMapA[uuid]);
+					}
+					if(nodeMapA[uuid] === undefined && nodeMapB[uuid] !== undefined){
+						addNodeToD(nodeMapB[uuid]);
+					}
+
+					//if exist in A and B, state merging is needed
+					if(nodeMapA[uuid] !== undefined && nodeMapB[uuid] !== undefined){
+						var mergedState = stateMerge(nodeMapA[uuid]);
+
+						addNodeToD({
+							'uuid': mergedState.uuid,
+							'type': mergedState.type,
+							'data': JSON.stringify(mergedState)
+						});
+					}
+				}
+			}
+		}
+
+		//check if the property is a ref to geometry, material or texture
+		function isRef(key) {
+			var r = false;
+
+			if(key === 'geometry' || key === 'material'){
+				return true;
+			}
+
+			textureMaps.forEach(function onEach(map) {
+				if(key === map){
+					r = true;
+				}						
+			});
+
+			return r;
+		}
 	}
 
 	function structureMerge(nodeUuid) {
@@ -360,26 +426,31 @@ var autoMerge = function(options, callback) {
 			var children = [];
 			var currentNode = nodeMap[rootId];
 			var nodeD = {};
-			var geometry, material;
 
-			currentNode.children.forEach(function onEach(ref) {
-				if(nodeMapC[ref] === undefined){//ignore reparent in
-					children.push(ref);
-					addSubGraphToD(nodeMap, ref);
-				}
-			});
+			if(nodeMapC[rootId] === undefined){//new added node
+				currentNode.children.forEach(function onEach(ref) {
+					if(nodeMapC[ref] === undefined){//ignore reparent in
+						children.push(ref);
+						addSubGraphToD(nodeMap, ref);
+					}
+				});	
+			}else{
+				var childMap = {};
+				var childMapC = {};
 
-			geometry = currentNode['geometry'];
-			material = currentNode['material'];
-			if(geometry !== undefined){
-				nodesD.push(nodeMap[geometry]);
-			}
-			if(material !== undefined){
-				nodesD.push(nodeMap[material]);
-				textureMaps.forEach(function onEach(key) {
-					var texture = material[key];
-					if(texture !== undefined){
-						nodesD.push(nodeMap[texture]);
+				//build child map
+				currentNode.children.forEach(function onEach(ref) {
+					childMap[ref] = true;
+				});
+				nodeMapC[rootId].children.forEach(function onEach(ref) {
+					childMapC[ref] = true;
+				});
+
+				currentNode.children.forEach(function onEach(ref) {
+					var type = getDiffType(ref, childMap, childMapC, nodeMap, nodeMapC);
+					if(type !== 'reparentIn'){
+						children.push(ref);
+						addSubGraphToD(nodeMap, ref);
 					}
 				});
 			}
@@ -389,9 +460,10 @@ var autoMerge = function(options, callback) {
 			node.data = currentNode.data;
 			node.children = children;
 
-			nodesD.push(node);
+			addNodeToD(node)
 		}
 
+		//find out where ref has been reparented to
 		function findReparentIn(nodeMap, ref) {
 			var r;
 			var ok = 0;
@@ -570,6 +642,7 @@ var autoMerge = function(options, callback) {
 		}
 
 		merge();
+		if(mergedState)
 		return mergedState;
 
 		function merge(status) {
@@ -606,7 +679,7 @@ var autoMerge = function(options, callback) {
 					}
 					if(propCmp(nodeA[key], nodeC[key]) && !propCmp(nodeB[key], nodeC[key])){
 						mergedState[key] = nodeB[key];
-						//log merged
+						//log merged					
 					}
 					//change to the same state
 					if(propCmp(nodeA[key], nodeB[key]) && !propCmp(nodeA[key], nodeC[key]) && !propCmp(nodeB[key], nodeC[key])){
@@ -619,7 +692,7 @@ var autoMerge = function(options, callback) {
 						//log conflicted
 					}					
 				}
-			}		
+			}
 		}
 	}
 };
