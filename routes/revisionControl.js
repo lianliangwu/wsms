@@ -20,7 +20,12 @@ function notIn(key, obj) {
 	return obj[key] === undefined;
 }
 
+//compare both state and structure
 function nodeCmp(nodeA, nodeB) {
+	return stateCmp(nodeA, nodeB) && propCmp(nodeA.children, nodeB.children) ? true : false;
+}
+
+function stateCmp(nodeA, nodeB){
 	var str1 = nodeA.data;
 	var str2 = nodeB.data;
 
@@ -166,7 +171,7 @@ var diff = function(nodesA, nodesB, versionNum) {
 				if(preVersions.hasOwnProperty(num)){
 
 					//check if structure or state is chenged
-					if(nodeCmp(node,preVersions[num]) && propCmp(node.children, preVersions[num].children)){
+					if(nodeCmp(node,preVersions[num])){
 						node.versionNum = num;
 						isChanged = false;
 					}
@@ -381,43 +386,57 @@ var autoMerge = function(options, callback) {
 
 		//check if the subgraph has been modified, comparing with version C 
 		function checkModified(nodeMap, uuid) {
-			if(nodeCmp(nodeMap[uuid], nodeMapC[uuid])){
-				var node = JSON.parse(nodeMap[uuid].data);
-				var nodeC = JSON.parse(nodeMapC[uuid].data);
-
-				//object 
-				var children = node.children;
-				if(children !== undefined){
-					children.forEach(function onEach(ref) {
-						if(checkModified(nodeMap, ref)){
-							return true;
-						}
-					});
-				}
-				// geometry, material and texture 
-				if(node.type === 'Mesh'){
-					if(!nodeCmp(nodeMap[node.geometry], nodeMapC[node.geometry])){
+			//check state and structure 
+			if(!nodeCmp(nodeMap[uuid], nodeMapC[uuid])){
+				return true;// modified
+			}
+			
+			var node = JSON.parse(nodeMap[uuid].data);
+			var nodeC = JSON.parse(nodeMapC[uuid].data);
+ 
+			//check children object
+			var children = node.children;
+			if(children !== undefined){
+				children.forEach(function onEach(ref) {
+					if(checkModified(nodeMap, ref)){
 						return true;
 					}
-					if(!nodeCmp(nodeMap[node.material], nodeMapC[node.material])){
-						return true;
-					}
+				});
+			}
 
-					//texture diff
-					var material = JSON.parse(nodeMap[node.material].data);
-					textureMaps.forEach(function (map){
-						var ref = material[map];
-						if(ref !== undefined){
-							if(!nodeCmp(nodeMap[ref], nodeMapC[ref])){
+			//check geometry, material and texture
+			for(var key in node){
+				if(state.hasOwnProperty(key)){
+					if(isRef(key)){
+						var uuid = state[key];
+
+						if(nodeMap[uuid] !== undefined && nodeMapC[uuid] !== undefined){
+							if(checkModified(nodeMap[uuid], nodeMapC[uuid])){
 								return true;
 							}
 						}
-					});
+					}
+				}
+			}
+
+			return false;			
+
+			//check if the property is a ref to geometry, material or texture
+			function isRef(key) {
+				var r = false;
+
+				if(key === 'geometry' || key === 'material'){
+					return true;
 				}
 
-				return false;
-			}
-			return true;
+				textureMaps.forEach(function onEach(map) {
+					if(key === map){
+						r = true;
+					}						
+				});
+
+				return r;
+			}	
 		}	
 
 		//add the subgraph rooted at rootId to nodesD, and update nodeMapD
@@ -704,10 +723,10 @@ var autoMerge = function(options, callback) {
 		var nodeC = JSON.parse(nodeMapC[id].data);
 		var mergedState = {};
 
-		if(nodeCmp(nodeA, nodeB)){
+		if(stateCmp(nodeA, nodeB)){
 			return nodeA.data;
 		}
-		if(!nodeCmp(nodeA, nodeC) && nodeCmp(nodeB, nodeC)){
+		if(!stateCmp(nodeA, nodeC) && stateCmp(nodeB, nodeC)){
 			//log merged
 			mergeLog.stateMerge.push({
 				'uuid': id,
@@ -718,7 +737,7 @@ var autoMerge = function(options, callback) {
 			});
 			return nodeA.data;
 		}
-		if(nodeCmp(nodeA, nodeC) && !nodeCmp(nodeB, nodeC)){
+		if(stateCmp(nodeA, nodeC) && !stateCmp(nodeB, nodeC)){
 			//log merged
 			mergeLog.stateMerge.push({
 				'uuid': id,
