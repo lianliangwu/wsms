@@ -170,41 +170,32 @@ var RevisionControl = function(editor){
 	};
 
 	var retrieve = function(sceneId, versionNum, callback) {
-		//save scene
-		var formData = new FormData();  
-
-		// Set up the request.
-		var xhr = new XMLHttpRequest();
-
-		// Open the connection.
-		xhr.open('GET', 'retrieve?sceneId='+sceneId+'&versionNum='+versionNum, true);
-
-		// Set up a handler for when the request finishes.
-		xhr.onload = function () {
-			if (xhr.status === 200 && xhr.readyState === 4) {
-
-				var scene = JSON.parse(xhr.responseText).scene;
-
-				scene = getThreeSG(scene);
-				var loader = new THREE.ObjectLoader();
-				var scene = loader.parse( scene );
-
-				scene.userData.currentVersion = versionNum;
-				callback&&callback(null, scene);
-				
-			} else {
-			  alert('An error occurred!');
-			}
+		var params = {
+			'sceneId': sceneId,
+			'versionNum': versionNum
 		};
 
-		// Send the Data.
-		xhr.send(formData);
+		Ajax.getJSON({
+			'url': 'getTags',
+			'params': params
+		}, function onEnd(err, result) {
+			var scene = result.scene;
+
+			scene = getThreeSG(scene);
+			var loader = new THREE.ObjectLoader();
+			var scene = loader.parse( scene );
+
+			scene.userData.currentVersion = versionNum;
+			callback&&callback(null, scene);
+		});		
 	};
 
 	var commit = function(preVersions, scene) {
 		if(!commitable){
 			console.log("unable to commit!");
+			return;
 		}
+
 		//prevent user from committing
 		commitable = false; 
 
@@ -218,73 +209,51 @@ var RevisionControl = function(editor){
 		if(scene === undefined){
 			scene = editor.scene;			
 		}
+
 		wsg = getWSG(scene);
-		var uuid = wsg.object.uuid;
-		//save scene
-		var formData = new FormData();  
 
-		// Add requests.
-		formData.append('sceneId', uuid);
-		formData.append('preVersions', JSON.stringify(preVersions));
-		formData.append('scene', JSON.stringify(wsg));
-
-		// Set up the request.
-		var xhr = new XMLHttpRequest();
-
-		// Open the connection.
-		xhr.open('POST', 'commit', true);
-
-		// Set up a handler for when the request finishes.
-		xhr.onload = function () {
-			if (xhr.status === 200 && xhr.readyState === 4) {
-
-				var result = JSON.parse(xhr.responseText);
-				editor.scene.userData.currentVersion = result.versionNum;
-				commitable = true; // allow for committing
-			} else {
-			  alert('An error occurred!');
-			}
+		var params = {
+			'sceneId': wsg.object.uuid,
+			'preVersions': JSON.stringify(preVersions),
+			'scene': JSON.stringify(wsg)
 		};
 
-		// Send the Data.
-		xhr.send(formData);
+		Ajax.post({
+			'url': 'commit',
+			'params': params
+		}, function onEnd(err, result) {
+			editor.scene.userData.currentVersion = result.versionNum;
+			commitable = true; // allow for committing
+		});
 	};
 
 	var merge = function(sceneId, versionA, versionB, versionC, callback) {
-		//save scene
-		var formData = new FormData();  
-
-		// Set up the request.
-		var xhr = new XMLHttpRequest();
-
-		// Open the connection.
-		xhr.open('GET', 'merge?sceneId=' + sceneId + '&versionA=' + versionA + '&versionB=' + versionB + '&versionC=' +versionC, true);
-
-		// Set up a handler for when the request finishes.
-		xhr.onload = function () {
-			if (xhr.status === 200 && xhr.readyState === 4) {
-				var loader = new THREE.ObjectLoader();
-				var result = JSON.parse(xhr.responseText);
-				var scene;
-
-				scene = getThreeSG(result.sceneA);
-				result.sceneA = loader.parse( scene );
-
-				scene = getThreeSG(result.sceneB);
-				result.sceneB = loader.parse( scene );				
-
-				scene = getThreeSG(result.mergedScene);
-				result.mergedScene = loader.parse( scene );
-				
-				callback&&callback(null, result);
-				
-			} else {
-			  alert('An error occurred!');
-			}
+		var params = {
+			'sceneId': sceneId,
+			'versionA': versionA,
+			'versionB': versionB,
+			'versionC': versionC
 		};
 
-		// Send the Data.
-		xhr.send(formData);
+		Ajax.getJSON({
+			'url': 'merge',
+			'params': params
+		}, function onEnd(err, result) {
+			var loader = new THREE.ObjectLoader();
+			var result = JSON.parse(xhr.responseText);
+			var scene;
+
+			scene = getThreeSG(result.sceneA);
+			result.sceneA = loader.parse( scene );
+
+			scene = getThreeSG(result.sceneB);
+			result.sceneB = loader.parse( scene );				
+
+			scene = getThreeSG(result.mergedScene);
+			result.mergedScene = loader.parse( scene );
+			
+			callback&&callback(null, result);
+		});
 	};
 
 	var checkout = function(options, callback) {
@@ -327,7 +296,7 @@ var RevisionControl = function(editor){
 			'sceneId': options.sceneId
 		};
 
-		Ajax.getJSon({
+		Ajax.getJSON({
 			'url': 'getBranches',
 			'params': params
 		}, callback);
@@ -364,7 +333,7 @@ var RevisionControl = function(editor){
 			'sceneId': options.sceneId
 		};
 
-		Ajax.getJSon({
+		Ajax.getJSON({
 			'url': 'getTags',
 			'params': params
 		}, callback);		
