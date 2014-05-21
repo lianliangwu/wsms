@@ -85,6 +85,7 @@ var getSceneFromNodes = function(nodes, rootId) {
 	};
 
 	scene.object = JSON.parse(nodeMap[rootId].data);
+	scene.object.children = nodeMap[rootId].children;
 	buildObject(scene.object);
 
 	scene.geometries = geometries;
@@ -97,10 +98,16 @@ var getNodesFromScene = function(scene) {
 	var nodes = [];
 
 	var addNode = function(node, type) {
+		var children = [];
+
+		if(node.children){
+			children = JSON.parse(JSON.stringify(node.children));
+			delete node.children;			
+		}
 		var sNode = {
 			'uuid': node.uuid,
 			'type': type,
-			'children': node.children,
+			'children': children,
 			'data': JSON.stringify(node)
 		};
 
@@ -118,21 +125,20 @@ var getNodesFromScene = function(scene) {
 				getObject(children[i]);
 				children[i] = tempId;
 			}	
-			//
-			delete object.children; 
+			// 
 		}
 		addNode(object, 'object');
 	};
 
 	getObject(scene.object);
 
-	scene.geometries.forEach(function each(e) {
+	scene.geometries&&scene.geometries.forEach(function each(e) {
 		addNode(e, 'geometry');
 	});
-	scene.materials.forEach(function each(e) {
+	scene.materials&&scene.materials.forEach(function each(e) {
 		addNode(e, 'material');
 	});
-	scene.textures.forEach(function each(e) {
+	scene.textures&&scene.textures.forEach(function each(e) {
 		addNode(e, 'texture');
 	});
 
@@ -149,11 +155,11 @@ var diff = function(nodesA, nodesB, versionNum) {
 	var deltaNodes = [];
 
 	//build node map
-	nodesA.forEach(function each(e) {
-		if(mapA[e.uuid] === undefined){
-			mapA[e.uuid] = {};
+	nodesA.forEach(function each(node) {
+		if(mapA[node.uuid] === undefined){
+			mapA[node.uuid] = {};
 		}
-		mapA[e.uuid][e.versionNum] = e;
+		mapA[node.uuid][node.versionNum] = node;
 	});
 
 	nodesB.forEach(function each(node) {
@@ -202,29 +208,31 @@ var retrieveSceneNodes = function(sceneId, versionNum, callback) {
 	},retrieveNodes);	
 
 	function retrieveNodes(err, rNode) {
-		var nodeMap = JSON.parse(rNode.nodeMap);
-		var uuid;
+		if(!err){
+			var nodeMap = JSON.parse(rNode.nodeMap);
+			var uuid;
 
-		var result = function(err, node) {
-			if (err){
-				console.log("find snode err "+ err);
-			}
+			var result = function(err, node) {
+				if (err){
+					console.log("find snode err "+ err);
+				}
 
-			nodes.push(node);
-			count--;
+				nodes.push(node);
+				count--;
 
-			if(count === 0){// finish when no I/O request exists
-				callback&&callback(null, nodes);
-			}
-		}; 
+				if(count === 0){// finish when no I/O request exists
+					callback&&callback(null, nodes);
+				}
+			}; 
 
-		for ( uuid in nodeMap ) {
-			if (nodeMap.hasOwnProperty(uuid)){
-				count++;//count I/O request 
-				SNode.findOne({
-					"uuid": uuid,
-					"versionNum": nodeMap[uuid]
-				}, result);
+			for ( uuid in nodeMap ) {
+				if (nodeMap.hasOwnProperty(uuid)){
+					count++;//count I/O request 
+					SNode.findOne({
+						"uuid": uuid,
+						"versionNum": nodeMap[uuid]
+					}, result);
+				}
 			}
 		}
 	}
@@ -950,22 +958,33 @@ exports.merge = function(req, res) {
 
 exports.commit = function(req, res) {
 	var preVersions = JSON.parse(req.body.preVersions);
-	var scene = JSON.parse(req.body.scene);
+	var sceneGraph = JSON.parse(req.body.scene);
 	var sceneId = req.body.sceneId;
 	var deltaNodes, nodeMap = {};
-	var nodes = getNodesFromScene(scene);
-	
+	var nodes = getNodesFromScene(sceneGraph);
+	var scene;
 
 	if (preVersions.length === 0){//first commit
-		firstCommit();
+		//save scene info
+		scene = new Scene({
+			'uuid': sceneId,
+			'name': sceneGraph.object.name,
+			'newestVersion': -1
+		});
+
+		commit(scene);
+		
 	}else{
-		commit();
+		Scene.findOne({'uuid':sceneId}, function onEnd(err, scene) {
+			if(!err){
+				commit(scene);
+			}
+		});
 	}
 
 
 	function saveDeltaNodes(deltaNodes) {
 		deltaNodes.forEach(function each(node) {
-			node.versionNum = 0;
 			SNode.create(node, function onEnd(err){
 				if (err){
 					console.log("save SNode err! "+ err);
@@ -974,7 +993,8 @@ exports.commit = function(req, res) {
 		});		
 	}
 
-	function saveVersionNode(versionNum, preVersions) {
+	function saveRNode(versionNum, preVersions) {
+		//build node map of scene graph
 		nodes.forEach(function each(node) {
 			nodeMap[node.uuid] = node.versionNum;
 		});
@@ -991,75 +1011,50 @@ exports.commit = function(req, res) {
 		});		
 	}
 
-	function firstCommit() {
+	function commit(scene) {
+		getPreVersionNodes(function onEnd(err, preVersionNodes) {
+			scene.newestVersion += 1;
+			deltaNodes = diff(preVersionNodes, nodes, scene.newestVersion);
 
-		//save scene info
-		Scene.create({
-			'uuid': sceneId,
-			'name': scene.object.name,
-			'newestVersion': 0
-		}, function onEnd(err){
-			if (err){
-				console.log("add scene err "+ err);
+			if(deltaNodes.length > 0){
+				//save scene info
+				scene.name = sceneGraph.object.name;
+				scene.save(function( err ){
+					if(!err){
+						console.log('Scene saved!');
+					}
+				});
+
+				saveDeltaNodes(deltaNodes);
+				saveRNode(scene.newestVersion, preVersions);
+
+				res.send({
+					'success': true,
+					'versionNum': scene.newestVersion
+				});	
+
+			}else{
+				console.log("no change to be committed!\n");
+				
+				res.send({
+					'success': false,
+					'errInfo': 'no change to be committed'
+				});
 			}
 		});
 
-		//save scene nodes
-		saveDeltaNodes(nodes);
-		saveVersionNode(0, []);
-
-
-		res.send({
-			'success': true,
-			'versionNum': 0
-		});		
-	}
-
-	function commit() {
-		Scene.findOne({'uuid':sceneId}, function onEnd(err, scene) {
-			if(!err){
-				getAllNodes(function onEnd(err, preVersionNodes) {
-					deltaNodes = diff(preVersionNodes, nodes, versionNum);
-
-					if(deltaNodes.length > 0){
-						//save scene info
-						scene.save(function( err ){
-							if(!err){
-								console.log('Scene saved!');
-							}
-						});
-
-						scene.newestVersion += 1;
-
-						//save scene nodes
-						saveDeltaNodes(deltaNodes);
-						saveVersionNode(scene.newestVersion, preVersions);
-
-						res.send({
-							'success': true,
-							'versionNum': versionNum
-						});	
-
-					}else{
-						console.log("no change to be committed!\n");
-						
-						res.send({
-							'success': false,
-							'errInfo': 'no change to be committed'
-						});
-					}
-				});
-			}
-		});	
-
-		function getAllNodes(callback) {
-			var count = 0;
+		function getPreVersionNodes(callback) {
+			var count = preVersions.length;
 			var allNodes = [];
 
+			//first commit
+			if(count === 0){
+				callback(null, allNodes);
+			}
+
 			preVersions.forEach(function onEach(versionNum){
-				count++;
 				retrieveSceneNodes(sceneId, versionNum, function onEach(err, nodes) {
-					preVersionNodes.concat(nodes);
+					allNodes = allNodes.concat(nodes);
 					count--;
 					if(count === 0){
 						callback(null, allNodes);

@@ -110,15 +110,19 @@ var RevisionControl = function(editor){
 
 		//build geometry map
 		var i, l, temp;
-		for(i = 0, l = geometries.length; i < l; i++){
-			temp = geometries[i];
-			geoMap[temp.uuid] = temp;
+		if(geometries){
+			for(i = 0, l = geometries.length; i < l; i++){
+				temp = geometries[i];
+				geoMap[temp.uuid] = temp;
+			}			
 		}
 
 		//build material map
-		for(i = 0, l = materials.length; i < l; i++){
-			temp = materials[i];
-			matMap[temp.uuid] = temp;
+		if(materials){
+			for(i = 0, l = materials.length; i < l; i++){
+				temp = materials[i];
+				matMap[temp.uuid] = temp;
+			}			
 		}
 
 		var setGeometryNode = function(mesh, assetId) {
@@ -138,7 +142,7 @@ var RevisionControl = function(editor){
 			var i, l, children;
 			children = object.children;
 
-			if(object.type === "Mesh"){
+			if(object.userData !== undefined){
 				var assets = object.userData.assets;
 
 				if(assets !== undefined){
@@ -154,8 +158,10 @@ var RevisionControl = function(editor){
 							}
 						}
 					}
-					delete object.userData;					
+					delete object.userData.assets;					
 				}
+
+				delete object.userData;
 			}
 			if(children !== undefined){
 				for(i = 0, l = children.length; i < l; i++){
@@ -176,7 +182,7 @@ var RevisionControl = function(editor){
 		};
 
 		Ajax.getJSON({
-			'url': 'getTags',
+			'url': 'retrieve',
 			'params': params
 		}, function onEnd(err, result) {
 			var scene = result.scene;
