@@ -251,8 +251,8 @@ var autoMerge = function(options, callback) {
 	var nodesA = options.nodesA;
 	var nodesB = options.nodesB;
 	var nodesC = options.nodesC;
-	var versionA = options.versionA + '';
-	var versionB = options.versionB + '';
+	var versionNumA = options.versionNumA + '';
+	var versionNumB = options.versionNumB + '';
 	var sceneId = options.sceneId;
 	var uuidQueue = [];
 	var reparentLogA = {};
@@ -527,6 +527,7 @@ var autoMerge = function(options, callback) {
 			var childMapB = {};
 			var childMapC = {};
 			var typeA, typeB;
+			var logItem;
 			
 			mergedChildren = [];
 
@@ -549,12 +550,14 @@ var autoMerge = function(options, callback) {
 						mergedChildren.push(ref);
 						addSubGraphToD(nodeMapA, ref);
 						//log merged
-						mergeLog.structureLog.push({
+						var logItem = {
 							'uuid': ref,
-							versionA: 'added',
-							'result': versionA,
+							'result': versionNumA,
 							'isConflicted': false
-						});
+						};
+						logItem[versionNumA] = 'added';
+
+						mergeLog.structureLog.push(logItem);
 					}
 				}
 			});	
@@ -567,12 +570,14 @@ var autoMerge = function(options, callback) {
 						mergedChildren.push(ref);
 						addSubGraphToD(nodeMapB, ref);
 						//log merged
-						mergeLog.structureLog.push({
+						var logItem = {
 							'uuid': ref,
-							versionB: 'added',
-							'result': versionB,
+							'result': versionNumB,
 							'isConflicted': false
-						});	
+						};
+						logItem[versionNumB] = 'added';
+
+						mergeLog.structureLog.push(logItem);	
 					}
 				}
 			});
@@ -596,13 +601,15 @@ var autoMerge = function(options, callback) {
 				if(typeA === 'remove' && typeB === 'reparentOut') {
 					//take change from version A, remove
 					//log conflicted
-					mergeLog.structureLog.push({
+					logItem = {
 						'uuid': ref,
-						versionA: 'removed',
-						versionB: 'reparented',
-						'result': versionA,
+						'result': versionNumA,
 						'isConflicted': true
-					});	
+					};		
+					logItem[versionNumA] = 'removed';
+					logItem[versionNumB] = 'reparented';
+
+					mergeLog.structureLog.push(logItem);	
 				}
 
 				if(typeA === 'reparentOut' && typeB === 'remove') {
@@ -613,13 +620,15 @@ var autoMerge = function(options, callback) {
 					};
 					addSubGraphToD(nodeMapA, ref);
 					//log conflicted
-					mergeLog.structureLog.push({
+					logItem = {
 						'uuid': ref,
-						versionA: 'reparented',
-						versionB: 'removed',
-						'result': versionA,
+						'result': versionNumA,
 						'isConflicted': true
-					});						
+					};		
+					logItem[versionNumA] = 'reparented';
+					logItem[versionNumB] = 'removed';
+
+					mergeLog.structureLog.push(logItem);						
 				}
 
 				//retain/reparent
@@ -628,13 +637,15 @@ var autoMerge = function(options, callback) {
 					mergedChildren.push(ref);
 					addSubGraphToD(nodeMapA, ref);
 					//log conflicted
-					mergeLog.structureLog.push({
+					logItem = {
 						'uuid': ref,
-						versionA: 'retained',
-						versionB: 'reparented',
-						'result': versionA,
+						'result': versionNumA,
 						'isConflicted': true
-					});						
+					};	
+					logItem[versionNumA] = 'retained';
+					logItem[versionNumB] = 'reparented';
+
+					mergeLog.structureLog.push(logItem);						
 				}
 
 				if(typeA === 'reparentOut' && typeB === 'retain') {
@@ -645,13 +656,15 @@ var autoMerge = function(options, callback) {
 					};
 					addSubGraphToD(nodeMapA, ref);
 					//log conflicted
-					mergeLog.structureLog.push({
+					logItem = {
 						'uuid': ref,
-						versionA: 'reparented',
-						versionB: 'retained',
-						'result': versionA,
+						'result': versionNumA,
 						'isConflicted': true
-					});						
+					};	
+					logItem[versionNumA] = 'reparented';
+					logItem[versionNumB] = 'retained';
+
+					mergeLog.structureLog.push(logItem);						
 				}
 
 				//retain/remove
@@ -661,23 +674,27 @@ var autoMerge = function(options, callback) {
 						mergedChildren.push(ref);
 						addSubGraphToD(nodeMapA, ref);
 						//log conflicted
-						mergeLog.structureLog.push({
+						logItem = {
 							'uuid': ref,
-							versionA: 'changed',
-							versionB: 'removed',
-							'result': versionA,
+							'result': versionNumA,
 							'isConflicted': true
-						});							
+						};	
+						logItem[versionNumA] = 'changed';
+						logItem[versionNumB] = 'removed';
+
+						mergeLog.structureLog.push(logItem);							
 					}else{
 						//remove
 						//log merged
-						mergeLog.structureLog.push({
+						logItem = {
 							'uuid': ref,
-							versionA: 'retained',
-							versionB: 'removed',
-							'result': versionB,
+							'result': versionNumB,
 							'isConflicted': false
-						});							
+						};	
+						logItem[versionNumA] = 'retained';
+						logItem[versionNumB] = 'removed';
+
+						mergeLog.structureLog.push(logItem);							
 					}
 				}
 
@@ -685,23 +702,27 @@ var autoMerge = function(options, callback) {
 					if(checkModified(nodeMapB, ref)){
 						//take change from version A, remove
 						//log conflicted
-						mergeLog.structureLog.push({
+						logItem = {
 							'uuid': ref,
-							versionA: 'removed',
-							versionB: 'changed',
-							'result': versionA,
+							'result': versionNumA,
 							'isConflicted': true
-						});							
+						};	
+						logItem[versionNumA] = 'removed';
+						logItem[versionNumB] = 'changed';
+
+						mergeLog.structureLog.push(logItem);							
 					}else{
 						//remove
 						//log merged
-						mergeLog.structureLog.push({
+						logItem = {
 							'uuid': ref,
-							versionA: 'removed',
-							versionB: 'retianed',
-							'result': versionA,
+							'result': versionNumA,
 							'isConflicted': false
-						});							
+						};
+						logItem[versionNumA] = 'removed';
+						logItem[versionNumB] = 'retained';
+
+						mergeLog.structureLog.push(logItem);							
 					}
 				}
 
@@ -721,13 +742,15 @@ var autoMerge = function(options, callback) {
 					}else{
 						addSubGraphToD(nodeMapA, ref);
 						//log conflicted
-						mergeLog.structureLog.push({
+						logItem = {
 							'uuid': ref,
-							versionA: 'reparented',
-							versionB: 'reparented',
-							'result': versionA,
+							'result': versionNumA,
 							'isConflicted': true
-						});							
+						};
+						logItem[versionNumA] = 'reparented';
+						logItem[versionNumB] = 'reparented';
+
+						mergeLog.structureLog.push(logItem);							
 					}
 				}
 			});
@@ -741,43 +764,48 @@ var autoMerge = function(options, callback) {
 		var nodeB = nodeMapB[id];
 		var nodeC = nodeMapC[id];
 		var mergedState = {};
+		var logItem;
 
 		if(stateCmp(nodeA, nodeB)){
 			return JSON.parse(nodeA.data);
 		}
 		if(!stateCmp(nodeA, nodeC) && stateCmp(nodeB, nodeC)){
 			//log merged
-			mergeLog.stateLog.push({
+			logItem = {
 				'uuid': id,
-				versionA: 'changed',
-				versionB: 'unchanged',
-				'result': versionA,
+				'result': versionNumA,
 				'isConflicted': false
-			});
+			};
+			logItem[versionNumA] = 'changed';
+			logItem[versionNumB] = 'unchanged';
+
+			mergeLog.stateLog.push(logItem);
 			return JSON.parse(nodeA.data);
 		}
 		if(stateCmp(nodeA, nodeC) && !stateCmp(nodeB, nodeC)){
 			//log merged
-			mergeLog.stateLog.push({
+			logItem = {
 				'uuid': id,
-				versionA: 'unchanged',
-				versionB: 'changed',
-				'result': versionB,
+				'result': versionNumB,
 				'isConflicted': false
-			});			
+			};
+			logItem[versionNumA] = 'unchanged';
+			logItem[versionNumB] = 'changed';
+
+			mergeLog.stateLog.push(logItem);			
 			return JSON.parse(nodeB.data);
 		}
 
-		var stateLog = {
+		var stateLogItem = {
 			'uuid': id,
-			versionA: 'changed',
-			versionB: 'changed',
+			versionNumA: 'changed',
+			versionNumB: 'changed',
 			'result': 'compound',
 			'isConflicted': false,
 			'attrLog': []			
 		};
 		merge();
-		mergeLog.stateLog.push(stateLog);
+		mergeLog.stateLog.push(stateLogItem);
 		
 		return mergedState;
 
@@ -815,32 +843,36 @@ var autoMerge = function(options, callback) {
 					if(!propCmp(stateA[key], stateC[key]) && propCmp(stateB[key], stateC[key])){
 						mergedState[key] = stateA[key];
 						//log merged
-						stateLog.attrLog.push({
+						logItem = {
 							'key': key,
-							versionA: 'changed',
-							versionB: 'unchanged',
-							'result': versionA,
+							'result': versionNumA,
 							'isConflicted': false,
 							'value':{
-								versionA: stateA[key],
-								versionB: stateB[key]
+								versionNumA: stateA[key],
+								versionNumB: stateB[key]
 							}
-						});
+						};
+						logItem[versionNumA] = 'changed';
+						logItem[versionNumB] = 'unchanged';
+
+						stateLogItem.attrLog.push(logItem);
 					}
 					if(propCmp(stateA[key], stateC[key]) && !propCmp(stateB[key], stateC[key])){
 						mergedState[key] = stateB[key];
-						//log merged	
-						stateLog.attrLog.push({
+						//log merged
+						logItem = {
 							'key': key,
-							versionA: 'unchanged',
-							versionB: 'changed',
-							'result': versionB,
+							'result': versionNumB,
 							'isConflicted': false,
 							'value':{
-								versionA: stateA[key],
-								versionB: stateB[key]
+								versionNumA: stateA[key],
+								versionNumB: stateB[key]
 							}
-						});										
+						};
+						logItem[versionNumA] = 'unchanged';
+						logItem[versionNumB] = 'changed';
+
+						stateLogItem.attrLog.push(logItem);										
 					}
 					//change to the same state
 					if(propCmp(stateA[key], stateB[key]) && !propCmp(stateA[key], stateC[key]) && !propCmp(stateB[key], stateC[key])){
@@ -851,18 +883,20 @@ var autoMerge = function(options, callback) {
 						//take change from version a
 						mergedState[key] = stateA[key];
 						//log conflicted
-						stateLog.attrLog.push({
+						logItem = {
 							'key': key,
-							versionA: 'changed',
-							versionB: 'changed',
-							'result': versionA,
+							'result': versionNumA,
 							'isConflicted': true,
 							'value':{
-								versionA: stateA[key],
-								versionB: stateB[key]
+								versionNumA: stateA[key],
+								versionNumB: stateB[key]
 							}
-						});	
-						stateLog.isConflicted = true;
+						};
+						logItem[versionNumA] = 'changed';
+						logItem[versionNumB] = 'changed';
+
+						stateLogItem.attrLog.push(logItem);	
+						stateLogItem.isConflicted = true;
 					}					
 				}
 			}
@@ -912,39 +946,15 @@ exports.retrieve = function(req, res) {
 
 exports.merge = function(req, res) {
 	var sceneId = req.query.sceneId;
-	var versionA = req.query.versionA;
-	var versionB = req.query.versionB;
-	var versionC = req.query.versionC; // ancestor version
+	var versionNameA = req.query.versionA;
+	var versionNameB = req.query.versionB;
+	var versionNameC = req.query.versionC; // ancestor version
+	var versionNumA, versionNumB, versionNumC;
 	var nodesA, nodesB, nodesC;
 
-	var merge = function() {
+	getLCA();
 
-		var options = {
-			'nodesA': nodesA,
-			'nodesB': nodesB,
-			'nodesC': nodesC,
-			'versionA': versionA,
-			'versionB': versionB,
-			'sceneId': sceneId 
-		};	
-		autoMerge(options, function(err, nodesD, infoMap){
-			if(!err){
-				var sceneA = getSceneFromNodes(nodesA,sceneId);
-				var sceneB = getSceneFromNodes(nodesB,sceneId);
-				var mergedScene = getSceneFromNodes(nodesD,sceneId);
-				res.send({
-					'success': true,
-					'sceneA': sceneA,
-					'sceneB': sceneB,
-					'mergedScene': mergedScene,
-					'infoMap': infoMap
-				});
-			}
-		});	
-
-	};
-
-	retrieveSceneNodes(sceneId, versionA, function onEnd(err, nodes) {
+	retrieveSceneNodes(sceneId, versionNumA, function onEnd(err, nodes) {
 		if(!err){
 			nodesA = nodes;
 			if(nodesA && nodesB && nodesC){
@@ -952,7 +962,7 @@ exports.merge = function(req, res) {
 			}
 		}
 	});
-	retrieveSceneNodes(sceneId, versionB, function onEnd(err, nodes) {
+	retrieveSceneNodes(sceneId, versionNumB, function onEnd(err, nodes) {
 		if(!err){
 			nodesB = nodes;
 			if(nodesA && nodesB && nodesC){
@@ -960,7 +970,7 @@ exports.merge = function(req, res) {
 			}
 		}
 	});
-	retrieveSceneNodes(sceneId, versionC, function onEnd(err, nodes) {
+	retrieveSceneNodes(sceneId, versionNumC, function onEnd(err, nodes) {
 		if(!err){
 			nodesC = nodes;
 			if(nodesA && nodesB && nodesC){
@@ -968,6 +978,72 @@ exports.merge = function(req, res) {
 			}
 		}
 	});
+
+	//get the latest common ancestor
+	function getLCA() {
+		versionNumA = versionNameA;
+		versionNumB = versionNameB;
+		versionNumC = versionNameC;
+	}
+
+	//replace versionNum with versionName
+	function getMergeInfo(mergeLog) {
+		var name = {};
+		name[versionNumA] = versionNameA;
+		name[versionNumB] = versionNameB;
+
+		mergeLog.stateLog.forEach(function onEach(stateLogItem) {
+			stateLogItem[versionNameA] = stateLogItem[versionNumA];
+			stateLogItem[versionNameB] = stateLogItem[versionNumB];
+			stateLogItem.result = name[stateLogItem.result];
+
+			if(stateLogItem.attrLog){
+				stateLogItem.attrLog.forEach(function onEach(attrLogItem){
+					attrLogItem[versionNameA] = attrLogItem[versionNumA];
+					attrLogItem[versionNameB] = attrLogItem[versionNumB];
+					attrLogItem.result = name[attrLogItem.result];	
+					attrLogItem.value[versionNameA] = attrLogItem.value[versionNumA];
+					attrLogItem.value[versionNameB] = attrLogItem.value[versionNumB];			
+				});				
+			}
+		});
+
+		mergeLog.structureLog.forEach(function onEach(structureLogItem) {
+			structureLogItem[versionNameA] = structureLogItem[versionNumA];
+			structureLogItem[versionNameB] = structureLogItem[versionNumB];
+			structureLogItem.result = name[structureLogItem.result];
+		});
+
+		return mergeLog;
+	}
+
+	function merge() {
+
+		var options = {
+			'nodesA': nodesA,
+			'nodesB': nodesB,
+			'nodesC': nodesC,
+			'versionNumA': versionNumA,
+			'versionNumB': versionNumB,
+			'sceneId': sceneId 
+		};	
+		autoMerge(options, function(err, nodesD, mergeLog){
+			if(!err){
+				var sceneA = getSceneFromNodes(nodesA,sceneId);
+				var sceneB = getSceneFromNodes(nodesB,sceneId);
+				var mergedScene = getSceneFromNodes(nodesD,sceneId);
+
+				res.send({
+					'success': true,
+					'sceneA': sceneA,
+					'sceneB': sceneB,
+					'mergedScene': mergedScene,
+					'mergeLog': getMergeInfo(mergeLog)
+				});
+			}
+		});	
+
+	}
 };
 
 exports.commit = function(req, res) {

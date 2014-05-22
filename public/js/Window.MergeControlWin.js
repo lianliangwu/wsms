@@ -1,15 +1,16 @@
 var MergeControlWin = function(mergeEditor){
+	"use strict";
 	var container = new UI.Window("Merged Information").setId("mergeInforWin");
 
 	var controlBtns = new MergeControlWin.ControlBtns(mergeEditor);
-	var nodeList = new MergeControlWin.NodeList(mergeEditor);
-	var attrList = new MergeControlWin.AttrList(mergeEditor);
-	var subSceneList = new  MergeControlWin.SubSceneList(mergeEditor);
+	var stateList = new MergeControlWin.StateList(mergeEditor);
+//	var attrList = new MergeControlWin.AttrList(mergeEditor);
+//	var structureList = new  MergeControlWin.StructureList(mergeEditor);
 
 	container.add(controlBtns);
-	container.add(nodeList);
-	container.add(attrList);
-	container.add(subSceneList);
+	container.add(stateList);
+//	container.add(attrList);
+//	container.add(structureList);
 
 	//container configuration
 	container.setOverflow('scroll');
@@ -17,11 +18,10 @@ var MergeControlWin = function(mergeEditor){
 	container.setLeft(document.body.scrollWidth/3 + 'px');
 	container.hide();
 
-	container.init = function (versionA, versionB, infoMap) {
-
-		nodeList.setInfo(versionA, versionB, infoMap);
-		attrList.setInfo(versionA, versionB, infoMap);
-		subSceneList.setInfo(versionA, versionB, infoMap);
+	container.init = function (options) {
+		stateList.setInfo(options);
+//		attrList.setInfo(options);
+//		structureList.setInfo(options);
 	};
 
 	return container;

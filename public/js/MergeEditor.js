@@ -52,7 +52,7 @@ MergeEditor.prototype = {
 			this.viewerB.editor.selectByUuid(uuid);	
 		}
 
-		selected = this.viewerD.editor.selected
+		selected = this.viewerD.editor.selected;
 		if(!selected || (selected&&selected.uuid !== uuid)){
 			this.viewerD.editor.selectByUuid(uuid);	
 		}
@@ -107,9 +107,9 @@ MergeEditor.prototype = {
 		}
 
 
-		for(uuid in infoMap){
+		for(var uuid in infoMap){
 			if(infoMap.hasOwnProperty(uuid)){
-				nodeInfo = infoMap[uuid];
+				var nodeInfo = infoMap[uuid];
 
 				//version D
 				if(nodeInfo.isConflicted){
