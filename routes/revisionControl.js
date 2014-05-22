@@ -1,3 +1,4 @@
+"use strict";
 /*
  * wzhscript 2014.4.18
 **/
@@ -132,15 +133,21 @@ var getNodesFromScene = function(scene) {
 
 	getObject(scene.object);
 
-	scene.geometries&&scene.geometries.forEach(function each(e) {
-		addNode(e, 'geometry');
-	});
-	scene.materials&&scene.materials.forEach(function each(e) {
-		addNode(e, 'material');
-	});
-	scene.textures&&scene.textures.forEach(function each(e) {
-		addNode(e, 'texture');
-	});
+	if(scene.geometries){
+		scene.geometries.forEach(function each(e) {
+			addNode(e, 'geometry');
+		});
+	}
+	if(scene.materials){
+		scene.materials.forEach(function each(e) {
+			addNode(e, 'material');
+		});
+	}
+	if(scene.textures){
+		scene.textures.forEach(function each(e) {
+			addNode(e, 'texture');
+		});
+	}
 
 	return nodes;
 };
@@ -221,7 +228,7 @@ var retrieveSceneNodes = function(sceneId, versionNum, callback) {
 				count--;
 
 				if(count === 0){// finish when no I/O request exists
-					callback&&callback(null, nodes);
+					callback(null, nodes);
 				}
 			}; 
 
@@ -283,17 +290,17 @@ var autoMerge = function(options, callback) {
 		
 
 		//push Ca N Cb into uuidQueue
-		nodesA[uuid].children.forEach(function onEach(refA) {
-			nodesB[uuid].children.forEach(function onEach(refB) {
+		nodeMapA[uuid].children.forEach(function onEach(refA) {
+			nodeMapB[uuid].children.forEach(function onEach(refB) {
 				if(refA === refB){
 					uuidQueue.push(refA);
 				}
-			})
+			});
 		});
 
 		addNodeToD({
-			'uuid': mergedState.uuid,
-			'type': mergedState.type,
+			'uuid': uuid,
+			'type': nodeMapA[uuid].type, // specify the abstract type
 			'data': JSON.stringify(mergedState),
 			'children': mergedChildren
 		});	
@@ -310,7 +317,7 @@ var autoMerge = function(options, callback) {
 		}
 	}
 
-	callback&&callback(null, nodesD, mergeLog);
+	callback(null, nodesD, mergeLog);
 
 	function addNodeToD(node) {
 		nodesD.push(node);
@@ -339,11 +346,11 @@ var autoMerge = function(options, callback) {
 
 					//if exist in A and B, state merging is needed
 					if(nodeMapA[uuid] !== undefined && nodeMapB[uuid] !== undefined){
-						var mergedState = stateMerge(nodeMapA[uuid]);
+						var mergedState = stateMerge(uuid);
 
 						addNodeToD({
-							'uuid': mergedState.uuid,
-							'type': mergedState.type,
+							'uuid': uuid,
+							'type': nodeMapA[uuid].type,
 							'data': JSON.stringify(mergedState)
 						});
 					}
@@ -379,33 +386,37 @@ var autoMerge = function(options, callback) {
 		merge();
 		return mergedChildren;		
 
-		function getDiffType(id, Cr, Cc, Sr, Sc) {
-			if(isIn(id, Cr) && notIn(id, Cc) && notIn(id, Sc))
+		function getDiffType(id, Cr, Sr, Cc, Sc) {
+			if(isIn(id, Cr) && notIn(id, Sc)){
 				return 'add';
-			if(isIn(id, Cr) && notIn(id, Cc) && isIn(id, Sc))
+			}
+			if(isIn(id, Cr) && notIn(id, Cc) && isIn(id, Sc)){
 				return 'reparentIn';
-			if(notIn(id, Cr) && isIn(id, Sr) && isIn(id, Cc))
+			}
+			if(notIn(id, Cr) && isIn(id, Sr) && isIn(id, Cc)){
 				return 'reparentOut';
-			if(notIn(id, Cr) && notIn(id, Sr) && isIn(id, Cc))
+			}
+			if(notIn(id, Cr) && notIn(id, Sr) && isIn(id, Cc)){
 				return 'remove';
-			if(isIn(id, Cr) && isIn(id, Cc))
+			}
+			if(isIn(id, Cr) && isIn(id, Cc)){
 				return 'retain';
+			}
 		}
 
 		//check if the subgraph has been modified, comparing with version C 
-		function checkModified(nodeMap, uuid) {
+		function checkModified(nodeMap, rootId) {
 			//check state and structure 
-			if(!nodeCmp(nodeMap[uuid], nodeMapC[uuid])){
+			if(!nodeCmp(nodeMap[rootId], nodeMapC[rootId])){
 				return true;// modified
 			}
-			
-			var node = JSON.parse(nodeMap[uuid].data);
-			var nodeC = JSON.parse(nodeMapC[uuid].data);
  
+			var node = JSON.parse(nodeMap[rootId].data);
+			var nodeC = JSON.parse(nodeMapC[rootId].data);
+
 			//check children object
-			var children = node.children;
-			if(children !== undefined){
-				children.forEach(function onEach(ref) {
+			if(node.children !== undefined){
+				node.children.forEach(function onEach(ref) {
 					if(checkModified(nodeMap, ref)){
 						return true;
 					}
@@ -414,9 +425,9 @@ var autoMerge = function(options, callback) {
 
 			//check geometry, material and texture
 			for(var key in node){
-				if(state.hasOwnProperty(key)){
+				if(node.hasOwnProperty(key)){
 					if(isRef(key)){
-						var uuid = state[key];
+						var uuid = node[key];
 
 						if(nodeMap[uuid] !== undefined && nodeMapC[uuid] !== undefined){
 							if(checkModified(nodeMap[uuid], nodeMapC[uuid])){
@@ -473,7 +484,7 @@ var autoMerge = function(options, callback) {
 				});
 
 				currentNode.children.forEach(function onEach(ref) {
-					var type = getDiffType(ref, childMap, childMapC, nodeMap, nodeMapC);
+					var type = getDiffType(ref, childMap, nodeMap, childMapC, nodeMapC);
 					if(type !== 'reparentIn'){
 						children.push(ref);
 						addSubGraphToD(nodeMap, ref);
@@ -481,12 +492,12 @@ var autoMerge = function(options, callback) {
 				});
 			}
 
-			node.uuid = currentNode.uuid;
-			node.type = currentNode.type;
-			node.data = currentNode.data;
-			node.children = children;
+			nodeD.uuid = currentNode.uuid;
+			nodeD.type = currentNode.type;
+			nodeD.data = currentNode.data;
+			nodeD.children = children;
 
-			addNodeToD(node)
+			addNodeToD(nodeD);
 		}
 
 		//find out where ref has been reparented to
@@ -550,8 +561,8 @@ var autoMerge = function(options, callback) {
 
 			//Cb - Cc
 			nodeMapB[nodeUuid].children.forEach(function onEach(ref) {
-				if(childrenC[ref] === undefined){
-					typeB = getDiffType(ref, childrenA, nodeMapA, childMapC, nodeMapC);
+				if(childMapC[ref] === undefined){
+					typeB = getDiffType(ref, childMapA, nodeMapA, childMapC, nodeMapC);
 					if(typeB === 'add'){
 						mergedChildren.push(ref);
 						addSubGraphToD(nodeMapB, ref);
@@ -572,17 +583,17 @@ var autoMerge = function(options, callback) {
 				typeB = getDiffType(ref, childMapB, nodeMapB, childMapC, nodeMapC);
 
 				//both remove
-				if(typeA === 'remove' || typeB === 'remove') {
-					//do nothing
+				if(typeA === 'remove' && typeB === 'remove') {
+				//do nothing
 				}
 
 				//both retain
-				if(typeA === 'retain' || typeB === 'retain') {
+				if(typeA === 'retain' && typeB === 'retain') {
 					mergedChildren.push(ref);
 				}
 
 				//remove/reparent
-				if(typeA === 'remove' || typeB === 'reparentOut') {
+				if(typeA === 'remove' && typeB === 'reparentOut') {
 					//take change from version A, remove
 					//log conflicted
 					mergeLog.structureLog.push({
@@ -594,7 +605,7 @@ var autoMerge = function(options, callback) {
 					});	
 				}
 
-				if(typeA === 'reparentOut' || typeB === 'remove') {
+				if(typeA === 'reparentOut' && typeB === 'remove') {
 					//take change from version A, reparent
 					reparentLogA[ref] = {
 						'from': nodeUuid,
@@ -612,7 +623,7 @@ var autoMerge = function(options, callback) {
 				}
 
 				//retain/reparent
-				if(typeA === 'retain' || typeB === 'reparentOut') {
+				if(typeA === 'retain' && typeB === 'reparentOut') {
 					//take change from version A, retain
 					mergedChildren.push(ref);
 					addSubGraphToD(nodeMapA, ref);
@@ -626,7 +637,7 @@ var autoMerge = function(options, callback) {
 					});						
 				}
 
-				if(typeA === 'reparentOut' || typeB === 'retain') {
+				if(typeA === 'reparentOut' && typeB === 'retain') {
 					//take change from version A, reparent
 					reparentLogA[ref] = {
 						'from': nodeUuid,
@@ -644,7 +655,7 @@ var autoMerge = function(options, callback) {
 				}
 
 				//retain/remove
-				if(typeA === 'retain' || typeB === 'remove') {
+				if(typeA === 'retain' && typeB === 'remove') {
 					if(checkModified(nodeMapA, ref)){
 						//take change from version A, retain
 						mergedChildren.push(ref);
@@ -670,7 +681,7 @@ var autoMerge = function(options, callback) {
 					}
 				}
 
-				if(typeA === 'remove' || typeB === 'retain') {
+				if(typeA === 'remove' && typeB === 'retain') {
 					if(checkModified(nodeMapB, ref)){
 						//take change from version A, remove
 						//log conflicted
@@ -695,7 +706,7 @@ var autoMerge = function(options, callback) {
 				}
 
 				//reparent/reparent
-				if(typeA === 'reparentOut' || typeB === 'reparentOut'){
+				if(typeA === 'reparentOut' && typeB === 'reparentOut'){
 					reparentLogA[ref] = {
 						'from': nodeUuid,
 						'to': findReparentIn(nodeMapA, ref)
@@ -726,35 +737,35 @@ var autoMerge = function(options, callback) {
 	}
 
 	function stateMerge(id) {
-		var nodeA = JSON.parse(nodeMapA[id].data);
-		var nodeB = JSON.parse(nodeMapB[id].data);
-		var nodeC = JSON.parse(nodeMapC[id].data);
+		var nodeA = nodeMapA[id];
+		var nodeB = nodeMapB[id];
+		var nodeC = nodeMapC[id];
 		var mergedState = {};
 
 		if(stateCmp(nodeA, nodeB)){
-			return nodeA.data;
+			return JSON.parse(nodeA.data);
 		}
 		if(!stateCmp(nodeA, nodeC) && stateCmp(nodeB, nodeC)){
 			//log merged
-			mergeLog.stateMerge.push({
+			mergeLog.stateLog.push({
 				'uuid': id,
 				versionA: 'changed',
 				versionB: 'unchanged',
 				'result': versionA,
 				'isConflicted': false
 			});
-			return nodeA.data;
+			return JSON.parse(nodeA.data);
 		}
 		if(stateCmp(nodeA, nodeC) && !stateCmp(nodeB, nodeC)){
 			//log merged
-			mergeLog.stateMerge.push({
+			mergeLog.stateLog.push({
 				'uuid': id,
 				versionA: 'unchanged',
 				versionB: 'changed',
 				'result': versionB,
 				'isConflicted': false
 			});			
-			return nodeB.data;
+			return JSON.parse(nodeB.data);
 		}
 
 		var stateLog = {
@@ -771,22 +782,25 @@ var autoMerge = function(options, callback) {
 		return mergedState;
 
 		function merge(status) {
+			var stateA = JSON.parse(nodeA.data);
+			var stateB = JSON.parse(nodeB.data);
+			var stateC = JSON.parse(nodeC.data);
 			var keys = {};
 			var key;
 
-			// keys<- distinct {‘key' in nodeA, nodeB and nodeC}
-			for(key in nodeA){
-				if (nodeA.hasOwnProperty(key)){
+			// keys<- distinct {‘key' in stateA, stateB and stateC}
+			for(key in stateA){
+				if (stateA.hasOwnProperty(key)){
 					keys[key] = true;
 				}
 			}
-			for(key in nodeB){
-				if (nodeB.hasOwnProperty(key)){
+			for(key in stateB){
+				if (stateB.hasOwnProperty(key)){
 					keys[key] = true;
 				}
 			}
-			for(key in nodeC){
-				if (nodeC.hasOwnProperty(key)){
+			for(key in stateC){
+				if (stateC.hasOwnProperty(key)){
 					keys[key] = true;
 				}
 			}	
@@ -794,12 +808,12 @@ var autoMerge = function(options, callback) {
 			for(key in keys){
 				if(keys.hasOwnProperty(key)){
 					//unchanged
-					if(propCmp(nodeA[key], nodeC[key]) && propCmp(nodeB[key], nodeC[key])){
-						mergedState[key] = nodeA[key];
+					if(propCmp(stateA[key], stateC[key]) && propCmp(stateB[key], stateC[key])){
+						mergedState[key] = stateA[key];
 					}
 					//changed
-					if(!propCmp(nodeA[key], nodeC[key]) && propCmp(nodeB[key], nodeC[key])){
-						mergedState[key] = nodeA[key];
+					if(!propCmp(stateA[key], stateC[key]) && propCmp(stateB[key], stateC[key])){
+						mergedState[key] = stateA[key];
 						//log merged
 						stateLog.attrLog.push({
 							'key': key,
@@ -808,13 +822,13 @@ var autoMerge = function(options, callback) {
 							'result': versionA,
 							'isConflicted': false,
 							'value':{
-								versionA: nodeA[key],
-								versionB: nodeB[key]
+								versionA: stateA[key],
+								versionB: stateB[key]
 							}
 						});
 					}
-					if(propCmp(nodeA[key], nodeC[key]) && !propCmp(nodeB[key], nodeC[key])){
-						mergedState[key] = nodeB[key];
+					if(propCmp(stateA[key], stateC[key]) && !propCmp(stateB[key], stateC[key])){
+						mergedState[key] = stateB[key];
 						//log merged	
 						stateLog.attrLog.push({
 							'key': key,
@@ -823,19 +837,19 @@ var autoMerge = function(options, callback) {
 							'result': versionB,
 							'isConflicted': false,
 							'value':{
-								versionA: nodeA[key],
-								versionB: nodeB[key]
+								versionA: stateA[key],
+								versionB: stateB[key]
 							}
 						});										
 					}
 					//change to the same state
-					if(propCmp(nodeA[key], nodeB[key]) && !propCmp(nodeA[key], nodeC[key]) && !propCmp(nodeB[key], nodeC[key])){
-						mergedState[key] = nodeA[key];
+					if(propCmp(stateA[key], stateB[key]) && !propCmp(stateA[key], stateC[key]) && !propCmp(stateB[key], stateC[key])){
+						mergedState[key] = stateA[key];
 					}
 					//change to the different state
-					if(!propCmp(nodeA[key], nodeB[key]) && !propCmp(nodeA[key], nodeC[key]) && !propCmp(nodeB[key], nodeC[key])){
+					if(!propCmp(stateA[key], stateB[key]) && !propCmp(stateA[key], stateC[key]) && !propCmp(stateB[key], stateC[key])){
 						//take change from version a
-						mergedState[key] = nodeA[key];
+						mergedState[key] = stateA[key];
 						//log conflicted
 						stateLog.attrLog.push({
 							'key': key,
@@ -844,8 +858,8 @@ var autoMerge = function(options, callback) {
 							'result': versionA,
 							'isConflicted': true,
 							'value':{
-								versionA: nodeA[key],
-								versionB: nodeB[key]
+								versionA: stateA[key],
+								versionB: stateB[key]
 							}
 						});	
 						stateLog.isConflicted = true;

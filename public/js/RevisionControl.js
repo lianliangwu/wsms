@@ -1,10 +1,12 @@
-var RevisionControl = function(editor){
+var RevisionControl = function (editor) {
+	"use strict";
+
 	var signals = editor.signals;
 	var commitable = true;
 	var maps = ['map', 'bumpMap', 'lightMap', 'normalMap', 'specularMap', 'envMap'];
 
 	//get a loadable JSON scene data from WSG
-	var getThreeSG = function(scene) {
+	var getThreeSG = function (scene) {
 		var geometries = scene.geometries;
 		var materials = scene.materials;
 		var textures = scene.textures;
@@ -20,7 +22,7 @@ var RevisionControl = function(editor){
 			"depthSegments": 1
 		};
 
-		var setGeometryNode = function(object) {
+		var setGeometryNode = function (object) {
 			var uuid = object.geometry;
 			var geometry = geometries[geoIndex[uuid]];
 
@@ -30,7 +32,7 @@ var RevisionControl = function(editor){
 
 				//set a temporary box geometry
 				geometry = JSON.parse(JSON.stringify(tempGeometry));
-				geometry.uuid = uuid;				
+				geometry.uuid = uuid;
 				geometries[geoIndex[uuid]] = geometry;
 			}
 		};
@@ -69,7 +71,7 @@ var RevisionControl = function(editor){
 				for(i = 0, l = children.length; i < l ; i++){
 					temp = children[i];
 					setAssets(temp);
-				} 				
+				}
 			}
 		};
 
@@ -94,7 +96,7 @@ var RevisionControl = function(editor){
 
 		//add assets into userData		
 		setAssets(scene.object);
-		delete scene.textures;		
+		delete scene.textures;
 
 		return scene;
 	};
@@ -114,7 +116,7 @@ var RevisionControl = function(editor){
 			for(i = 0, l = geometries.length; i < l; i++){
 				temp = geometries[i];
 				geoMap[temp.uuid] = temp;
-			}			
+			}
 		}
 
 		//build material map
@@ -122,7 +124,7 @@ var RevisionControl = function(editor){
 			for(i = 0, l = materials.length; i < l; i++){
 				temp = materials[i];
 				matMap[temp.uuid] = temp;
-			}			
+			}
 		}
 
 		var setGeometryNode = function(mesh, assetId) {
@@ -189,10 +191,10 @@ var RevisionControl = function(editor){
 
 			scene = getThreeSG(scene);
 			var loader = new THREE.ObjectLoader();
-			var scene = loader.parse( scene );
+			scene = loader.parse( scene );
 
 			scene.userData.currentVersion = versionNum;
-			callback&&callback(null, scene);
+			callback(null, scene);
 		});		
 	};
 
@@ -216,7 +218,7 @@ var RevisionControl = function(editor){
 			scene = editor.scene;			
 		}
 
-		wsg = getWSG(scene);
+		var wsg = getWSG(scene);
 
 		var params = {
 			'sceneId': wsg.object.uuid,
@@ -246,7 +248,6 @@ var RevisionControl = function(editor){
 			'params': params
 		}, function onEnd(err, result) {
 			var loader = new THREE.ObjectLoader();
-			var result = JSON.parse(xhr.responseText);
 			var scene;
 
 			scene = getThreeSG(result.sceneA);
@@ -258,7 +259,7 @@ var RevisionControl = function(editor){
 			scene = getThreeSG(result.mergedScene);
 			result.mergedScene = loader.parse( scene );
 			
-			callback&&callback(null, result);
+			callback(null, result);
 		});
 	};
 
@@ -279,7 +280,7 @@ var RevisionControl = function(editor){
 			scene = loader.parse( scene );
 
 			scene.userData.currentVersion = result.versionNum;
-			callback&&callback(null, scene);
+			callback(null, scene);
 		});
 	};
 
@@ -367,4 +368,4 @@ var RevisionControl = function(editor){
 	this.addTag = addTag;
 	this.getTags = getTags;
 	this.removeTag = removeTag;
-}
+};
