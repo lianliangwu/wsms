@@ -19,7 +19,7 @@ MergeControlWin.StateList = function( mergeEditor ){
 	resultRow.add( resultSelect );
 
 	container.add( new UI.Break() );
-	container.add( new UI.Text( 'Node List' ).setClass('title') );
+	container.add( new UI.Text( 'State Conflict List' ).setClass('title') );
 	container.add( new UI.Break(), new UI.Break() );
 	container.add(headerRow);
 	container.add(fancySelect);
@@ -81,7 +81,7 @@ MergeControlWin.StateList = function( mergeEditor ){
 
 		col2.setValue(container.versionA);
 		col3.setValue(container.versionB);
-			
+
 		makeLogMap(options.mergeLog.stateLog);	
 
 		fancySelect.setOptions(makeOptions(options.mergeLog.stateLog))

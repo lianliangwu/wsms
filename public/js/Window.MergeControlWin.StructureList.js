@@ -1,4 +1,5 @@
 MergeControlWin.StructureList = function( mergeEditor ){
+	"use strict";
 	//node info list
 	var container = new UI.Panel();
 	var headerRow = new UI.Panel();
@@ -18,7 +19,7 @@ MergeControlWin.StructureList = function( mergeEditor ){
 	resultRow.add( resultSelect );
 
 	container.add( new UI.Break() );
-	container.add( new UI.Text( 'Node List' ).setClass('title') );
+	container.add( new UI.Text( 'Structure Conflict List' ).setClass('title') );
 	container.add( new UI.Break(), new UI.Break() );
 	container.add(headerRow);
 	container.add(fancySelect);
@@ -26,15 +27,16 @@ MergeControlWin.StructureList = function( mergeEditor ){
 
 
 	fancySelect.onChange( function onChange() {
-		if(container.mergeInfoMap){
+		if(container.mergeLog){
 			var uuid = fancySelect.getValue();
-			var nodeInfo = container.mergeInfoMap[uuid];
+			var stateLogItem = container.nodeMap[uuid];
 			var options = {};
-			var result = nodeInfo.nodeLog.result;
+			var result = stateLogItem.result;
 
 			options[container.versionA] = container.versionA;
 			options[container.versionB] = container.versionB;
 
+			//if result === 'compound'
 			if(options[result] === undefined){
 				options[result] = result;
 			}
@@ -50,35 +52,39 @@ MergeControlWin.StructureList = function( mergeEditor ){
 		}
 	});
 
-	container.setInfo = function (versionA, versionB, mergeInfoMap) {
-		var makeNodeOptions = function(infoMap) {
+	container.setInfo = function (options) {
+		var makeOptions = function(structureLog) {
 			var options = {};
-			var uuid, nodeInfo;
 			var col1, col2, col3;	
 					
-			for(uuid in infoMap){
-				if(infoMap.hasOwnProperty(uuid)){
-					nodeInfo = infoMap[uuid];
-					if( nodeInfo.isMerged || nodeInfo.isConflicted){
-						col1 = '<span><input style="width:90%" value="'+ uuid +'" disabled></span>';
-						col2 = '<span>' + nodeInfo.nodeLog[container.versionA] + '</span>';
-						col3 = '<span>' + nodeInfo.nodeLog[container.versionB] + '</span>';
+			_.each(structureLog, function onEach(logItem){			
+				col1 = '<span><input style="width:90%" value="'+ logItem.uuid +'" disabled></span>';
+				col2 = '<span>' + logItem[container.versionA] + '</span>';
+				col3 = '<span>' + logItem[container.versionB] + '</span>';
 
-						options[uuid] = '<div class="' + (nodeInfo.isConflicted ? 'conflicted' : 'merged') + '">' + col1 + col2 + col3 + '</div>';
-					}					
-				}
-			}
+				options[logItem.uuid] = '<div class="' + (logItem.isConflicted ? 'conflicted' : 'merged') + '">' + col1 + col2 + col3 + '</div>';									
+			});
 
 			return options;			
-		};	
+		};
 
-		container.mergeInfoMap = mergeInfoMap;
-		container.versionA = "Version" + versionA;
-		container.versionB = "Version" + versionB;
+		var makeLogMap = function(structureLog) {
+			container.nodeMap = {};
+			_.each(structureLog, function onEach(logItem) {
+				container.nodeMap[logItem.uuid] = logItem;
+			});
+		};
+
+		container.mergeLog = options.mergeLog;
+		container.versionA = options.versionA;
+		container.versionB = options.versionB;
+
 		col2.setValue(container.versionA);
-		col3.setValue(container.versionB);		
+		col3.setValue(container.versionB);
 
-		fancySelect.setOptions(makeNodeOptions(mergeInfoMap))
+		makeLogMap(options.mergeLog.structureLog);	
+
+		fancySelect.setOptions(makeOptions(options.mergeLog.structureLog));
 
 	};
 
