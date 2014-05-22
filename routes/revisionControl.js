@@ -846,14 +846,13 @@ var autoMerge = function(options, callback) {
 						logItem = {
 							'key': key,
 							'result': versionNumA,
-							'isConflicted': false,
-							'value':{
-								versionNumA: stateA[key],
-								versionNumB: stateB[key]
-							}
+							'isConflicted': false
 						};
 						logItem[versionNumA] = 'changed';
 						logItem[versionNumB] = 'unchanged';
+						logItem.value = {};
+						logItem.value[versionNumA] = stateA[key];
+						logItem.value[versionNumB] = stateB[key];						
 
 						stateLogItem.attrLog.push(logItem);
 					}
@@ -863,14 +862,14 @@ var autoMerge = function(options, callback) {
 						logItem = {
 							'key': key,
 							'result': versionNumB,
-							'isConflicted': false,
-							'value':{
-								versionNumA: stateA[key],
-								versionNumB: stateB[key]
-							}
+							'isConflicted': false
 						};
 						logItem[versionNumA] = 'unchanged';
 						logItem[versionNumB] = 'changed';
+						logItem.value = {};
+						logItem.value[versionNumA] = stateA[key];
+						logItem.value[versionNumB] = stateB[key];
+
 
 						stateLogItem.attrLog.push(logItem);										
 					}
@@ -886,14 +885,13 @@ var autoMerge = function(options, callback) {
 						logItem = {
 							'key': key,
 							'result': versionNumA,
-							'isConflicted': true,
-							'value':{
-								versionNumA: stateA[key],
-								versionNumB: stateB[key]
-							}
+							'isConflicted': true
 						};
 						logItem[versionNumA] = 'changed';
 						logItem[versionNumB] = 'changed';
+						logItem.value = {};
+						logItem.value[versionNumA] = stateA[key];
+						logItem.value[versionNumB] = stateB[key];
 
 						stateLogItem.attrLog.push(logItem);	
 						stateLogItem.isConflicted = true;

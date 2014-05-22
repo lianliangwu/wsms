@@ -34,17 +34,18 @@ MergeControlWin.AttrList = function (mergeEditor) {
 	container.add(versionARow);
 	container.add(versionBRow);
 	container.add(resultRow);
+	container.hide();
 
 	//event
-	fancySelect.onChange(function onChange(){
+	fancySelect.onChange(function onChange() {
 		var versionA = container.versionA;
 		var versionB = container.versionB;
-		if(container.mergeInfoMap){
+		if(container.nodeMap){
 			//set version values
 			var key = fancySelect.getValue();
-			var nodeInfo = selectedNode;		
+			var stateLogItem = selectedNode;		
 
-			_.each(nodeInfo.attrLog, function onEach(attrLog){
+			_.each(stateLogItem.attrLog, function onEach(attrLog){
 				if(key === attrLog.key){
 					valueA.setValue(attrLog.value[versionA]);
 					valueB.setValue(attrLog.value[versionB]);
@@ -52,7 +53,7 @@ MergeControlWin.AttrList = function (mergeEditor) {
 			});
 
 			//set result select
-			var result = nodeInfo.attrInfoMap[key].result;
+			var result = stateLogItem.attrInfoMap[key].result;
 			var options = {};	
 			options[versionA] = versionA;
 			options[versionB] = versionB;			
@@ -76,24 +77,29 @@ MergeControlWin.AttrList = function (mergeEditor) {
 		}
 	});
 
+	//set fancySelect options on node selection
 	mergeEditor.signals.nodeSelected.add(function onNodeSelect(uuid) {
-		if(container.mergeInfoMap){
-			var nodeInfo = container.mergeInfoMap[uuid];
-			selectedNode = nodeInfo;
-			if(nodeInfo){
-				fancySelect.setOptions(nodeInfo.attrOptions);
+		if(container.nodeMap){
+			var stateLogItem = container.nodeMap[uuid];
+			selectedNode = stateLogItem;
+			if(stateLogItem && stateLogItem.attrOptions){
+				fancySelect.setOptions(stateLogItem.attrOptions);
 				resultSelect.setOptions({});
+
+				container.show();
+			}else{
+				container.hide();
 			}			
-		}	
+		}
 	});
 
-	container.setInfo = function(versionA, versionB, mergeInfoMap) {
-		var makeAttrOptions = function(nodeInfo) {
+	container.setInfo = function(options) {
+		var makeAttrOptions = function(stateLogItem) {
 			var attrOptions = {};
 			var attrInfoMap = {};
 			var col1, col2, col3;
 
-			_.each(nodeInfo.attrLog, function onEach(attrLog){
+			_.each(stateLogItem.attrLog, function onEach(attrLog){
 
 				col1 = '<span><input style="width:90%" value="'+ attrLog.key +'" disabled></span>';
 				col2 = '<span>' + attrLog[container.versionA] + '</span>';
@@ -103,26 +109,33 @@ MergeControlWin.AttrList = function (mergeEditor) {
 				attrInfoMap[attrLog.key] = attrLog;
 			});
 
-			nodeInfo.attrOptions = attrOptions;
-			nodeInfo.attrInfoMap = attrInfoMap;
+			stateLogItem.attrOptions = attrOptions;
+			stateLogItem.attrInfoMap = attrInfoMap;
 		};	
 
-		container.mergeInfoMap = mergeInfoMap;
-		container.versionA = "Version" + versionA;
-		container.versionB = "Version" + versionB;
+		var makeLogMap = function(stateLog) {
+			container.nodeMap = {};
+			_.each(stateLog, function onEach(logItem) {
+				container.nodeMap[logItem.uuid] = logItem;
+			});
+		};
+
+		container.mergeLog = options.mergeLog;
+		container.versionA = options.versionA;
+		container.versionB = options.versionB;
+
 		col2.setValue(container.versionA);
 		col3.setValue(container.versionB);
 
+		makeLogMap(options.mergeLog.stateLog);
 
-		for(uuid in mergeInfoMap){
-			if(mergeInfoMap.hasOwnProperty(uuid)){
-				nodeInfo = mergeInfoMap[uuid];
-				if( nodeInfo.isMerged || nodeInfo.isConflicted){
-					makeAttrOptions(nodeInfo);
-				}					
+		_.each(options.mergeLog.stateLog, function onEach(logItem) {
+			if(logItem.attrLog){
+				makeAttrOptions(logItem);
 			}
-		}
+		});
 
+		//container.dom.style.display = "none";
 	};
 
 	return container;

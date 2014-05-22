@@ -44,6 +44,14 @@ UI.Element.prototype = {
 
 		return this;
 
+	},
+
+	hide: function () {
+		this.dom.style.display = "none";
+	},
+
+	show: function () {
+		this.dom.style.display = "";
 	}
 
 }

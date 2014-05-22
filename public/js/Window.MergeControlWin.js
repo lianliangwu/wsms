@@ -4,12 +4,12 @@ var MergeControlWin = function(mergeEditor){
 
 	var controlBtns = new MergeControlWin.ControlBtns(mergeEditor);
 	var stateList = new MergeControlWin.StateList(mergeEditor);
-//	var attrList = new MergeControlWin.AttrList(mergeEditor);
+	var attrList = new MergeControlWin.AttrList(mergeEditor);
 	var structureList = new  MergeControlWin.StructureList(mergeEditor);
 
 	container.add(controlBtns);
 	container.add(stateList);
-//	container.add(attrList);
+	container.add(attrList);
 	container.add(structureList);
 
 	//container configuration
@@ -20,7 +20,7 @@ var MergeControlWin = function(mergeEditor){
 
 	container.init = function (options) {
 		stateList.setInfo(options);
-//		attrList.setInfo(options);
+		attrList.setInfo(options);
 		structureList.setInfo(options);
 	};
 
