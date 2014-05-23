@@ -1,9 +1,9 @@
 var DiffColor = (function(){
 	//Class variable
 	var color = {
-		'nodeDiff': '#37f838', //green
+		'stateDiff': '#37f838', //green
 		'structDiff': '#40a2f7', //blue
-		'nodeConflict': '#e01f1f', //red
+		'stateConflict': '#e01f1f', //red
 		'structConflict': '#f7bf25' //yellow
 	};
 
