@@ -1,4 +1,7 @@
+/*global signals, THREE, _, UI, MergeControlWin */
 MergeControlWin.AttrList = function (mergeEditor) {
+	"use strict";
+	
 	var container = new UI.Panel();
 	var headerRow = new UI.Panel();
 	var fancySelect = new UI.FancySelect();
@@ -99,14 +102,14 @@ MergeControlWin.AttrList = function (mergeEditor) {
 			var attrInfoMap = {};
 			var col1, col2, col3;
 
-			_.each(stateLogItem.attrLog, function onEach(attrLog){
+			_.each(stateLogItem.attrLog, function onEach(logItem){
 
-				col1 = '<span><input style="width:90%" value="'+ attrLog.key +'" disabled></span>';
-				col2 = '<span>' + attrLog[container.versionA] + '</span>';
-				col3 = '<span>' + attrLog[container.versionB] + '</span>';
+				col1 = '<span><input style="width:90%" value="'+ logItem.key +'" disabled></span>';
+				col2 = '<span>' + logItem[container.versionA] + '</span>';
+				col3 = '<span>' + logItem[container.versionB] + '</span>';
 
-				attrOptions[attrLog.key] = '<div class="' + attrLog.type + '">' + col1 + col2 + col3 + '</div>';
-				attrInfoMap[attrLog.key] = attrLog;
+				attrOptions[logItem.key] = '<div class="' + (logItem.isConflicted ? 'conflicted' : 'merged') + '">' + col1 + col2 + col3 + '</div>';
+				attrInfoMap[logItem.key] = logItem;
 			});
 
 			stateLogItem.attrOptions = attrOptions;

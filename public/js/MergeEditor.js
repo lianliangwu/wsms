@@ -90,7 +90,7 @@ var MergeEditor = (function module(){
 	//		this.viewerB.editor.signals.materialChanged.dispatch();
 			this.viewerD.editor.diffColor.resetColor( boo );
 		},
-		setDiffColor: function ( mergeLog , versionA, versionB) {
+		setDiffColor: function ( mergeLog , versionA, versionB ) {
 			var editorA = this.viewerA.editor;
 			var editorB = this.viewerB.editor;
 			var editorD = this.viewerD.editor;
@@ -100,15 +100,15 @@ var MergeEditor = (function module(){
 			var type;
 
 
-			function paintSubScene( editor, object, type) {
-				object.traverse(function ( child) {
+			function paintSubScene( editor, object, type ) {
+				object.traverse(function ( child ) {
 					if(editor.getObjectType(object) === 'Mesh'){
 						editor.diffColor.setColor(object, type);
 					}
 				});
 			}
 
-			function paintColor(editor, object, type) {
+			function paintColor( editor, object, type ) {
 					if(getObjectType(object) === 'Mesh'){
 						editor.diffColor.setColor(object, type);
 					}else{
@@ -117,37 +117,37 @@ var MergeEditor = (function module(){
 					}
 			}
 
-			_.each(mergeLog.stateLog, function onEach(logItem) {
+			_.each(mergeLog.stateLog, function onEach( logItem ) {
 				var uuid = logItem.uuid;
 
 				if(logItem.isConflicted){
 					var objectD = editorD.getObjectByUuid(uuid);
-					paintColor(editorD, objectD, 'stateConflict');
-				}else{
-					var objectA = editorA.getObjectByUuid(uuid);
-					var objectB = editorB.getObjectByUuid(uuid);
-
-					paintColor(editorA, objectA, 'stateDiff');
-					paintColor(editorB, objectB, 'stateDiff');				
+					objectD&&paintColor(editorD, objectD, 'stateConflict');
 				}
+				var objectA = editorA.getObjectByUuid(uuid);
+				var objectB = editorB.getObjectByUuid(uuid);
+
+				objectA&&paintColor(editorA, objectA, 'stateDiff');
+				objectB&&paintColor(editorB, objectB, 'stateDiff');		
 			});
 
-			_.each(mergeLog.structureLog, function onEach(logItem) {
+			_.each(mergeLog.structureLog, function onEach( logItem ) {
 				var uuid = logItem.uuid;
 
 				if(logItem.isConflicted){
 					var objectD = editorD.getObjectByUuid(uuid);
-					paintColor(editorD, objectD, 'structureConflict');
-				}else{
-					var objectA = editorA.getObjectByUuid(uuid);
-					var objectB = editorB.getObjectByUuid(uuid);
+					objectD&&paintColor(editorD, objectD, 'structureConflict');
+				}
+				var objectA = editorA.getObjectByUuid(uuid);
+				var objectB = editorB.getObjectByUuid(uuid);
 
-					paintColor(editorA, objectA, 'structureDiff');
-					paintColor(editorB, objectB, 'structureDiff');				
-				}			
+				objectA&&paintColor(editorA, objectA, 'structureDiff');
+				objectB&&paintColor(editorB, objectB, 'structureDiff');			
 			});
 		}
 	};	
+
+	return MergeEditor;
 })();
 
 

@@ -1,10 +1,10 @@
 var DiffColor = (function(){
 	//Class variable
 	var color = {
-		'stateDiff': '#37f838', //green
-		'structDiff': '#40a2f7', //blue
-		'stateConflict': '#e01f1f', //red
-		'structConflict': '#f7bf25' //yellow
+		'stateDiff': '#37f838', //green 37f838
+		'structDiff': '#40a2f7', //blue 40a2f7
+		'stateConflict': '#e01f1f', //red e01f1f
+		'structConflict': '#f7bf25' //yellow f7bf25
 	};
 
 	function DiffColor ( editor ){

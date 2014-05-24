@@ -764,46 +764,46 @@ var autoMerge = function(options, callback) {
 		var nodeB = nodeMapB[id];
 		var nodeC = nodeMapC[id];
 		var mergedState = {};
-		var logItem;
+		var stateLogItem;
 
 		if(stateCmp(nodeA, nodeB)){
 			return JSON.parse(nodeA.data);
 		}
 		if(!stateCmp(nodeA, nodeC) && stateCmp(nodeB, nodeC)){
 			//log merged
-			logItem = {
+			stateLogItem = {
 				'uuid': id,
 				'result': versionNumA,
 				'isConflicted': false
 			};
-			logItem[versionNumA] = 'changed';
-			logItem[versionNumB] = 'unchanged';
+			stateLogItem[versionNumA] = 'changed';
+			stateLogItem[versionNumB] = 'unchanged';
 
-			mergeLog.stateLog.push(logItem);
+			mergeLog.stateLog.push(stateLogItem);
 			return JSON.parse(nodeA.data);
 		}
 		if(stateCmp(nodeA, nodeC) && !stateCmp(nodeB, nodeC)){
 			//log merged
-			logItem = {
+			stateLogItem = {
 				'uuid': id,
 				'result': versionNumB,
 				'isConflicted': false
 			};
-			logItem[versionNumA] = 'unchanged';
-			logItem[versionNumB] = 'changed';
+			stateLogItem[versionNumA] = 'unchanged';
+			stateLogItem[versionNumB] = 'changed';
 
-			mergeLog.stateLog.push(logItem);			
+			mergeLog.stateLog.push(stateLogItem);			
 			return JSON.parse(nodeB.data);
 		}
 
 		var stateLogItem = {
 			'uuid': id,
-			versionNumA: 'changed',
-			versionNumB: 'changed',
 			'result': 'compound',
 			'isConflicted': false,
 			'attrLog': []			
-		};
+		};		
+		stateLogItem[versionNumA] = 'changed';
+		stateLogItem[versionNumB] = 'changed';
 		merge();
 		mergeLog.stateLog.push(stateLogItem);
 		
@@ -815,6 +815,7 @@ var autoMerge = function(options, callback) {
 			var stateC = JSON.parse(nodeC.data);
 			var keys = {};
 			var key;
+			var attrLogItem;
 
 			// keys<- distinct {‘key' in stateA, stateB and stateC}
 			for(key in stateA){
@@ -843,35 +844,35 @@ var autoMerge = function(options, callback) {
 					if(!propCmp(stateA[key], stateC[key]) && propCmp(stateB[key], stateC[key])){
 						mergedState[key] = stateA[key];
 						//log merged
-						logItem = {
+						attrLogItem = {
 							'key': key,
 							'result': versionNumA,
 							'isConflicted': false
 						};
-						logItem[versionNumA] = 'changed';
-						logItem[versionNumB] = 'unchanged';
-						logItem.value = {};
-						logItem.value[versionNumA] = stateA[key];
-						logItem.value[versionNumB] = stateB[key];						
+						attrLogItem[versionNumA] = 'changed';
+						attrLogItem[versionNumB] = 'unchanged';
+						attrLogItem.value = {};
+						attrLogItem.value[versionNumA] = stateA[key];
+						attrLogItem.value[versionNumB] = stateB[key];						
 
-						stateLogItem.attrLog.push(logItem);
+						stateLogItem.attrLog.push(attrLogItem);
 					}
 					if(propCmp(stateA[key], stateC[key]) && !propCmp(stateB[key], stateC[key])){
 						mergedState[key] = stateB[key];
 						//log merged
-						logItem = {
+						attrLogItem = {
 							'key': key,
 							'result': versionNumB,
 							'isConflicted': false
 						};
-						logItem[versionNumA] = 'unchanged';
-						logItem[versionNumB] = 'changed';
-						logItem.value = {};
-						logItem.value[versionNumA] = stateA[key];
-						logItem.value[versionNumB] = stateB[key];
+						attrLogItem[versionNumA] = 'unchanged';
+						attrLogItem[versionNumB] = 'changed';
+						attrLogItem.value = {};
+						attrLogItem.value[versionNumA] = stateA[key];
+						attrLogItem.value[versionNumB] = stateB[key];
 
 
-						stateLogItem.attrLog.push(logItem);										
+						stateLogItem.attrLog.push(attrLogItem);										
 					}
 					//change to the same state
 					if(propCmp(stateA[key], stateB[key]) && !propCmp(stateA[key], stateC[key]) && !propCmp(stateB[key], stateC[key])){
@@ -882,18 +883,18 @@ var autoMerge = function(options, callback) {
 						//take change from version a
 						mergedState[key] = stateA[key];
 						//log conflicted
-						logItem = {
+						attrLogItem = {
 							'key': key,
 							'result': versionNumA,
 							'isConflicted': true
 						};
-						logItem[versionNumA] = 'changed';
-						logItem[versionNumB] = 'changed';
-						logItem.value = {};
-						logItem.value[versionNumA] = stateA[key];
-						logItem.value[versionNumB] = stateB[key];
+						attrLogItem[versionNumA] = 'changed';
+						attrLogItem[versionNumB] = 'changed';
+						attrLogItem.value = {};
+						attrLogItem.value[versionNumA] = stateA[key];
+						attrLogItem.value[versionNumB] = stateB[key];
 
-						stateLogItem.attrLog.push(logItem);	
+						stateLogItem.attrLog.push(attrLogItem);	
 						stateLogItem.isConflicted = true;
 					}					
 				}
@@ -995,6 +996,7 @@ exports.merge = function(req, res) {
 			stateLogItem[versionNameB] = stateLogItem[versionNumB];
 			stateLogItem.result = name[stateLogItem.result];
 
+			
 			if(stateLogItem.attrLog){
 				stateLogItem.attrLog.forEach(function onEach(attrLogItem){
 					attrLogItem[versionNameA] = attrLogItem[versionNumA];
