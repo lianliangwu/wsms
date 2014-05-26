@@ -1331,7 +1331,7 @@ exports.getVersionHistory = function(req, res) {
 		});
 	} 
 	function getAllTags(callback) {
-		Tag.getAllBranches(sceneId, function onEnd(err, result) {
+		Tag.getAllTags(sceneId, function onEnd(err, result) {
 			if(err){
 				console.log("get all tags err: "+ err);
 			}
@@ -1343,11 +1343,49 @@ exports.getVersionHistory = function(req, res) {
 	}
 
 	getAllTags(function() {
+		var nodes = [], edges = [];   
+		var nodeMap = {};           
+
+		//build nodes and edges array for drawing
+		var build = function() {
+			versions.forEach(function onEach(version) {
+				//nodes
+				var node = {
+					'id': version.versionNum,
+					'label': version.versionNum,
+					'type': 'version'
+				};
+				nodes.push(node);
+				nodeMap[node.id] = node;
+
+				//edges
+				var prevs = version.prevs;
+				prevs.forEach(function onEach(prev){
+					edges.push({
+						'v': version.versionNum,
+						'u': prev
+					});
+				});
+			});
+
+			branches.forEach(function onEach(branch) {
+				var id = branch.versionNum;
+				nodeMap[id].branches = nodeMap[id].branches || [];
+				nodeMap[id].branches.push(branch.name);
+			});	
+
+			tags.forEach(function onEach(tag) {
+				var id = tag.versionNum;
+				nodeMap[id].tags = nodeMap[id].tags || [];
+				nodeMap[id].tags.push(tag.name);
+			});				
+		};
+
+		build();
 		res.send({
 			'success': true,
-			'versions': versions,
-			'branches': branches,
-			'tags': tags
+			'nodes': nodes,
+			'edges': edges
 		});
 	});
 };

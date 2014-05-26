@@ -476,21 +476,49 @@
 		this.dom.innerHTML = '<svg><g transform="translate(20,20)"/></svg>';
 	};
 
-	UI.DAG.prototype.draw = function ( states, edges ) {
+	UI.DAG.prototype.draw = function ( nodes, edges ) {
 	    var renderer = new dagreD3.Renderer();
 	    var oldDrawNodes = renderer.drawNodes();
 
-
 	    this.clear();
-	    states = states.map(function(s) {
-	                  return { id: s, value: { label: s } };       
-	             });
+	    var states = nodes.map(function(node) {
+	    	var state = {};
+	    	state.id = node.id;
+	    	state.value = {};
+	    	state.value.label = node.label;      
+	    	
+	    	if(node.tags){
+	    		state.value.label += '\ntag: [ ';
+		    	_.each(node.tags, function onEach(tag, i){
+		    		if(i>0){
+		    			state.value.label +=',';
+		    		}
+		    		state.value.label += tag;
+		    	});    		
+		    	state.value.label += ' ]';
+	    	}
+	    	if(node.branches){
+	    		state.value.label += '\nbranch: [ ';
+		    	_.each(node.branches, function onEach(branch, i){
+		    		if(i>0){
+		    			state.value.label +=', ';
+		    		}		    		
+		    		state.value.label += branch;
+		    	});    		
+		    	state.value.label += ' ]';	    		
+	    	}
+
+	    	return state;
+	    });
 
 
 	    renderer.drawNodes(function(graph, root) {
 	      var svgNodes = oldDrawNodes(graph, root);
 	      svgNodes.attr("id", function(u) {
-	        return "node-" + u; 
+	        return u; 
+	      });
+	      svgNodes.attr("type", function(u) {
+	      	return "version" + u;
 	      });
 	      return svgNodes;
 	    });
@@ -505,11 +533,11 @@
 	      .attr("height", result.graph().height + 40);
 
 
-	    //  
+	    //add click event listener for each node  
         this.nodes = this.dom.getElementsByClassName('node');
 
         _.each(this.nodes, function onEach(node){
-          node.valueStr = node.getElementsByTagName('tspan')[0].innerHTML;  
+          node.label = node.getElementsByTagName('tspan')[0].innerHTML;  
           node.selected = false;
           node.rect = node.getElementsByTagName('rect')[0];
           node.style.cursor = "pointer";
@@ -531,7 +559,7 @@
 		var selected = [];
 		_.each(this.nodes, function onEach(node){
 			if(node.selected === true){
-				selected.push(node.valueStr);
+				selected.push(node.label);
 			}
 		});
 		return selected;

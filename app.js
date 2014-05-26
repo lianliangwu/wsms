@@ -45,6 +45,7 @@ app.get('/getBranches', rc.getBranches);
 app.post('/addTag', rc.addTag);
 app.post('/removeTag', rc.removeTag);
 app.get('/getTags', rc.getTags);
+app.get('/getRHG', rc.getVersionHistory);
 
 http.createServer(app).listen(app.get('port'), function(){
   console.log('Express server listening on port ' + app.get('port'));

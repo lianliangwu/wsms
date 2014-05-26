@@ -99,26 +99,6 @@ var VersionWin = function ( editor ) {
 
   //draw version history graph
   function drawGraph() {
-    var nodes = [], edges = [];              
-
-    //build nodes and edges array for drawing
-    var build = function(versions) {
-
-      _.each(versions, function onEach(version){
-        //nodes
-        nodes.push(version.versionNum);
-
-        //edges
-        var prevs = version.prevs;
-        _.each(prevs, function onEach(prev){
-          edges.push({
-            v: version.versionNum,
-            u: prev
-          });
-        });
-
-      });
-    };
 
     var loadVersions = function() {
 
@@ -128,17 +108,15 @@ var VersionWin = function ( editor ) {
       var xhr = new XMLHttpRequest();
 
       // Open the connection.
-      xhr.open('GET', 'getAllVersions?sceneId='+ container.sceneId, true);
+      xhr.open('GET', 'getRHG?sceneId='+ container.sceneId, true);
 
       // Set up a handler for when the request finishes.
       xhr.onload = function () {
         if (xhr.status === 200 && xhr.readyState === 4) {
-
-          var versions = JSON.parse(xhr.responseText).versions;
-
-          build(versions);
+          var result = JSON.parse(xhr.responseText);
+          var nodes = result.nodes;
+          var edges = result.edges;
           versionDag.draw(nodes, edges);     
-
         } else {
           alert('An error occurred!');
         }
