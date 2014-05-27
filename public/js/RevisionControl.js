@@ -194,13 +194,22 @@ var RevisionControl = function (editor) {
 			scene = loader.parse( scene );
 
 			scene.userData.currentVersion = versionNum;
+			scene.userData.branch = result.branch;
 			callback(null, scene);
 		});		
 	};
 
-	var commit = function(preVersions, scene) {
+	var commit = function(scene, preVersions) {
+
 		if(!commitable){
-			console.log("unable to commit!");
+			alert("committing!");
+			console.log("committing!");
+			return;
+		}
+
+		if(scene.userData.branch === undefined){
+			alert("please checkout to a branch and commit!");
+			console.log("please checkout to a branch and commit!");
 			return;
 		}
 
@@ -211,11 +220,7 @@ var RevisionControl = function (editor) {
 			preVersions = [];
 			if( editor.scene.userData.currentVersion >= 0){
 				preVersions.push(editor.scene.userData.currentVersion);
-			}	
-		}
-
-		if(scene === undefined){
-			scene = editor.scene;			
+			}
 		}
 
 		var wsg = getWSG(scene);
@@ -223,6 +228,7 @@ var RevisionControl = function (editor) {
 		var params = {
 			'sceneId': wsg.object.uuid,
 			'preVersions': JSON.stringify(preVersions),
+			'branch': scene.userData.branch,
 			'scene': JSON.stringify(wsg)
 		};
 
@@ -230,7 +236,8 @@ var RevisionControl = function (editor) {
 			'url': 'commit',
 			'params': params
 		}, function onEnd(err, result) {
-			editor.scene.userData.currentVersion = result.versionNum;
+			scene.userData.currentVersion = result.versionNum;
+			scene.userData.branch = result.branch;
 			commitable = true; // allow for committing
 		});
 	};
@@ -293,6 +300,7 @@ var RevisionControl = function (editor) {
 			scene = loader.parse( scene );
 
 			scene.userData.currentVersion = result.versionNum;
+			scene.userData.branch = result.branch;
 			callback(null, scene);
 		});
 	};

@@ -50,7 +50,6 @@ var Editor = function () {
 
 	this.scene = new THREE.Scene();
 	this.sceneHelpers = new THREE.Scene();
-	this.scene.userData.currentVersion = -1;//wzh
 
 	this.engine = new Engine(this);
 
@@ -61,7 +60,10 @@ var Editor = function () {
 	this.materials = {};
 	this.textures = {};
 	this.modifyInterface = {};
-	this.preVersions = [-1];
+
+	//revision control
+	// this.preVersions = [-1];
+	// this.scene.userData.currentVersion = -1;//wzh
 
 	this.selected = null;
 	this.helpers = {};
@@ -134,92 +136,6 @@ Editor.prototype = {
 		// Send the Data.
 		xhr.send(formData);		
 	},
-	// loadScene: function (uuid) {//wzh
-	// 	var scope = this;
-
-	// 	var loadAssets = function() {
-	// 		var asset  = scope.asset;
-	// 		var url;
-	// 		scope.scene.traverse(function eachChild(child) {
-
-	// 			if (editor.getObjectType(child) === 'Mesh'){
-
-	// 				var assets = child.userData.assets;
-	// 				for ( var type in assets ) {
-	// 					if (assets.hasOwnProperty(type)){
-	// 						switch(type){
-	// 							case 'geometry':
-	// 								asset.getGeoAsset(assets[type], function onEnd(geometry) {
-	// 									setGeometry(geometry);
-	// 								});	
-	// 							break;
-	// 							default:
-	// 								asset.getImgAsset(assets[type].assetId, function onEnd(img, name) {
-	// 									setTexture(type, img, name, assets[type]);
-	// 								});
-	// 							break;
-	// 						}
-	// 					}
-	// 				}					
-					
-	// 				var setGeometry = function(data){
-	// 					var loader = new THREE.JSONLoader();
-	// 					var result = loader.parse( data );
-
-	// 					//change the mesh with new geometry and old material
-	// 					var mesh = new THREE.Mesh( result.geometry, child.material );
-	// 					scope.addObject( mesh );
-
-	// 					mesh.name = child.name;
-	// 					mesh.applyMatrix(child.matrix);
-	// 					mesh.uuid = child.uuid;
-	// 					mesh.userData = child.userData;			
-						
-	// 					scope.removeObject(child);			
-	// 				}
-
-	// 				var setTexture = function(type, img, name, uuid) {
-	// 					var texture = new THREE.Texture( img );
-	// 					var mapRow = scope.materialSiderbar.mapRow;
-	// 					texture.sourceFile = name;
-	// 					texture.needsUpdate = true;
-	// 					texture.uuid = uuid;
-
-	// 					scope.select(child);
-	// 					mapRow.texture.setValue(texture);
-	// 					mapRow.checkbox.setValue(true);
-	// 					scope.materialSiderbar.update();
-	// 				};
-	// 			}
-	// 		});
-	// 	};
-
-	// 	// Set up the request.
-	// 	var xhr = new XMLHttpRequest();
-
-	// 	// Open the connection.
-	// 	xhr.open('GET', 'loadScene?uuid='+ uuid, true);
-
-	// 	// Set up a handler for when the request finishes.
-	// 	xhr.onload = function () {
-	// 		if (xhr.status === 200 && xhr.readyState === 4) {
-
-	// 			var scene = JSON.parse(xhr.responseText).scene;
-
-	// 			var loader = new THREE.ObjectLoader();
-	// 			var result = loader.parse( scene );
-	// 			scope.setScene( result );
-
-	// 			loadAssets();
-				
-	// 		} else {
-	// 		  alert('An error occurred!');
-	// 		}
-	// 	};
-
-	// 	// Send the Data.
-	// 	xhr.send();		
-	// },
 	loadAssets: function() {
 		var scope = this;
 		var asset  = this.asset;

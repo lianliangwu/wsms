@@ -12,7 +12,7 @@ var MergeWin = function (editor) {
 	document.body.appendChild( mergeControlWin.dom );	
 	
 	mergeEditor.signals.commitMerge.add(function () {
-		editor.revCon.commit([versionNumA, versionNumB], sceneWinD.viewer.editor.scene);
+		editor.revCon.commit(sceneWinD.viewer.editor.scene, [versionNumA, versionNumB]);
 	});
 
 	mergeEditor.signals.cancelMerge.add(function () {

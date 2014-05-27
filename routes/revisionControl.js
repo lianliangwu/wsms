@@ -938,7 +938,8 @@ exports.retrieve = function(req, res) {
 		res.send({
 			'success': true,
 			'scene': scene,
-			'versionNum': versionNum
+			'versionNum': versionNum,
+			'branch': undefined
 		});
 	});
 };
@@ -1049,10 +1050,11 @@ exports.merge = function(req, res) {
 exports.commit = function(req, res) {
 	var preVersions = JSON.parse(req.body.preVersions);
 	var sceneGraph = JSON.parse(req.body.scene);
+	var branchName = req.body.branch;
 	var sceneId = req.body.sceneId;
 	var deltaNodes, nodeMap = {};
 	var nodes = getNodesFromScene(sceneGraph);
-	var scene;
+	var scene, branch;
 
 	if (preVersions.length === 0){//first commit
 		//save scene info
@@ -1062,12 +1064,30 @@ exports.commit = function(req, res) {
 			'newestVersion': -1
 		});
 
-		commit(scene);
+		//create master branch here
+		branch = new Branch({
+			'sceneId': sceneId,
+			'name': branchName,
+			'versionNum': "-1",
+			'desc': 'default branch'
+		});
+
+		commit();
 		
 	}else{
-		Scene.findOne({'uuid':sceneId}, function onEnd(err, scene) {
+		Scene.findOne({'uuid':sceneId}, function onEnd(err, result) {
 			if(!err){
-				commit(scene);
+				scene = result;
+				// get branch here
+				Branch.findOne({
+					'name': branchName,
+					'sceneId': sceneId
+				}, function onEnd(err, result) {
+					if(!err){
+						branch = result;
+						commit();
+					}
+				});
 			}
 		});
 	}
@@ -1101,7 +1121,7 @@ exports.commit = function(req, res) {
 		});		
 	}
 
-	function commit(scene) {
+	function commit() {
 		getPreVersionNodes(function onEnd(err, preVersionNodes) {
 			scene.newestVersion += 1;
 			deltaNodes = diff(preVersionNodes, nodes, scene.newestVersion + '');
@@ -1112,6 +1132,14 @@ exports.commit = function(req, res) {
 				scene.save(function( err ){
 					if(!err){
 						console.log('Scene saved!');
+					}
+				});
+
+				//save branch here.
+				branch.versionNum = scene.newestVersion;
+				branch.save(function( err ){
+					if(!err){
+						console.log('branch saved!');
 					}
 				});
 
@@ -1215,6 +1243,7 @@ exports.removeVersion = function (req, res) {
 exports.checkout = function(req, res) {
 	var name = req.query['name'];
 	var sceneId = req.query['sceneId'];
+	var branchName;
 
 	function getTagVersionNum(callback) {
 		Tag.findOne({
@@ -1239,6 +1268,7 @@ exports.checkout = function(req, res) {
 		}, function onEnd(err, branch){
 			if(!err){
 				if(branch){
+					branchName = branch.name;
 					callback(branch.versionNum);
 				}else{
 					getTagVersionNum(callback);
@@ -1263,7 +1293,8 @@ exports.checkout = function(req, res) {
 				res.send({
 					'success': true,
 					'scene': scene,
-					'versionNum': versionNum
+					'versionNum': versionNum,
+					'branch': branchName
 				});				
 			}
 		});	

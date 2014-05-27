@@ -96,7 +96,7 @@ Menubar.RVC = function ( editor ) {
 	}
 
 	function commit() {
-		editor.revCon.commit();
+		editor.revCon.commit(editor.scene);
 	}
 
 	function merge() {}
