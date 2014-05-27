@@ -12,6 +12,7 @@ var MergeEditor = (function module(){
 
 			commitMerge: new SIGNALS.Signal(),
 			cancelMerge: new SIGNALS.Signal(),
+			initDiffColor: new SIGNALS.Signal(),
 
 			// notifications
 
@@ -85,10 +86,13 @@ var MergeEditor = (function module(){
 		parentScene: function () {},
 		resetDiffColor: function ( boo ) {
 			this.viewerA.editor.diffColor.resetColor( boo );
-	//		this.viewerA.editor.signals.materialChanged.dispatch();
 			this.viewerB.editor.diffColor.resetColor( boo );
-	//		this.viewerB.editor.signals.materialChanged.dispatch();
 			this.viewerD.editor.diffColor.resetColor( boo );
+		},
+		resetOutlines: function ( boo ) {
+			this.viewerA.editor.diffColor.resetOutlines( boo );
+			this.viewerB.editor.diffColor.resetOutlines( boo );
+			this.viewerD.editor.diffColor.resetOutlines( boo );		
 		},
 		setDiffColor: function ( mergeLog , versionA, versionB ) {
 			var editorA = this.viewerA.editor;
@@ -104,6 +108,7 @@ var MergeEditor = (function module(){
 				object.traverse(function ( child ) {
 					if(editor.getObjectType(object) === 'Mesh'){
 						editor.diffColor.setColor(object, type);
+						editor.diffColor.setOutline(object, type);
 					}
 				});
 			}
@@ -111,6 +116,7 @@ var MergeEditor = (function module(){
 			function paintColor( editor, object, type ) {
 					if(getObjectType(object) === 'Mesh'){
 						editor.diffColor.setColor(object, type);
+						editor.diffColor.setOutline(object, type);
 					}else{
 						//paint the subScene rooted at the conflicted node
 						paintSubScene(editor, object, type);
@@ -124,11 +130,14 @@ var MergeEditor = (function module(){
 					var objectD = editorD.getObjectByUuid(uuid);
 					objectD&&paintColor(editorD, objectD, 'stateConflict');
 				}
-				var objectA = editorA.getObjectByUuid(uuid);
-				var objectB = editorB.getObjectByUuid(uuid);
-
-				objectA&&paintColor(editorA, objectA, 'stateDiff');
-				objectB&&paintColor(editorB, objectB, 'stateDiff');		
+				if(logItem[versionA] === 'changed'){
+					var objectA = editorA.getObjectByUuid(uuid);
+					objectA&&paintColor(editorA, objectA, 'stateDiff');
+				}
+				if(logItem[versionB] === 'changed'){
+					var objectB = editorB.getObjectByUuid(uuid);
+					objectB&&paintColor(editorB, objectB, 'stateDiff');	
+				}	
 			});
 
 			_.each(mergeLog.structureLog, function onEach( logItem ) {

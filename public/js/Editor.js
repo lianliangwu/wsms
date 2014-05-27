@@ -46,13 +46,13 @@ var Editor = function () {
 	this.asset = new Asset(this);	
 	this.loader = new Loader(this);
 	this.revCon = new RevisionControl(this);
-	this.diffColor = new DiffColor(this); 
+
 
 	this.scene = new THREE.Scene();
 	this.sceneHelpers = new THREE.Scene();
 
 	this.engine = new Engine(this);
-
+	this.diffColor = new DiffColor(this); 
 
 	this.scene.uuid = THREE.Math.generateUUID();//wzh
 	//this.object = {};

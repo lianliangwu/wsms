@@ -1,6 +1,7 @@
 MergeControlWin.ControlBtns = function (mergeEditor) {
 	var container = new UI.Panel();
 	var btnRow = new UI.Panel();
+	var initiated = false;
 	
 	var cancelBtn = new UI.Button( 'Cancel' ).setMarginLeft( '7px' ).onClick( function () {
 		mergeEditor.signals.cancelMerge.dispatch();
@@ -9,16 +10,34 @@ MergeControlWin.ControlBtns = function (mergeEditor) {
 		mergeEditor.signals.commitMerge.dispatch();
 	} );
 
-	var snap = new UI.Checkbox( true ).setMarginLeft('7px').setMarginTop('5px').onChange( function () {
-		mergeEditor.resetDiffColor(snap.getValue());
-	} );
+	var colorSet = new UI.Checkbox( false ).setMarginLeft('7px').setMarginTop('5px').onChange( function () {
+		if(initiated === false){
+			mergeEditor.signals.initDiffColor.dispatch();
+			initiated = true;
 
+			mergeEditor.resetOutlines(outlineSet.getValue());
+		}else{
+			mergeEditor.resetDiffColor(colorSet.getValue());
+		}
+	} );
+	var outlineSet = new UI.Checkbox( false ).setMarginLeft('7px').setMarginTop('5px').onChange( function () {
+		if(initiated === false){
+			mergeEditor.signals.initDiffColor.dispatch();
+			initiated = true;
+
+			mergeEditor.resetDiffColor(colorSet.getValue());		
+		}else{
+			mergeEditor.resetOutlines(outlineSet.getValue());
+		}
+	} );
 
 	btnRow.add( cancelBtn );
 	btnRow.add( commitBtn );
 	btnRow.add( new UI.Break() );
-	btnRow.add( snap );
-	btnRow.add( new UI.Text( 'color' ) );	
+	btnRow.add( colorSet );
+	btnRow.add( new UI.Text( 'color' ) );
+	btnRow.add( outlineSet );
+	btnRow.add( new UI.Text( 'outline' ) );	
 
 	container.add( new UI.Break() );
 	container.add(btnRow);

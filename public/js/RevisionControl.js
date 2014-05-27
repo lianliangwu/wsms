@@ -255,7 +255,7 @@ var RevisionControl = function (editor) {
 
 	};
 
-	var merge = function(sceneId, versionA, versionB, versionC, callback) {
+	var threeWayMerge = function(sceneId, versionA, versionB, versionC, callback) {
 		var params = {
 			'sceneId': sceneId,
 			'versionA': versionA,
@@ -282,6 +282,10 @@ var RevisionControl = function (editor) {
 			callback(null, result);
 		});
 	};
+
+	var mergeToTrunck = function(scene, versionB, callback) {
+		// threeWayMerge(scene.uuid, scene.userData.currentVersion, versionB, callback);
+	}
 
 	var checkout = function(options, callback) {
 		var params = {
@@ -381,7 +385,7 @@ var RevisionControl = function (editor) {
 
 	this.retrieve = retrieve;
 	this.commit = commit;
-	this.merge = merge;
+	this.merge = threeWayMerge;
 	this.checkout = checkout;
 	this.removeVersion = removeVersion;
 	this.addBranch = addBranch;

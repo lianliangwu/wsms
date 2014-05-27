@@ -105,17 +105,31 @@ Menubar.Edit = function ( editor ) {
 	options.add( option );
 
 
-	//options.add( new UI.HorizontalRule() );
+	options.add( new UI.HorizontalRule() );
 
-	// //save scene
+	//save scene
 
-	// var option = new UI.Panel();
-	// option.setClass( 'option' );
-	// option.setTextContent( 'Save Scene' );
-	// option.onClick(function(){
-	// 	editor.saveScene();
-	// });
-	// options.add( option );
+	var option = new UI.Panel();
+	option.setClass( 'option' );
+	option.setTextContent( 'Outline' );
+	option.onClick(function(){
+		var mesh = editor.selected;
+
+		outline(mesh, 0xff0000);
+	});
+
+	function outline (mesh, color) {
+		var outlineMaterial1 = new THREE.MeshBasicMaterial( { color: color, side: THREE.BackSide } );
+		var outlineMesh1 = new THREE.Mesh( mesh.geometry.clone(), outlineMaterial1 );
+		outlineMesh1.applyMatrix(mesh.matrixWorld);
+		// outlineMesh1.position = mesh.position;
+		outlineMesh1.scale.multiplyScalar(1.05);
+		editor.sceneHelpers.add(outlineMesh1);
+		// outlineMesh1.visible = false;
+		editor.signals.sceneGraphChanged.dispatch();
+		// editor.addObject(outlineMesh1);
+	}
+	options.add( option );
 
 	// //load scene
 

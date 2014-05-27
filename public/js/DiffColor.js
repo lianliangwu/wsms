@@ -1,10 +1,10 @@
 var DiffColor = (function(){
 	//Class variable
 	var color = {
-		'stateDiff': '#37f838', //green 37f838
-		'structDiff': '#40a2f7', //blue 40a2f7
-		'stateConflict': '#e01f1f', //red e01f1f
-		'structConflict': '#f7bf25' //yellow f7bf25
+		'stateDiff': '#66FF00', //green 66FF00
+		'structureDiff': '#00FFFF', //Aqua 00FFFF
+		'stateConflict': '#FF0000', //red FF0000
+		'structureConflict': '#FFD800' //yellow FFD800
 	};
 
 	function DiffColor ( editor ){
@@ -12,7 +12,9 @@ var DiffColor = (function(){
 		this.oldColor = {};
 		this.newColor = {};
 		this.materials = [];
+		this.outlines = [];
 		this.signals = editor.signals;
+		this.sceneHelpers = editor.sceneHelpers;
 	};
 
 	DiffColor.prototype.setColor = function( object, type ){
@@ -38,5 +40,24 @@ var DiffColor = (function(){
 		this.signals.materialChanged.dispatch( );
 	};
 
+	DiffColor.prototype.setOutline = function (mesh, type) {
+		var outlineMaterial1 = new THREE.MeshBasicMaterial( { color: color[type], side: THREE.BackSide } );
+		var outlineMesh1 = new THREE.Mesh( mesh.geometry.clone(), outlineMaterial1 );
+
+		outlineMesh1.applyMatrix(mesh.matrixWorld);
+		outlineMesh1.scale.multiplyScalar(1.05);
+
+		this.outlines.push(outlineMesh1);
+		this.sceneHelpers.add(outlineMesh1);
+		this.signals.sceneGraphChanged.dispatch();
+	};	
+
+	DiffColor.prototype.resetOutlines = function (boo) {
+		var scope = this;
+		_.each(this.outlines, function onEach( outline ){
+			outline.visible = boo;
+		});
+		this.signals.sceneGraphChanged.dispatch();
+	};
 	return DiffColor;
 })();
