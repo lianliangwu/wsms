@@ -38,6 +38,7 @@ app.get('/getAllVersions', rc.getAllVersions);
 app.get('/retrieve', rc.retrieve);
 app.post('/commit', rc.commit);
 app.get('/merge', rc.merge);
+app.post('/removeVersion', rc.removeVersion);
 app.get('/checkout', rc.checkout);
 app.post('/addBranch', rc.addBranch);
 app.post('/removeBranch', rc.removeBranch);

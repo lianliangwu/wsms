@@ -235,6 +235,19 @@ var RevisionControl = function (editor) {
 		});
 	};
 
+	var removeVersion = function(options, callback) {
+		var params = {
+			'versionNum': options.versionNum,
+			'sceneId': editor.scene.uuid
+		};
+
+		Ajax.post({
+			'url': 'removeVersion',
+			'params': params
+		}, callback);
+
+	};
+
 	var merge = function(sceneId, versionA, versionB, versionC, callback) {
 		var params = {
 			'sceneId': sceneId,
@@ -362,6 +375,7 @@ var RevisionControl = function (editor) {
 	this.commit = commit;
 	this.merge = merge;
 	this.checkout = checkout;
+	this.removeVersion = removeVersion;
 	this.addBranch = addBranch;
 	this.removeBranch = removeBranch;
 	this.getBranches = getBranches;

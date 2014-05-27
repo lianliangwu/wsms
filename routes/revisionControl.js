@@ -1104,7 +1104,7 @@ exports.commit = function(req, res) {
 	function commit(scene) {
 		getPreVersionNodes(function onEnd(err, preVersionNodes) {
 			scene.newestVersion += 1;
-			deltaNodes = diff(preVersionNodes, nodes, scene.newestVersion);
+			deltaNodes = diff(preVersionNodes, nodes, scene.newestVersion + '');
 
 			if(deltaNodes.length > 0){
 				//save scene info
@@ -1153,6 +1153,62 @@ exports.commit = function(req, res) {
 			});
 		}
 	}
+};
+
+exports.removeVersion = function (req, res) {
+	var sceneId = req.body.sceneId;
+	var versionNum = req.body.versionNum;
+
+	function removeSNodes (nodeMap, versionNum) {
+		for(var uuid in nodeMap){
+			if(nodeMap.hasOwnProperty(uuid)){
+				if(nodeMap[uuid] === versionNum){
+					SNode.findOneAndRemove({
+						'uuid': uuid,
+						'versionNum': versionNum
+					}, (function (uuid) {
+							return function onEnd(err) {
+								if(!err){
+									console.log('snode removed uuid ' + uuid + ' versionNum ' + versionNum);
+								}
+							};
+						})(uuid)
+					);
+				}
+			}
+		}
+	}
+
+	function remove (sceneId, versionNum, callback) {
+		RNode.findOne({
+			'sceneId': sceneId,
+			'versionNum': versionNum
+		}, function onEnd(err, rNode) {
+			if(!err){
+				var nodeMap = JSON.parse(rNode.nodeMap);
+
+				//remove all related snodes
+				removeSNodes(nodeMap, versionNum);
+
+				rNode.remove(function onEnd(err){
+					if(!err){
+						console.log('rnode removed sceneId ' + sceneId + ' versionNum ' + versionNum);
+						callback&&callback();
+					}
+				});
+				
+			}
+		});
+	}
+
+	remove(sceneId, versionNum, function onEnd() {
+		console.log('version removed sceneId ' + sceneId + 'versionNum' + versionNum);
+		res.send({
+			'success': true,
+			'sceneId': sceneId,
+			'versionNum': versionNum
+		});
+	});
 };
 
 //checkOut a branch, tag or a specific version

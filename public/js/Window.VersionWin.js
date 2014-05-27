@@ -12,7 +12,7 @@ var VersionWin = function ( editor ) {
   var versionControlRow = new UI.Panel();
   var retrieveBtn = new UI.Button( 'Retrieve' ).setMarginLeft( '7px' ).onClick( retrieve );
   var commitBtn = new UI.Button( 'Commit' ).setMarginLeft( '7px' ).onClick( function () {} );
-  var removeBtn = new UI.Button( 'Remove' ).setMarginLeft( '7px' ).onClick( function () {} );
+  var removeBtn = new UI.Button( 'Remove' ).setMarginLeft( '7px' ).onClick( removeVersion );
   
   versionControlRow.add( new UI.Text( 'Version :' ).setWidth( '100px' ) );
   versionControlRow.add( retrieveBtn );
@@ -94,6 +94,26 @@ var VersionWin = function ( editor ) {
       alert('not supported yet!');
     }else{
       alert("please select at least two versions.");
+    }
+  }
+
+  //remove the selected version
+  function removeVersion () {
+    var versions = versionDag.getSelected();
+    if(versions.length === 1){
+      if(container.sceneId){
+        editor.revCon.removeVersion({
+          'versionNum': versions[0]
+        }, function onEnd(err, result) {
+          if(!err){
+            if(result.success === true){
+              alert('remove success.');
+            }
+          }
+        });
+      }
+    }else{
+      alert("please select only one version.");
     }
   }
 
