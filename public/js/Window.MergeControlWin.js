@@ -8,9 +8,9 @@ var MergeControlWin = function(mergeEditor){
 	var structureList = new  MergeControlWin.StructureList(mergeEditor);
 
 	container.add(controlBtns);
+	container.add(structureList);
 	container.add(stateList);
 	container.add(attrList);
-	container.add(structureList);
 
 	//container configuration
 	container.setOverflow('scroll');

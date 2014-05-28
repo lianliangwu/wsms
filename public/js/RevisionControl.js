@@ -207,7 +207,7 @@ var RevisionControl = function (editor) {
 			return;
 		}
 
-		if(scene.userData.branch === undefined){
+		if(scene.userData.branch === undefined && scene.userData.currentVersion >= 0){
 			alert("please checkout to a branch and commit!");
 			console.log("please checkout to a branch and commit!");
 			return;

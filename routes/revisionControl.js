@@ -565,7 +565,7 @@ var autoMerge = function(options, callback) {
 			//Cb - Cc
 			nodeMapB[nodeUuid].children.forEach(function onEach(ref) {
 				if(childMapC[ref] === undefined){
-					typeB = getDiffType(ref, childMapA, nodeMapA, childMapC, nodeMapC);
+					typeB = getDiffType(ref, childMapB, nodeMapB, childMapC, nodeMapC);
 					if(typeB === 'add'){
 						mergedChildren.push(ref);
 						addSubGraphToD(nodeMapB, ref);
@@ -1065,6 +1065,7 @@ exports.commit = function(req, res) {
 		});
 
 		//create master branch here
+		branchName = 'master';
 		branch = new Branch({
 			'sceneId': sceneId,
 			'name': branchName,
@@ -1148,7 +1149,8 @@ exports.commit = function(req, res) {
 
 				res.send({
 					'success': true,
-					'versionNum': scene.newestVersion
+					'versionNum': scene.newestVersion,
+					'branch': branchName
 				});	
 
 			}else{
