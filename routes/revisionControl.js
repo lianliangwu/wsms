@@ -903,6 +903,47 @@ var autoMerge = function(options, callback) {
 	}
 };
 
+function getVersionNum(name, sceneId, callback){
+	function getTagVersionNum(callback) {
+		Tag.findOne({
+			'sceneId': sceneId,
+			'name': name
+		}, function onEnd(err, tag) {
+			if(!err){
+				if(tag){
+					callback(tag.versionNum);
+				}
+				else{
+					callback(-1);
+				}
+			}
+		});
+	}
+
+	function getBranchVersionNum(callback) {
+		Branch.findOne({
+			'sceneId': sceneId,
+			'name': name
+		}, function onEnd(err, branch){
+			if(!err){
+				if(branch){
+					callback(branch.versionNum);
+				}else{
+					getTagVersionNum(callback);
+				}
+			}
+		});
+	}
+
+	getBranchVersionNum(function onEnd(versionNum) {
+		if(versionNum === -1){
+			versionNum = name;
+		}
+
+		callback&&callback(versionNum);
+	});
+}
+
 exports.getAllVersions = function(req, res) {
 	var sceneId = req.query.sceneId;
 
@@ -984,6 +1025,17 @@ exports.merge = function(req, res) {
 		versionNumA = versionNameA;
 		versionNumB = versionNameB;
 		versionNumC = versionNameC;
+	}
+	function _getLCA() {
+		//get versionNumA
+		//get versionNumB
+		//get versionNumC
+			//if versionNameC exist 
+			//else
+				//get all preversions of versionA Sa
+				//get all preversions of versionB Sb
+				//sort Sa and Sb
+				//find the biggest common ancestor
 	}
 
 	//replace versionNum with versionName
@@ -1111,16 +1163,18 @@ exports.commit = function(req, res) {
 			nodeMap[node.uuid] = node.versionNum;
 		});
 
-		RNode.create({
+		var rNode = new RNode({
 			'sceneId': sceneId,
 			'versionNum': versionNum,
 			'prevs': preVersions,
 			'nodeMap': JSON.stringify(nodeMap)
-		}, function onEnd(err) {
-			if (err){
-				console.log("add scene err "+ err);
+		});
+
+		RNode.saveWithPath(rNode, function onEnd(err) {
+			if(!err){
+				console.log('rNode saved' );
 			}
-		});		
+		});
 	}
 
 	function commit() {
@@ -1246,61 +1300,45 @@ exports.removeVersion = function (req, res) {
 exports.checkout = function(req, res) {
 	var name = req.query['name'];
 	var sceneId = req.query['sceneId'];
-	var branchName;
 
-	function getTagVersionNum(callback) {
-		Tag.findOne({
-			'sceneId': sceneId,
-			'name': name
-		}, function onEnd(err, tag) {
-			if(!err){
-				if(tag){
-					callback(tag.versionNum);
-				}
-				else{
-					callback(-1);
-				}
-			}
-		});
-	}
-
-	function getBranchVersionNum(callback) {
+	function isBranch(name, sceneId, callback) {
 		Branch.findOne({
 			'sceneId': sceneId,
 			'name': name
-		}, function onEnd(err, branch){
+		}, function onEnd(err, result) {
 			if(!err){
-				if(branch){
-					branchName = branch.name;
-					callback(branch.versionNum);
+				if(result){
+					callback(null, true);
 				}else{
-					getTagVersionNum(callback);
+					callback(null, false);
 				}
 			}
 		});
 	}
 
-	getBranchVersionNum(function onEnd(versionNum) {
-		if(versionNum === -1){
-			versionNum = name;
-		}
+	getVersionNum(name, sceneId, function onEnd(versionNum) {
 
 		retrieveSceneNodes(sceneId, versionNum, function onEnd(err, nodes){
-
-			if(err){
-				console.log("retrieve scene err: "+ err);
-			}
 			if(!err){
 				var scene = getSceneFromNodes(nodes, sceneId);
 
-				res.send({
-					'success': true,
-					'scene': scene,
-					'versionNum': versionNum,
-					'branch': branchName
-				});				
+				isBranch(name, sceneId, function onEnd(err, boo) {
+					var branchName;
+					if(!err){
+						if(boo){
+							branchName = name;
+						}
+					}
+					res.send({
+						'success': true,
+						'scene': scene,
+						'versionNum': versionNum,
+						'branch': branchName
+					});									
+				});
 			}
 		});	
+
 	});
 };
 
