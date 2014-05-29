@@ -1038,12 +1038,13 @@ exports.merge = function(req, res) {
 					'success': true,
 					'sceneA': sceneA,
 					'sceneB': sceneB,
+					'versionNumA': versionNumA,
+					'versionNumB': versionNumB,
 					'mergedScene': mergedScene,
 					'mergeLog': getMergeInfo(mergeLog)
 				});
 			}
 		});	
-
 	}
 };
 

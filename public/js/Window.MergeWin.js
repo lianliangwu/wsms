@@ -1,10 +1,11 @@
+/*global ViewerWin, MergeEditor, MergeControlWin*/
 var MergeWin = function (editor) {
 	var sceneWinA = new ViewerWin();
 	var sceneWinB = new ViewerWin();
 	var sceneWinD = new ViewerWin();
 	var mergeEditor = new MergeEditor(sceneWinA.viewer, sceneWinB.viewer, sceneWinD.viewer);
 	var mergeControlWin = new MergeControlWin(mergeEditor);
-	var versionA, versionB, mergeLog;
+	var versionA, versionB, versionNumA, versionNumB, mergeLog;
 
 	document.body.appendChild( sceneWinA.dom );
 	document.body.appendChild( sceneWinB.dom );
@@ -12,7 +13,11 @@ var MergeWin = function (editor) {
 	document.body.appendChild( mergeControlWin.dom );	
 	
 	mergeEditor.signals.commitMerge.add(function onEvent() {
-		editor.revCon.commit(sceneWinD.viewer.editor.scene, [versionNumA, versionNumB]);
+		editor.revCon.commitMerge({
+			'mergedScene': sceneWinD.viewer.editor.scene,
+			'sceneA': sceneWinA.viewer.editor.scene,
+			'sceneB': sceneWinB.viewer.editor.scene
+		});
 	});
 
 	mergeEditor.signals.initDiffColor.add(function onEvent() {
@@ -44,6 +49,8 @@ var MergeWin = function (editor) {
 			editor.revCon.merge(sceneId, verA, verB, verC, function(err, result) {
 				versionA = verA;
 				versionB = verB;
+				versionNumA = result.versionNumA;
+				versionNumB = result.versionNumB;
 				mergeLog = result.mergeLog;
 
 				init(result);

@@ -1,3 +1,4 @@
+/*global Ajax, THREE*/
 var RevisionControl = function (editor) {
 	"use strict";
 
@@ -101,7 +102,7 @@ var RevisionControl = function (editor) {
 		return scene;
 	};
 	//get wsms SG from current scene
-	var getWSG = function(scene) {
+	var getEJOS = function(scene) {
 		var exporter = new THREE.ObjectExporter();
 		scene = exporter.parse(scene);
 		var geometries = scene.geometries;
@@ -206,24 +207,10 @@ var RevisionControl = function (editor) {
 			console.log("committing!");
 			return;
 		}
-
-		if(scene.userData.branch === undefined && scene.userData.currentVersion >= 0){
-			alert("please checkout to a branch and commit!");
-			console.log("please checkout to a branch and commit!");
-			return;
-		}
-
 		//prevent user from committing
 		commitable = false; 
 
-		if(preVersions === undefined){
-			preVersions = [];
-			if( editor.scene.userData.currentVersion >= 0){
-				preVersions.push(editor.scene.userData.currentVersion);
-			}
-		}
-
-		var wsg = getWSG(scene);
+		var wsg = getEJOS(scene);
 
 		var params = {
 			'sceneId': wsg.object.uuid,
@@ -240,6 +227,36 @@ var RevisionControl = function (editor) {
 			scene.userData.branch = result.branch;
 			commitable = true; // allow for committing
 		});
+	};
+
+	var commitBranch = function(scene) {
+		if(scene.userData.currentVersion && scene.userData.branch === undefined){
+			alert("please checkout to a branch and commit!");
+			console.log("please checkout to a branch and commit!");
+			return;
+		}
+
+		var preVersions = [];
+		if( scene.userData.currentVersion >= 0){
+			preVersions.push(scene.userData.currentVersion);
+		}
+
+		commit(scene, preVersions);
+	};
+
+	var commitMerge = function(options) {
+		var sceneA = options.sceneA;
+		var sceneB = options.sceneB;
+		var mergedScene = options.mergedScene;
+		var preVersions = [];
+
+		preVersions.push(sceneA.userData.currentVersion);
+		preVersions.push(sceneB.userData.currentVersion);
+
+		//TODO: branch name is to be from sceneA.userData.branch. 
+		//		this need to be done after mergeBranch has been implemented.
+		mergedScene.userData.branch = 'master';
+		commit(mergedScene, preVersions);
 	};
 
 	var removeVersion = function(options, callback) {
@@ -272,9 +289,12 @@ var RevisionControl = function (editor) {
 
 			scene = getThreeSG(result.sceneA);
 			result.sceneA = loader.parse( scene );
+			result.sceneA.userData.currentVersion = result.versionNumA;
+			
 
 			scene = getThreeSG(result.sceneB);
-			result.sceneB = loader.parse( scene );				
+			result.sceneB = loader.parse( scene );		
+			result.sceneB.userData.currentVersion = result.versionNumB;	
 
 			scene = getThreeSG(result.mergedScene);
 			result.mergedScene = loader.parse( scene );
@@ -384,7 +404,8 @@ var RevisionControl = function (editor) {
 	};
 
 	this.retrieve = retrieve;
-	this.commit = commit;
+	this.commit = commitBranch;
+	this.commitMerge = commitMerge;
 	this.merge = threeWayMerge;
 	this.checkout = checkout;
 	this.removeVersion = removeVersion;

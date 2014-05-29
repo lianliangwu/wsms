@@ -61,10 +61,6 @@ var Editor = function () {
 	this.textures = {};
 	this.modifyInterface = {};
 
-	//revision control
-	// this.preVersions = [-1];
-	// this.scene.userData.currentVersion = -1;//wzh
-
 	this.selected = null;
 	this.helpers = {};
 
