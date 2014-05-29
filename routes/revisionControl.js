@@ -903,7 +903,10 @@ var autoMerge = function(options, callback) {
 	}
 };
 
-function getVersionNum(name, sceneId, callback){
+function getVersionNum(options, callback){
+	var name = options.name;
+	var sceneId = options.sceneId;
+
 	function getTagVersionNum(callback) {
 		Tag.findOne({
 			'sceneId': sceneId,
@@ -1026,16 +1029,101 @@ exports.merge = function(req, res) {
 		versionNumB = versionNameB;
 		versionNumC = versionNameC;
 	}
-	function _getLCA() {
+
+	//get the common ancestor, this algorithum assumes that versionNum increases by commiting.
+	function _getLCA(callback) {
 		//get versionNumA
-		//get versionNumB
-		//get versionNumC
-			//if versionNameC exist 
-			//else
-				//get all preversions of versionA Sa
-				//get all preversions of versionB Sb
-				//sort Sa and Sb
-				//find the biggest common ancestor
+		getVersionNum({
+			'name': versionNameA,
+			'sceneId': sceneId
+		}, function onEnd(versionNum){
+			versionNumA = versionNum;
+			if(versionNumA && versionNumB){
+				getVersionNumC();
+			}
+		});
+		//get versionNumB	
+		getVersionNum({
+			'name': versionNameB,
+			'sceneId': sceneId
+		}, function onEnd(versionNum){
+			versionNumB = versionNum;
+			if(versionNumA && versionNumB){
+				getVersionNumC();
+			}			
+		});
+
+		function getVersionNumC(){
+			var ancArrayA, ancArrayB;
+
+			if(versionNameC){//if versionNameC exist 
+				getVersionNum({
+					'name': versionNameC,
+					'sceneId': sceneId
+				}, function onEnd(versionNum){
+					versionNumC = versionNum;
+					callback&&callback();
+				});
+			}else{
+				//get all ancestors of versionA 
+				getAllAncestors(sceneId, versionNumA, function onEnd(ancArray){
+					ancArrayA = ancArray;
+					if(ancArrayA && ancArrayB){
+						calcLCA();
+					}
+				});
+				//get all ancestors of versionB 
+				getAllAncestors(sceneId, versionNumB, function onEnd(ancArray){
+					ancArrayB = ancArray;
+					if(ancArrayA && ancArrayB){
+						calcLCA();
+					}
+				});
+			}
+
+			//find the biggest common ancestor
+			function calcLCA(ancArrayA, ancArrayB) {
+				var ancMapA = {};
+
+				//sort by versionNum desc
+				ancArrayA.sort(function cmp(a, b){
+					return Number(b) - Number(a);
+				});
+
+				ancArrayB.sort(function cmp(a, b){
+					return Number(b) - Number(a);
+				});				
+
+				//build map of ancestor
+				ancArrayA.forEach(function onEach(anc) {
+					ancMapA[anc] = true;
+				});
+
+				for(var i = 0, l = ancArrayB.length; i < l; i++){
+					var anc = ancArrayB[i];
+					if(ancMapA[anc] === true){
+						versionNumC = anc;
+						break;
+					}
+				}
+
+				callback&&callback();
+			}
+		}
+
+		function getAllAncestors(sceneId, versionNum, callback){
+			RNode.findOne({
+				'sceneId': sceneId,
+				'versionNum': versionNum
+			}, function onEnd(err, rNode){
+				if(!err){
+					if(rNode){
+						var ancArray = rNode.path.split(/[()\[\]>]+/);
+						callback&&callback(ancesArray);						
+					}
+				}
+			});
+		}
 	}
 
 	//replace versionNum with versionName
@@ -1316,7 +1404,10 @@ exports.checkout = function(req, res) {
 		});
 	}
 
-	getVersionNum(name, sceneId, function onEnd(versionNum) {
+	getVersionNum({
+		'name': name,
+		'sceneId': sceneId
+	}, function onEnd(versionNum) {
 
 		retrieveSceneNodes(sceneId, versionNum, function onEnd(err, nodes){
 			if(!err){
