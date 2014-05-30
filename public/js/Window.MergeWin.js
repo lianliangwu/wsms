@@ -79,6 +79,7 @@ var MergeWin = function (editor) {
 		var width = document.body.scrollWidth;
 
 		//version A
+		sceneWinA.setTitle(versionA);
 		sceneWinA.show();
 		sceneWinA.setPosition({
 			top: '0px',
@@ -89,6 +90,7 @@ var MergeWin = function (editor) {
 		sceneWinA.setScene(mergeResult['sceneA']);
 
 		//version B
+		sceneWinB.setTitle(versionB);		
 		sceneWinB.show();
 		sceneWinB.setPosition({
 			top: '0px',
@@ -99,6 +101,7 @@ var MergeWin = function (editor) {
 		sceneWinB.setScene(mergeResult['sceneB']);
 
 		//merged version D
+		sceneWinD.setTitle('merged');		
 		sceneWinD.show();
 		sceneWinD.setPosition({
 			top: height/2 + 'px',

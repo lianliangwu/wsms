@@ -397,15 +397,15 @@ Editor.prototype = {
 
 		this.selected = object;
 
-		if ( object !== null ) {
+		// if ( object !== null ) {
 
-			this.config.setKey( 'selected', object.uuid );
+		// 	this.config.setKey( 'selected', object.uuid );
 
-		} else {
+		// } else {
 
-			this.config.setKey( 'selected', null );
+		// 	this.config.setKey( 'selected', null );
 
-		}
+		// }
 
 		this.signals.objectSelected.dispatch( object );
 

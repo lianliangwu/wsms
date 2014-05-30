@@ -555,6 +555,7 @@ var Viewport = function ( editor ) {
 			geometry.uuid = object.geometry.uuid;
 			var mesh = new THREE.Mesh( geometry, object.material );
 			editor.addObject( mesh );
+			editor.parent(mesh, object.parent);
 
 			mesh.name = object.name;
 			mesh.applyMatrix(object.matrix);

@@ -265,6 +265,7 @@
 			dom.appendChild(resizeBtn);
 			this.dom = dom;
 			this.head = head;
+			this.title = title;
 			this.footer = footer;
 
 			return this;
@@ -443,6 +444,9 @@
 
 			return this;
 		};
+		Window.prototype.setTitle = function(name) {
+			this.title.innerText = name;
+		};
 		Window.prototype.getIndex = function(){
 			var index = 0;//static variable 
 			return function(){
@@ -476,41 +480,11 @@
 		this.dom.innerHTML = '<svg><g transform="translate(20,20)"/></svg>';
 	};
 
-	UI.DAG.prototype.draw = function ( nodes, edges ) {
+	UI.DAG.prototype.draw = function ( states, edges ) {
 	    var renderer = new dagreD3.Renderer();
 	    var oldDrawNodes = renderer.drawNodes();
 
-	    this.clear();
-	    var states = nodes.map(function(node) {
-	    	var state = {};
-	    	state.id = node.id;
-	    	state.value = {};
-	    	state.value.label = node.label;      
-	    	
-	    	if(node.tags){
-	    		state.value.label += '\ntag: [ ';
-		    	_.each(node.tags, function onEach(tag, i){
-		    		if(i>0){
-		    			state.value.label +=',';
-		    		}
-		    		state.value.label += tag;
-		    	});    		
-		    	state.value.label += ' ]';
-	    	}
-	    	if(node.branches){
-	    		state.value.label += '\nbranch: [ ';
-		    	_.each(node.branches, function onEach(branch, i){
-		    		if(i>0){
-		    			state.value.label +=', ';
-		    		}		    		
-		    		state.value.label += branch;
-		    	});    		
-		    	state.value.label += ' ]';	    		
-	    	}
-
-	    	return state;
-	    });
-
+	    this.clear();//clear graph
 
 	    renderer.drawNodes(function(graph, root) {
 	      var svgNodes = oldDrawNodes(graph, root);
@@ -533,9 +507,16 @@
 	      .attr("height", result.graph().height + 40);
 
 
-	    //add click event listener for each node  
+ 
         this.nodes = this.dom.getElementsByClassName('node');
 
+        //set node color
+        var stateMap = {};
+        _.each(states, function onEach(state) {
+        	stateMap[state.id] = state;
+        });
+
+	    //add click event listener for each node 
         _.each(this.nodes, function onEach(node){
           node.label = node.getElementsByTagName('tspan')[0].innerHTML;  
           node.selected = false;
@@ -549,10 +530,17 @@
 			if(this.selected){
 				this.rect.style.fill = "#7f7";
 			}else{
-				this.rect.style.fill = "#fff";
-			}            
+				this.rect.style.fill = node.color;
+			}
           },false)               
-        });        
+        }); 
+
+        _.each(this.nodes, function onEach(node) {
+        	var id = node.id;
+        	node.rect.style.fill = stateMap[id].color;
+        	node.color = stateMap[id].color;
+        });
+               
 		return this;
 	};	
 	UI.DAG.prototype.getSelected = function(){

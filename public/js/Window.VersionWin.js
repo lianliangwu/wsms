@@ -136,7 +136,46 @@ var VersionWin = function ( editor ) {
           var result = JSON.parse(xhr.responseText);
           var nodes = result.nodes;
           var edges = result.edges;
-          versionDag.draw(nodes, edges);     
+
+          //get state arrays
+          var states = nodes.map(function(node) {
+            var state = {};
+            state.id = node.id;
+            state.color = "#fff";
+            state.value = {};
+            state.value.label = node.label;      
+            
+            if(node.tags){
+              state.value.label += '\ntag: [ ';
+
+              _.each(node.tags, function onEach(tag, i){
+                if(i>0){
+                  state.value.label +=',';
+                }
+                state.value.label += tag;
+              });
+
+              state.value.label += ' ]';
+              state.color = "#00FFFF";
+            }
+            if(node.branches){
+              state.value.label += '\nbranch: [ ';
+
+              _.each(node.branches, function onEach(branch, i){
+                if(i>0){
+                  state.value.label +=', ';
+                }           
+                state.value.label += branch;
+              });
+
+              state.value.label += ' ]';  
+              state.color = "#FFD800";
+            }
+
+            return state;
+          });          
+
+          versionDag.draw(states, edges);     
         } else {
           alert('An error occurred!');
         }

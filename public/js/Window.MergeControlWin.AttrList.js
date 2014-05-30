@@ -5,12 +5,6 @@ MergeControlWin.AttrList = function (mergeEditor) {
 	var container = new UI.Panel();
 	var headerRow = new UI.Panel();
 	var fancySelect = new UI.FancySelect();
-	var versionARow = new UI.Panel();
-	var valueA = new UI.Input().setWidth( '50%' ).setColor( '#444' ).setFontSize( '12px' );
-	var versionBRow = new UI.Panel();
-	var valueB = new UI.Input().setWidth( '50%' ).setColor( '#444' ).setFontSize( '12px' );	
-	var resultRow = new UI.Panel();
-	var resultSelect = new UI.Select().setWidth( '50%' ).setColor( '#444' ).setFontSize( '12px' );
 	var selectedNode = null;
 
 	var col1 = new UI.Text( 'Key' ).setWidth( '33%' ).setTextAlign('center');
@@ -20,10 +14,19 @@ MergeControlWin.AttrList = function (mergeEditor) {
 	headerRow.add(col2);
 	headerRow.add(col3);
 
-	versionARow.add( new UI.Text( 'versionA' ).setWidth( '40%' ) );
+	var versionARow = new UI.Panel();
+	var keyA = new UI.Text( 'versionA' ).setWidth( '40%' );
+	var valueA = new UI.Input().setWidth( '50%' ).setColor( '#444' ).setFontSize( '12px' );
+	var versionBRow = new UI.Panel();
+	var keyB = new UI.Text( 'versionB' ).setWidth( '40%' );
+	var valueB = new UI.Input().setWidth( '50%' ).setColor( '#444' ).setFontSize( '12px' );	
+	var resultRow = new UI.Panel();
+	var resultSelect = new UI.Select().setWidth( '50%' ).setColor( '#444' ).setFontSize( '12px' );
+
+	versionARow.add( keyA );
 	versionARow.add( valueA );	
 
-	versionBRow.add( new UI.Text( 'versionB' ).setWidth( '40%' ) );
+	versionBRow.add( keyB );
 	versionBRow.add( valueB );	
 
 	resultRow.add( new UI.Text( 'Merge Result' ).setWidth( '40%' ) );
@@ -127,8 +130,11 @@ MergeControlWin.AttrList = function (mergeEditor) {
 		container.versionA = options.versionA;
 		container.versionB = options.versionB;
 
+		//change UI text
 		col2.setValue(container.versionA);
 		col3.setValue(container.versionB);
+		keyA.setValue(container.versionA);
+		keyB.setValue(container.versionB);
 
 		makeLogMap(options.mergeLog.stateLog);
 

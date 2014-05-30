@@ -1131,6 +1131,7 @@ exports.merge = function(req, res) {
 		var name = {};
 		name[versionNumA] = versionNameA;
 		name[versionNumB] = versionNameB;
+		name['compound'] = 'compound';
 
 		mergeLog.stateLog.forEach(function onEach(stateLogItem) {
 			stateLogItem[versionNameA] = stateLogItem[versionNumA];
