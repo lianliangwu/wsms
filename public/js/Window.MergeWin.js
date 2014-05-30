@@ -46,7 +46,12 @@ var MergeWin = function (editor) {
 				verC = temp;
 			}	
 
-			editor.revCon.merge(sceneId, verA, verB, verC, function(err, result) {
+			editor.revCon.merge({
+				'sceneId': sceneId,
+				'versionA': verA,
+				'versionB': verB,
+				'versionC': verC
+			}, function(err, result) {
 				versionA = verA;
 				versionB = verB;
 				versionNumA = result.versionNumA;
@@ -56,6 +61,16 @@ var MergeWin = function (editor) {
 				init(result);
 			});		
 		}
+	};
+
+	this.showMerge = function(options) {
+		versionA = options.versionA;
+		versionB = options.versionB;
+		versionNumA = options.mergeResult.sceneA.userData.currentVersion;
+		versionNumB = options.mergeResult.sceneB.userData.currentVersion;
+		mergeLog = options.mergeResult.mergeLog;
+
+		init(options.mergeResult);
 	};
 
 	//set up the layout

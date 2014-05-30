@@ -272,40 +272,35 @@ var RevisionControl = function (editor) {
 
 	};
 
-	var threeWayMerge = function(sceneId, versionA, versionB, versionC, callback) {
-		var params = {
-			'sceneId': sceneId,
-			'versionA': versionA,
-			'versionB': versionB,
-			'versionC': versionC
-		};
-
+	var threeWayMerge = function(options, callback) {
 		Ajax.getJSON({
 			'url': 'merge',
-			'params': params
+			'params': options
 		}, function onEnd(err, result) {
-			var loader = new THREE.ObjectLoader();
-			var scene;
+			if(!err){
+				var loader = new THREE.ObjectLoader();
+				var scene;
 
-			scene = getThreeSG(result.sceneA);
-			result.sceneA = loader.parse( scene );
-			result.sceneA.userData.currentVersion = result.versionNumA;
-			
+				scene = getThreeSG(result.sceneA);
+				result.sceneA = loader.parse( scene );
+				result.sceneA.userData.currentVersion = result.versionNumA;
+				
 
-			scene = getThreeSG(result.sceneB);
-			result.sceneB = loader.parse( scene );		
-			result.sceneB.userData.currentVersion = result.versionNumB;	
+				scene = getThreeSG(result.sceneB);
+				result.sceneB = loader.parse( scene );		
+				result.sceneB.userData.currentVersion = result.versionNumB;	
 
-			scene = getThreeSG(result.mergedScene);
-			result.mergedScene = loader.parse( scene );
-			
-			callback(null, result);
+				scene = getThreeSG(result.mergedScene);
+				result.mergedScene = loader.parse( scene );
+				
+				callback(null, result);			
+			}			
 		});
 	};
 
-	var mergeToTrunck = function(scene, versionB, callback) {
-		// threeWayMerge(scene.uuid, scene.userData.currentVersion, versionB, callback);
-	}
+	// var mergeToTrunck = function(options, callback) {
+	// 	threeWayMerge(options.sceneId, options.versionA, options.versionB, callback);
+	// };
 
 	var checkout = function(options, callback) {
 		var params = {

@@ -99,7 +99,23 @@ Menubar.RVC = function ( editor ) {
 		editor.revCon.commit(editor.scene);
 	}
 
-	function merge() {}
+	function merge() {
+		var versionName = prompt('merge', '');
+
+		editor.revCon.merge({
+			'sceneId': editor.scene.uuid,
+			'versionA': editor.scene.userData.branch,
+			'versionB': versionName
+		}, function onEnd(err, mergeResult) {
+			if(!err){
+				editor.mergeWin.showMerge({
+					'versionA': editor.scene.userData.branch,
+					'versionB': versionName,
+					'mergeResult': mergeResult
+				});
+			}
+		});
+	}
 
 	function addBranch() {
 		var name = prompt('add branch', '');

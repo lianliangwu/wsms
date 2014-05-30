@@ -996,42 +996,42 @@ exports.merge = function(req, res) {
 	var versionNumA, versionNumB, versionNumC;
 	var nodesA, nodesB, nodesC;
 
-	getLCA();
-
-	retrieveSceneNodes(sceneId, versionNumA, function onEnd(err, nodes) {
-		if(!err){
-			nodesA = nodes;
-			if(nodesA && nodesB && nodesC){
-				merge();
+	getVersionNums(function onEnd() {
+		retrieveSceneNodes(sceneId, versionNumA, function onEnd(err, nodes) {
+			if(!err){
+				nodesA = nodes;
+				if(nodesA && nodesB && nodesC){
+					merge();
+				}
 			}
-		}
-	});
-	retrieveSceneNodes(sceneId, versionNumB, function onEnd(err, nodes) {
-		if(!err){
-			nodesB = nodes;
-			if(nodesA && nodesB && nodesC){
-				merge();
+		});
+		retrieveSceneNodes(sceneId, versionNumB, function onEnd(err, nodes) {
+			if(!err){
+				nodesB = nodes;
+				if(nodesA && nodesB && nodesC){
+					merge();
+				}
 			}
-		}
-	});
-	retrieveSceneNodes(sceneId, versionNumC, function onEnd(err, nodes) {
-		if(!err){
-			nodesC = nodes;
-			if(nodesA && nodesB && nodesC){
-				merge();
+		});
+		retrieveSceneNodes(sceneId, versionNumC, function onEnd(err, nodes) {
+			if(!err){
+				nodesC = nodes;
+				if(nodesA && nodesB && nodesC){
+					merge();
+				}
 			}
-		}
+		});
 	});
 
 	//get the latest common ancestor
-	function getLCA() {
+	function _getLCA() {
 		versionNumA = versionNameA;
 		versionNumB = versionNameB;
 		versionNumC = versionNameC;
 	}
 
 	//get the common ancestor, this algorithum assumes that versionNum increases by commiting.
-	function _getLCA(callback) {
+	function getVersionNums(callback) {
 		//get versionNumA
 		getVersionNum({
 			'name': versionNameA,
@@ -1039,7 +1039,7 @@ exports.merge = function(req, res) {
 		}, function onEnd(versionNum){
 			versionNumA = versionNum;
 			if(versionNumA && versionNumB){
-				getVersionNumC();
+				getLCA();
 			}
 		});
 		//get versionNumB	
@@ -1049,11 +1049,11 @@ exports.merge = function(req, res) {
 		}, function onEnd(versionNum){
 			versionNumB = versionNum;
 			if(versionNumA && versionNumB){
-				getVersionNumC();
+				getLCA();
 			}			
 		});
 
-		function getVersionNumC(){
+		function getLCA(){
 			var ancArrayA, ancArrayB;
 
 			if(versionNameC){//if versionNameC exist 
@@ -1069,14 +1069,14 @@ exports.merge = function(req, res) {
 				getAllAncestors(sceneId, versionNumA, function onEnd(ancArray){
 					ancArrayA = ancArray;
 					if(ancArrayA && ancArrayB){
-						calcLCA();
+						calcLCA(ancArrayA, ancArrayB);
 					}
 				});
 				//get all ancestors of versionB 
 				getAllAncestors(sceneId, versionNumB, function onEnd(ancArray){
 					ancArrayB = ancArray;
 					if(ancArrayA && ancArrayB){
-						calcLCA();
+						calcLCA(ancArrayA, ancArrayB);
 					}
 				});
 			}
@@ -1119,7 +1119,7 @@ exports.merge = function(req, res) {
 				if(!err){
 					if(rNode){
 						var ancArray = rNode.path.split(/[()\[\]>]+/);
-						callback&&callback(ancesArray);						
+						callback&&callback(ancArray);						
 					}
 				}
 			});
