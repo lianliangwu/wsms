@@ -529,7 +529,7 @@ var Viewport = function ( editor ) {
 						switch(type){
 							case 'geometry':
 								asset.getGeoAsset(assets[type], function onEnd(geometry) {
-									setGeometry(uuid, geometry);
+									setGeometry(child.id, geometry);
 								});	
 							break;
 							default:
@@ -543,8 +543,8 @@ var Viewport = function ( editor ) {
 			}
 		});
 
-		var setGeometry = function(uuid, data){
-			editor.selectByUuid(uuid);
+		var setGeometry = function(id, data){
+			editor.selectById(id);
 			var object = editor.selected;
 			var loader = new THREE.JSONLoader();
 			var result = loader.parse( data );
@@ -560,7 +560,8 @@ var Viewport = function ( editor ) {
 			mesh.name = object.name;
 			mesh.applyMatrix(object.matrix);
 			mesh.uuid = object.uuid;
-			mesh.userData = object.userData;			
+			mesh.userData = object.userData;
+			mesh.children = object.children;//bug fix, mesh may has children too.	
 			
 			editor.removeObject(object);			
 		}
