@@ -12,11 +12,7 @@ var SceneWin = function ( editor ) {
 	var newSceneBtn = new UI.Button( 'New' ).setMarginLeft( '7px' ).onClick( function () {
 		editor.resetScene();
 	} );
-	var loadSceneBtn = new UI.Button( 'Load' ).setMarginLeft( '7px' ).onClick( function () {
-		var uuid = sceneSelect.getValue();	
-		//load the newest version
-		editor.revCon.retrieve(uuid, sceneMap[uuid].newestVersion);
-	} );
+	var loadSceneBtn = new UI.Button( 'Load' ).setMarginLeft( '7px' ).onClick( loadScene );
 	var shareSceneBtn = new UI.Button( 'Share' ).setMarginLeft( '7px' ).onClick( function () {
 		var email = prompt("share scene with:","");
 	} );
@@ -79,7 +75,20 @@ var SceneWin = function ( editor ) {
 	loadScene();
 	container.hide();
 
+	function loadScene() {
+		var sceneId = sceneSelect.getValue();
 
+		editor.revCon.checkout({
+			'name': 'master',
+			'sceneId': sceneId
+		}, function onEnd(err, scene) {
+			if(!err){
+				//checkout success
+				editor.setScene(scene);
+				console.log('checkout success.');
+			}
+		});		
+	}
 	return container;
 
 }

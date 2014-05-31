@@ -105,6 +105,7 @@ var RevisionControl = function (editor) {
 	var getEJOS = function(scene) {
 		var exporter = new THREE.ObjectExporter();
 		scene = exporter.parse(scene);
+		scene = JSON.parse(JSON.stringify(scene));
 		var geometries = scene.geometries;
 		var materials = scene.materials;
 		var textures = [];
@@ -305,7 +306,7 @@ var RevisionControl = function (editor) {
 	var checkout = function(options, callback) {
 		var params = {
 			'name': options.name,
-			'sceneId': editor.scene.uuid
+			'sceneId': options.sceneId
 		};
 
 		Ajax.getJSON({

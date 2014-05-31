@@ -19,7 +19,7 @@ MergeControlWin.StructureList = function( mergeEditor ){
 	resultRow.add( resultSelect );
 
 	container.add( new UI.Break() );
-	container.add( new UI.Text( 'Structure Conflict List' ).setClass('title') );
+	container.add( new UI.Text( 'Structure Diff List' ).setClass('title') );
 	container.add( new UI.Break(), new UI.Break() );
 	container.add(headerRow);
 	container.add(fancySelect);

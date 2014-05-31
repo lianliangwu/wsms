@@ -85,7 +85,8 @@ Menubar.RVC = function ( editor ) {
 		}
 
 		editor.revCon.checkout({
-			'name': name
+			'name': name,
+			'sceneId': editor.scene.uuid
 		}, function onEnd(err, scene) {
 			if(!err){
 				//checkout success

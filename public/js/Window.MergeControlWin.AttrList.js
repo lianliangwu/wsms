@@ -33,7 +33,7 @@ MergeControlWin.AttrList = function (mergeEditor) {
 	resultRow.add( resultSelect );	
 
 	container.add( new UI.Break() );
-	container.add( new UI.Text( 'Attribute List' ).setClass('title') );
+	container.add( new UI.Text( 'Property Diff List' ).setClass('title') );
 	container.add( new UI.Break(), new UI.Break() );
 	container.add(headerRow);
 	container.add(fancySelect);
