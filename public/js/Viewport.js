@@ -529,6 +529,9 @@ var Viewport = function ( editor ) {
 						switch(type){
 							case 'geometry':
 								asset.getGeoAsset(assets[type], function onEnd(geometry) {
+									if(child.name === 'pied_D' || child.name === 'pied_G'){
+										console.log("it's here");
+									}							
 									setGeometry(child.id, geometry);
 								});	
 							break;
@@ -561,10 +564,12 @@ var Viewport = function ( editor ) {
 			mesh.applyMatrix(object.matrix);
 			mesh.uuid = object.uuid;
 			mesh.userData = object.userData;
-			mesh.children = object.children;//bug fix, mesh may has children too.	
+			_.each(object.children, function onEach(child) {//bug fix, mesh may has children too.	
+				editor.parent(child, mesh);
+			})
 			
 			editor.removeObject(object);			
-		}
+		};
 
 		var setTexture = function(uuid, type, img, sourceFile, textureId) {
 			editor.selectByUuid(uuid);

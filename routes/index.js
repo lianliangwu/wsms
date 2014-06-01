@@ -95,11 +95,11 @@ exports.test = function(req, res){
 };
 
 exports.addGeoAsset = function(req, res){
-	var newPath = "./public/upload/" + req.body["uuid"] + ".js";
+	var newPath = "./public/upload1/" + req.body["uuid"] + ".js";
 	fs.writeFile(newPath, req.body["geometry"], function (err) {
 		res.send({success: true});
 	});	
-	addGeoAsset(req.body["uuid"], "upload/" + req.body["uuid"] + ".js", req.body["name"]);
+	addGeoAsset(req.body["uuid"], "upload1/" + req.body["uuid"] + ".js", req.body["name"]);
 };
 
 exports.getGeoAsset = function(req, res) {
@@ -125,9 +125,9 @@ exports.addImgAsset = function(req, res){
 	  var oldName = req.files.myImg.name;
 	  var arr = oldName.split('.');
 	  var newName = uuid + '.' + arr[arr.length - 1];
-	  var newPath = "./public/upload/" + newName;
+	  var newPath = "./public/upload1/" + newName;
 
-	  addImgAsset(uuid, "upload/" + newName, oldName);
+	  addImgAsset(uuid, "upload1/" + newName, oldName);
 	  fs.writeFile(newPath, data, function (err) {
 	    res.send({success: true});
 	  });
