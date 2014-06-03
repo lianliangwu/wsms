@@ -1238,8 +1238,10 @@ exports.commit = function(req, res) {
 
 	function saveDeltaNodes(deltaNodes) {
 		deltaNodes.forEach(function each(node) {
-			SNode.create(node, function onEnd(err){
-				if (err){
+			SNode.create(node, function onEnd(err, node){
+				if(!err){
+					SNode.signals.nodeAdded.dispatch(node);
+				}else{
 					console.log("save SNode err! "+ err);
 				}
 			});
@@ -1333,6 +1335,16 @@ exports.removeVersion = function (req, res) {
 	var sceneId = req.body.sceneId;
 	var versionNum = req.body.versionNum;
 
+
+	remove(sceneId, versionNum, function onEnd() {
+		console.log('version removed sceneId ' + sceneId + 'versionNum' + versionNum);
+		res.send({
+			'success': true,
+			'sceneId': sceneId,
+			'versionNum': versionNum
+		});
+	});
+
 	function removeSNodes (nodeMap, versionNum) {
 		for(var uuid in nodeMap){
 			if(nodeMap.hasOwnProperty(uuid)){
@@ -1340,14 +1352,12 @@ exports.removeVersion = function (req, res) {
 					SNode.findOneAndRemove({
 						'uuid': uuid,
 						'versionNum': versionNum
-					}, (function (uuid) {
-							return function onEnd(err) {
-								if(!err){
-									console.log('snode removed uuid ' + uuid + ' versionNum ' + versionNum);
-								}
-							};
-						})(uuid)
-					);
+					},function onEnd(err, node) {
+						if(!err){
+							console.log('snode removed', node);
+							SNode.signals.nodeRemoved.dispatch(node);
+						}
+					});
 				}
 			}
 		}
@@ -1374,15 +1384,6 @@ exports.removeVersion = function (req, res) {
 			}
 		});
 	}
-
-	remove(sceneId, versionNum, function onEnd() {
-		console.log('version removed sceneId ' + sceneId + 'versionNum' + versionNum);
-		res.send({
-			'success': true,
-			'sceneId': sceneId,
-			'versionNum': versionNum
-		});
-	});
 };
 
 //checkOut a branch, tag or a specific version

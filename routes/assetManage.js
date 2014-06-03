@@ -2,8 +2,87 @@
 
 var GeoAsset = require('../models/geoAsset.js');
 var ImgAsset = require('../models/imgAsset.js');
-var Scene = require('../models/scene.js');
+var SNode = require('../models/sNode.js');
 var fs = require('fs');
+var DIR = 'upload2/';
+
+
+SNode.signals.nodeAdded.add(function onEvent(node) {
+	var uuid;
+	switch(node.type){
+	case "geometry":
+		updateCount(node, GeoAsset);
+		break;
+	case "texture":
+		updateCount(node, ImgAsset);
+		break;
+	default:
+		break;
+	}
+
+	function updateCount(node, Asset){
+		var state = JSON.parse(node.data);
+		var uuid = state.assetId;
+
+		if(uuid){
+			Asset.findOne({
+				'uuid': uuid
+			}, function onEnd(err, asset){
+				if(!err){
+					asset.count += 1;
+					asset.save(function onEnd(err, asset){
+						console.log("asset count updated ", asset);
+					});
+				}
+			});
+		}
+	}
+});
+
+SNode.signals.nodeRemoved.add(function onEvent(node){
+	var uuid;
+	switch(node.type){
+	case "geometry":
+		updateCount(node, GeoAsset);
+		break;
+	case "texture":
+		updateCount(node, ImgAsset);
+		break;
+	default:
+		break;
+	}
+
+	function updateCount(node, Asset){
+		var state = JSON.parse(node.data);
+		var uuid = state.assetId;
+
+		if(uuid){
+			Asset.findOne({
+				'uuid': uuid
+			}, function onEnd(err, asset){
+				if(!err){
+					asset.count -= 1;
+					if(asset.count === 0){
+						var path = "./public/" + asset.path;
+						fs.unlink(path, function onEnd(err){
+							if(!err){
+								console.log('removeFile success');
+							}else{
+								console.log(err);
+							}
+						});
+						asset.remove();
+					}else{
+						asset.save(function onEnd(err, asset){
+							console.log("asset count updated ", asset);
+						});
+					}
+				}
+			});
+		}
+	}	
+});
+
 /*
  * GET home page.
  */
@@ -50,52 +129,12 @@ function addImgAsset(uuid, path, name){
 	});
 }
 
-function saveScene(uuid, scene){
-	Scene.findByUuid(uuid, function(err, scenes){
-		console.log("scene.length: "+ scenes.length);
-		if(scenes.length > 0){
-			
-			Scene.update({'uuid': uuid}, {'data': scene}, function(err, numberAffected, raw){
-				if (err){
-					console.log("err: fail to save scene "+ uuid);
-				}
-				console.log("scene saved "+ uuid);
-			});
-			return;
-		}
-
-		var newScene = new Scene({
-			'uuid': uuid,
-			'data': scene
-		});
-		console.log("newScene "+ newScene);
-		newScene.save(function(err, scene){
-			if(err){
-				console.log("err: fail to save scene "+ uuid);
-			}
-			console.log(scene);
-		});
-	});
-}
-
-function loadScene(uuid, callback) {
-	Scene.findByUuid(uuid, function(err, scenes){
-		if(scenes.length > 0){
-			callback&&callback(scenes[0]);
-		}
-	});
-}
-
-exports.index = function(req, res){
-  res.render('index');
-};
-
 exports.addGeoAsset = function(req, res){
-	var newPath = "./public/upload1/" + req.body["uuid"] + ".js";
+	var newPath = "./public/" + DIR + req.body["uuid"] + ".js";
 	fs.writeFile(newPath, req.body["geometry"], function (err) {
 		res.send({success: true});
 	});	
-	addGeoAsset(req.body["uuid"], "upload1/" + req.body["uuid"] + ".js", req.body["name"]);
+	addGeoAsset(req.body["uuid"], DIR + req.body["uuid"] + ".js", req.body["name"]);
 };
 
 exports.getGeoAsset = function(req, res) {
@@ -120,9 +159,9 @@ exports.addImgAsset = function(req, res){
 		var oldName = req.files.myImg.name;
 		var arr = oldName.split('.');
 		var newName = uuid + '.' + arr[arr.length - 1];
-		var newPath = "./public/upload1/" + newName;
+		var newPath = "./public/" + DIR + newName;
 
-		addImgAsset(uuid, "upload1/" + newName, oldName);
+		addImgAsset(uuid, DIR + newName, oldName);
 		fs.writeFile(newPath, data, function (err) {
 		res.send({success: true});
 		});
@@ -141,33 +180,5 @@ exports.getImgAsset = function(req, res) {
       data: imgAsset[0]
     });
   });
-};
-
-exports.saveScene = function(req, res){
-	var uuid = req.body['uuid'];
-	var scene = req.body['scene'];
-
-	saveScene(uuid, scene);
-	res.send({success: true});
-};
-
-exports.loadScene = function(req, res){
-	var uuid = req.query['uuid'];
-
-	loadScene(uuid, function(scene){
-		res.send({
-			'success': true,
-			'scene':JSON.parse(scene.data)
-		});
-	});
-};
-
-exports.getAllScenes = function(req, res) {
-	Scene.getAllScenes(function(err, scenes){
-		res.send({
-			'success': true,
-			'scenes':scenes
-		});
-	});
 };
 

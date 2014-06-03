@@ -564,9 +564,9 @@ var Viewport = function ( editor ) {
 			mesh.applyMatrix(object.matrix);
 			mesh.uuid = object.uuid;
 			mesh.userData = object.userData;
-			_.each(object.children, function onEach(child) {//bug fix, mesh may has children too.	
+			_.each(object.children, function onEach(child) {//bug fix, mesh can be intermediate node.	
 				editor.parent(child, mesh);
-			})
+			});
 			
 			editor.removeObject(object);			
 		};

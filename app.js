@@ -1,4 +1,4 @@
-
+"use strict";
 /**
  * Module dependencies.
  */
@@ -6,6 +6,7 @@
 var express = require('express');
 var routes = require('./routes');
 var rc = require('./routes/revisionControl');
+var am = require('./routes/assetManage');
 var http = require('http');
 var path = require('path');
 var db = require('./models/db');
@@ -25,14 +26,14 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 
 app.get('/', routes.index);
-app.get('/test', routes.test);
-app.post('/addImgAsset', routes.addImgAsset);
-app.get('/getImgAsset', routes.getImgAsset);
-app.post('/addGeoAsset', routes.addGeoAsset);
-app.get('/getGeoAsset', routes.getGeoAsset);
 app.post('/saveScene', routes.saveScene);
 app.get('/loadScene', routes.loadScene);
 app.get('/getAllScenes', routes.getAllScenes);
+
+app.post('/addImgAsset', am.addImgAsset);
+app.get('/getImgAsset', am.getImgAsset);
+app.post('/addGeoAsset', am.addGeoAsset);
+app.get('/getGeoAsset', am.getGeoAsset);
 
 app.get('/getAllVersions', rc.getAllVersions);
 app.get('/retrieve', rc.retrieve);
