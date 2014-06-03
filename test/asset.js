@@ -2,18 +2,20 @@
 "use strict";
 var assert = require("assert");
 var fs = require("fs");
-var GeoAsset = require("../models/geoAsset");
-var ImgAsset = require("../models/imgAsset");
+// var GeoAsset = require("../models/geoAsset");
+// var ImgAsset = require("../models/imgAsset");
+var Asset = require("../models/asset");
 var SNode = require("../models/sNode");
 var db = require("../models/db");
 var assetManage = require('../routes/assetManage.js');
 
 
 describe('GeoAsset', function(){
-	var asset = new GeoAsset({
+	var asset = new Asset({
 		"uuid": "aaaaa",
 		"path": "aa",
 		"name": "aa",
+		"type": "geo",
 		"count": 1
 	});
 
@@ -42,8 +44,9 @@ describe('GeoAsset', function(){
 			setTimeout(test, 10);
 
 			function test(){
-				GeoAsset.findOne({
-					'uuid': 'aaaaa'
+				Asset.findOne({
+					'uuid': 'aaaaa',
+					'type': 'geo'
 				}, function onEnd(err, asset){
 					if(!err){
 						assert.equal(asset.count, count+1);
@@ -65,8 +68,9 @@ describe('GeoAsset', function(){
 			});
 			var count;
 			
-			GeoAsset.findOne({
-				'uuid': 'aaaaa'
+			Asset.findOne({
+				'uuid': 'aaaaa',
+				'type': 'geo'
 			}, function onEnd(err, asset){
 				if(!err){
 					count = asset.count;
@@ -78,8 +82,9 @@ describe('GeoAsset', function(){
 			});
 
 			function test(){
-				GeoAsset.findOne({
-					'uuid': 'aaaaa'
+				Asset.findOne({
+					'uuid': 'aaaaa',
+					'type': 'geo'
 				}, function onEnd(err, asset){
 					if(!err){
 						assert.equal(asset.count, count-1);
@@ -102,8 +107,9 @@ describe('GeoAsset', function(){
 
 			var count;
 			
-			GeoAsset.findOne({
-				'uuid': 'aaaaa'
+			Asset.findOne({
+				'uuid': 'aaaaa',
+				'type': 'geo'
 			}, function onEnd(err, asset){
 				if(!err){
 					count = asset.count;
@@ -116,8 +122,9 @@ describe('GeoAsset', function(){
 			});		
 
 			function test(){
-				GeoAsset.findOne({
-					'uuid': 'aaaaa'
+				Asset.findOne({
+					'uuid': 'aaaaa',
+					'type': 'geo'
 				}, function onEnd(err, asset){
 					if(!err){
 						assert.equal(asset, undefined);
@@ -131,8 +138,9 @@ describe('GeoAsset', function(){
 	});
 
 	after(function(done){
-		GeoAsset.remove({
-			'uuid': 'aaaaa'
+		Asset.remove({
+			'uuid': 'aaaaa',
+			'type': 'geo'
 		}, function(err){
 			if(!err){
 				done();
@@ -143,10 +151,11 @@ describe('GeoAsset', function(){
 	});
 });
 describe('ImgAsset', function(){
-	var asset = new ImgAsset({
+	var asset = new Asset({
 		"uuid": "bbbbb",
 		"path": "aa",
 		"name": "aa",
+		"type": "img",
 		"count": 1
 	});
 
@@ -175,8 +184,9 @@ describe('ImgAsset', function(){
 			setTimeout(test, 10);
 
 			function test(){
-				ImgAsset.findOne({
-					'uuid': 'bbbbb'
+				Asset.findOne({
+					'uuid': 'bbbbb',
+					'type': 'img'
 				}, function onEnd(err, asset){
 					if(!err){
 						assert.equal(asset.count, count+1);
@@ -198,8 +208,9 @@ describe('ImgAsset', function(){
 			});
 			var count;
 			
-			ImgAsset.findOne({
-				'uuid': 'bbbbb'
+			Asset.findOne({
+				'uuid': 'bbbbb',
+				'type': 'img'
 			}, function onEnd(err, asset){
 				if(!err){
 					count = asset.count;
@@ -211,8 +222,9 @@ describe('ImgAsset', function(){
 			});
 
 			function test(){
-				ImgAsset.findOne({
-					'uuid': 'bbbbb'
+				Asset.findOne({
+					'uuid': 'bbbbb',
+					'type': 'img'
 				}, function onEnd(err, asset){
 					if(!err){
 						assert.equal(asset.count, count-1);
@@ -235,8 +247,9 @@ describe('ImgAsset', function(){
 
 			var count;
 			
-			ImgAsset.findOne({
-				'uuid': 'bbbbb'
+			Asset.findOne({
+				'uuid': 'bbbbb',
+				'type': 'img'
 			}, function onEnd(err, asset){
 				if(!err){
 					count = asset.count;
@@ -249,8 +262,9 @@ describe('ImgAsset', function(){
 			});		
 
 			function test(){
-				ImgAsset.findOne({
-					'uuid': 'bbbbb'
+				Asset.findOne({
+					'uuid': 'bbbbb',
+					'type': 'img'
 				}, function onEnd(err, asset){
 					if(!err){
 						assert.equal(asset, undefined);
@@ -264,8 +278,9 @@ describe('ImgAsset', function(){
 	});
 
 	after(function(done){
-		ImgAsset.remove({
-			'uuid': 'bbbbb'
+		Asset.remove({
+			'uuid': 'bbbbb',
+			'type': 'img'
 		}, function(err){
 			if(!err){
 				done();

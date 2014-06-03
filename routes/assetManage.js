@@ -1,26 +1,23 @@
 "use strict";
-
-var GeoAsset = require('../models/geoAsset.js');
-var ImgAsset = require('../models/imgAsset.js');
+var Asset = require('../models/asset.js');
 var SNode = require('../models/sNode.js');
 var fs = require('fs');
 var DIR = 'upload2/';
 
 
 SNode.signals.nodeAdded.add(function onEvent(node) {
-	var uuid;
 	switch(node.type){
 	case "geometry":
-		updateCount(node, GeoAsset);
+		updateCount(node);
 		break;
 	case "texture":
-		updateCount(node, ImgAsset);
+		updateCount(node);
 		break;
 	default:
 		break;
 	}
 
-	function updateCount(node, Asset){
+	function updateCount(node){
 		var state = JSON.parse(node.data);
 		var uuid = state.assetId;
 
@@ -40,19 +37,18 @@ SNode.signals.nodeAdded.add(function onEvent(node) {
 });
 
 SNode.signals.nodeRemoved.add(function onEvent(node){
-	var uuid;
 	switch(node.type){
 	case "geometry":
-		updateCount(node, GeoAsset);
+		updateCount(node);
 		break;
 	case "texture":
-		updateCount(node, ImgAsset);
+		updateCount(node);
 		break;
 	default:
 		break;
 	}
 
-	function updateCount(node, Asset){
+	function updateCount(node){
 		var state = JSON.parse(node.data);
 		var uuid = state.assetId;
 
@@ -83,77 +79,70 @@ SNode.signals.nodeRemoved.add(function onEvent(node){
 	}	
 });
 
-/*
- * GET home page.
- */
+function addAsset(newAsset, callback){
 
-function addGeoAsset(uuid, path, name){
-	var newGeoAsset = new GeoAsset({
-		uuid: uuid,
-		path: path,
-		name: name
-	});
-
-	GeoAsset.findByUuid(newGeoAsset.uuid, function(err, geoAsset){
-		if(geoAsset.length > 0){
+	Asset.findOne({
+		'uuid': newAsset.uuid,
+		'type': newAsset.type
+	}, function onEnd(err, asset) {
+		if(err){
+			console.log(err);
 			return;
 		}
-		//如果不存在，则新增资源
-		newGeoAsset.save(function(err, geoAsset){
-			if(err){
-				console.log("err: fail to save geoAsset "+ uuid);
-			}
-			console.log(uuid);
-		});
+		if(!asset){
+			newAsset.save(callback);
+		}
 	});
 }
 
-function addImgAsset(uuid, path, name){
-	var newImgAsset = new ImgAsset({
-		uuid: uuid,
-		path: path,
-		name: name
-	});
-
-	ImgAsset.findByUuid(newImgAsset.uuid, function(err, imgAsset){
-		if(imgAsset.length > 0){
-			return;
-		}
-		//如果不存在，则新增资源
-		newImgAsset.save(function(err, imgAsset){
-			if(err){
-				console.log("err: fail to save geoAsset "+ imgAsset.uuid);
-			}
-			console.log(imgAsset);
-		});
-	});
-}
 
 exports.addGeoAsset = function(req, res){
-	var newPath = "./public/" + DIR + req.body["uuid"] + ".js";
-	fs.writeFile(newPath, req.body["geometry"], function (err) {
-		res.send({success: true});
-	});	
-	addGeoAsset(req.body["uuid"], DIR + req.body["uuid"] + ".js", req.body["name"]);
+	var uuid = req.body.uuid;
+
+	var newName = uuid + '.js';
+	var geoAsset = new Asset({
+		'uuid': uuid,
+		'name': req.body.name,
+		'path': DIR + newName,
+		'type': 'geo'
+	});
+
+	addAsset(geoAsset, function onEnd(err, asset) {
+		if(err){
+			console.log(err);
+			return;
+		}
+		var newPath = "./public/" + DIR + newName;
+		fs.writeFile(newPath, req.body.geometry, function (err) {
+			if(err){
+				console.log(err);
+				return;
+			}
+			res.send({success: true});
+		});
+	});
 };
 
 exports.getGeoAsset = function(req, res) {
-  var uuid = req.query['uuid'];
+	var uuid = req.query['uuid'];
 
-  GeoAsset.findByUuid(uuid, function onEnd(err, geoAsset) {
-    if (err) {
-      console.log("err: fail to get geoAsset "+ uuid);
-    }
-    res.send({
-      success: true,
-      data: geoAsset[0]
-    });
-  });
+	Asset.findOne({
+		'uuid': uuid,
+		'type': 'geo'
+	}, function onEnd(err, asset){
+		if(err){
+			console.log(err);
+			return;
+		}
+		res.send({
+			success: true,
+			data: asset
+		});
+	});
 };
 
 exports.addImgAsset = function(req, res){
 	var uuid = req.body["uuid"];
-
 
 	fs.readFile(req.files.myImg.path, function (err, data) {
 		var oldName = req.files.myImg.name;
@@ -161,9 +150,25 @@ exports.addImgAsset = function(req, res){
 		var newName = uuid + '.' + arr[arr.length - 1];
 		var newPath = "./public/" + DIR + newName;
 
-		addImgAsset(uuid, DIR + newName, oldName);
-		fs.writeFile(newPath, data, function (err) {
-		res.send({success: true});
+		var imgAsset = new Asset({
+			'uuid': uuid,
+			'name': oldName,
+			'path': DIR + newName,
+			'type': 'img'
+		});
+
+		addAsset(imgAsset, function onEnd(err, asset){
+			if(err){
+				console.log(err);
+				return;
+			}
+			fs.writeFile(newPath, data, function (err) {
+				if(err){
+					console.log(err);
+					return;
+				}
+				res.send({success: true});
+			});
 		});
 	});
 };
@@ -171,14 +176,17 @@ exports.addImgAsset = function(req, res){
 exports.getImgAsset = function(req, res) {
   var uuid = req.query['uuid'];
 
-  ImgAsset.findByUuid(uuid, function onEnd(err, imgAsset) {
-    if (err) {
-      console.log("err: fail to get imgAsset "+ uuid);
-    }
-    res.send({
-      success: true,
-      data: imgAsset[0]
-    });
-  });
+	Asset.findOne({
+		'uuid': uuid,
+		'type': 'img'
+	}, function onEnd(err, asset) {
+		if (err) {
+			console.log(err);
+			return;
+		}
+		res.send({
+			success: true,
+			data: asset
+		});
+	});
 };
-

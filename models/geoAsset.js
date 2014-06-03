@@ -1,3 +1,4 @@
+/*global ObjectId*/
 "use strict";
 var mongoose = require("mongoose");
 
@@ -5,7 +6,8 @@ var GeoSchema = new mongoose.Schema({
   uuid: String,
   path: String,
   name: String,
-  count: {type: Number, default: 0}
+  count: {type: Number, default: 0},
+  directory: ObjectId
 });
 
 GeoSchema.statics.findByUuid = function (uuid, callback){

@@ -1,3 +1,4 @@
+/*global ObjectId*/
 "use strict";
 var mongoose = require("mongoose");
 
@@ -5,7 +6,8 @@ var ImgSchema = new mongoose.Schema({
   uuid: String,
   path: String,
   name: String,
-  count: {type: Number, default: 0}
+  count: {type: Number, default: 0},
+  directory: ObjectId
 });
 
 ImgSchema.statics.findByUuid = function (uuid, callback){
