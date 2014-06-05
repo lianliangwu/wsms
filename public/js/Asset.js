@@ -189,8 +189,38 @@ var Asset = function(editor){
 		} );
 	};
 
-	this.getDirTree = function(){
+	this.getDirTree = function(callback){
+		var params = {};
 
-	}
+		Ajax.getJSON({
+			'url': 'getDirTree',
+			'params': params
+		}, callback);		
+	};
 
-}
+	this.listGeoAsset = function(options, callback){
+		var params = {
+			start: options.start,
+			limit: options.limit
+		};
+
+		Ajax.getJSON({
+			'url': 'listGeoAsset',
+			'params': params
+		}, callback);		
+	};
+
+	this.listImgAsset = function(options, callback){
+		var params = {
+			start: options.start,
+			limit: options.limit
+		};
+
+		Ajax.getJSON({
+			'url': 'listImgAsset',
+			'params': params
+		}, callback);		
+	};
+
+
+};

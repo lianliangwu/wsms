@@ -5,6 +5,9 @@ var DNode = require('../models/dNode.js');
 var fs = require('fs');
 var DIR = 'upload2/';
 
+function isObjectId(str){
+	return (/^[0-9a-fA-F]{24}$/).test(str);
+}
 
 SNode.signals.nodeAdded.add(function onEvent(node) {
 	switch(node.type){
@@ -161,6 +164,7 @@ exports.addGeoAsset = function(req, res){
 
 exports.addImgAsset = function(req, res){
 	var uuid = req.body["uuid"];
+	var parentId = req.body.parentId;
 
 	fs.readFile(req.files.myImg.path, function (err, data) {
 		var oldName = req.files.myImg.name;
@@ -182,6 +186,7 @@ exports.addImgAsset = function(req, res){
 					success: false
 				});
 			}
+			//save file
 			fs.writeFile(newPath, data, function (err) {
 				if(err){
 					console.log(err);
@@ -300,12 +305,56 @@ exports.removeImgAsset = function(req, res) {
 	});	
 };
 
-exports.addDirectory = function(req, res) {
+exports.listGeoAsset = function (req, res){
+	var start = req.query.start;
+	var limit = req.query.limit;
+
+	Asset
+	.find({ type: 'geo' })
+	.skip(start)
+	.limit(limit)
+	.exec(function onEnd(err, assets){
+		if(err){
+			console.log(err);
+			res.send({
+				success: false
+			});
+		}
+		res.send({
+			'success': true,
+			'assets': assets
+		});
+	});
+
+};
+exports.listImgAsset = function (req, res){
+	var start = req.query.start;
+	var limit = req.query.limit;
+
+	Asset
+	.find({ type: 'img' })
+	.skip(start)
+	.limit(limit)
+	.exec(function onEnd(err, assets){
+		if(err){
+			console.log(err);
+			res.send({
+				success: false
+			});
+		}
+		res.send({
+			'success': true,
+			'assets': assets
+		});
+	});	
+};
+
+exports.addDirectory = function (req, res){
 	var name = req.body.name;
 	var parentId = req.body.parentId;
 
 	//test if it's a ObjectId
-	if(!(/^[0-9a-fA-F]{24}$/.test(parentId))){
+	if(!isObjectId(parentId)){
 		parentId = undefined;
 	}
 	var dNode = DNode.create({
