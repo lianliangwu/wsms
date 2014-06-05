@@ -33,19 +33,17 @@ app.get('/getAllScenes', routes.getAllScenes);
 app.post('/addImgAsset', am.addImgAsset);
 app.get('/getImgAsset', am.getImgAsset);
 app.post('/updateImgAsset', am.updateImgAsset);
-app.get('/listImgAssets', am.listImgAssets);
-app.get('/removeImgAsset', am.removeImgAsset);
+app.post('/removeImgAsset', am.removeImgAsset);
 app.post('/addGeoAsset', am.addGeoAsset);
 app.get('/getGeoAsset', am.getGeoAsset);
 app.post('/updateGeoAsset', am.updateGeoAsset);
-app.get('/listGeoAssets', am.listGeoAssets);
 app.post('/removeGeoAsset', am.removeGeoAsset);
 
 app.post('/addDirectory', am.addDirectory);
 app.post('/removeDirectory', am.removeDirectory);
-app.post('/listDirectory', am.listDirectory);
+app.get('/listDirContent', am.listDirContent);
 app.post('/updateDirectory', am.updateDirectory);
-app.post('/getDirectoryTree', am.getDirectoryTree);
+app.get('/getDirTree', am.getDirTree);
 
 app.get('/getAllVersions', rc.getAllVersions);
 app.get('/retrieve', rc.retrieve);

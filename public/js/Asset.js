@@ -1,29 +1,31 @@
+/*global Ajax, THREE*/
 var Asset = function(editor){
+	"use strict";
 	var scene = editor.scene;
 	var signals = editor.signals;
 
 	var exportGeometry = function ( geometry ) {
-		var exporterClass = null;
+		var ExporterClass = null;
 		var exporter; 
 		var output;
 
 		if ( geometry instanceof THREE.BufferGeometry ) {
 
-			exporterClass = THREE.BufferGeometryExporter ;
+			ExporterClass = THREE.BufferGeometryExporter ;
 
 		} else if ( geometry instanceof THREE.Geometry2 ) {
 
-			exporterClass = THREE.Geometry2Exporter ;
+			ExporterClass = THREE.Geometry2Exporter ;
 
 		} else if ( geometry instanceof THREE.Geometry ) {
 
-			exporterClass = THREE.GeometryExporter ;
+			ExporterClass = THREE.GeometryExporter ;
 
 		}else{
 			console.log("not supported geometry type");
 		}
 
-		exporter = new exporterClass();
+		exporter = new ExporterClass();
 
 		output = JSON.stringify( exporter.parse( geometry ), null, '\t' );
 		output = output.replace( /[\n\t]+([\d\.e\-\[\]]+)/g, '$1' );
@@ -186,5 +188,9 @@ var Asset = function(editor){
 
 		} );
 	};
+
+	this.getDirTree = function(){
+
+	}
 
 }

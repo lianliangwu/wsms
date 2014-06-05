@@ -1,3 +1,4 @@
+"use strict";
 // Bring Mongoose into the project
 var mongoose = require( 'mongoose' );
 // Build the connection string

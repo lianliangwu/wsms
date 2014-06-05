@@ -1,54 +1,11 @@
 "use strict";
 
-var GeoAsset = require('../models/geoAsset.js');
-var ImgAsset = require('../models/imgAsset.js');
 var Scene = require('../models/scene.js');
 var fs = require('fs');
 /*
  * GET home page.
  */
 
-function addGeoAsset(uuid, path, name){
-	var newGeoAsset = new GeoAsset({
-		uuid: uuid,
-		path: path,
-		name: name
-	});
-
-	GeoAsset.findByUuid(newGeoAsset.uuid, function(err, geoAsset){
-		if(geoAsset.length > 0){
-			return;
-		}
-		//如果不存在，则新增资源
-		newGeoAsset.save(function(err, geoAsset){
-			if(err){
-				console.log("err: fail to save geoAsset "+ uuid);
-			}
-			console.log(uuid);
-		});
-	});
-}
-
-function addImgAsset(uuid, path, name){
-	var newImgAsset = new ImgAsset({
-		uuid: uuid,
-		path: path,
-		name: name
-	});
-
-	ImgAsset.findByUuid(newImgAsset.uuid, function(err, imgAsset){
-		if(imgAsset.length > 0){
-			return;
-		}
-		//如果不存在，则新增资源
-		newImgAsset.save(function(err, imgAsset){
-			if(err){
-				console.log("err: fail to save geoAsset "+ imgAsset.uuid);
-			}
-			console.log(imgAsset);
-		});
-	});
-}
 
 function saveScene(uuid, scene){
 	Scene.findByUuid(uuid, function(err, scenes){
@@ -88,59 +45,6 @@ function loadScene(uuid, callback) {
 
 exports.index = function(req, res){
   res.render('index');
-};
-
-exports.addGeoAsset = function(req, res){
-	var newPath = "./public/upload1/" + req.body["uuid"] + ".js";
-	fs.writeFile(newPath, req.body["geometry"], function (err) {
-		res.send({success: true});
-	});	
-	addGeoAsset(req.body["uuid"], "upload1/" + req.body["uuid"] + ".js", req.body["name"]);
-};
-
-exports.getGeoAsset = function(req, res) {
-  var uuid = req.query['uuid'];
-
-  GeoAsset.findByUuid(uuid, function onEnd(err, geoAsset) {
-    if (err) {
-      console.log("err: fail to get geoAsset "+ uuid);
-    }
-    res.send({
-      success: true,
-      data: geoAsset[0]
-    });
-  });
-};
-
-exports.addImgAsset = function(req, res){
-	var uuid = req.body["uuid"];
-
-
-	fs.readFile(req.files.myImg.path, function (err, data) {
-		var oldName = req.files.myImg.name;
-		var arr = oldName.split('.');
-		var newName = uuid + '.' + arr[arr.length - 1];
-		var newPath = "./public/upload1/" + newName;
-
-		addImgAsset(uuid, "upload1/" + newName, oldName);
-		fs.writeFile(newPath, data, function (err) {
-		res.send({success: true});
-		});
-	});
-};
-
-exports.getImgAsset = function(req, res) {
-  var uuid = req.query['uuid'];
-
-  ImgAsset.findByUuid(uuid, function onEnd(err, imgAsset) {
-    if (err) {
-      console.log("err: fail to get imgAsset "+ uuid);
-    }
-    res.send({
-      success: true,
-      data: imgAsset[0]
-    });
-  });
 };
 
 exports.saveScene = function(req, res){

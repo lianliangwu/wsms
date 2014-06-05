@@ -21,8 +21,10 @@ var AssetWin = function ( editor ) {
 
 	var importBtn = new UI.Button('Import');
 	var applyBtn = new UI.Button('Apply');
+	var makeDirBtn = new UI.Button('makeDir');
 	headerRow.add(importBtn);
 	headerRow.add(applyBtn);
+	headerRow.add(makeDirBtn);
 
 	var searchRow = new UI.Panel().setDisplay('inline-block').setFloat('right');
 	var searchInput = new UI.Input();

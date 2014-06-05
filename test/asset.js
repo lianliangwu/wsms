@@ -2,34 +2,33 @@
 "use strict";
 var assert = require("assert");
 var fs = require("fs");
-// var GeoAsset = require("../models/geoAsset");
-// var ImgAsset = require("../models/imgAsset");
 var Asset = require("../models/asset");
 var SNode = require("../models/sNode");
 var db = require("../models/db");
-var assetManage = require('../routes/assetManage.js');
+var am = require('../routes/assetManage.js');
+var request = require('request');
 
 
 describe('GeoAsset', function(){
-	var asset = new Asset({
-		"uuid": "aaaaa",
-		"path": "aa",
-		"name": "aa",
-		"type": "geo",
-		"count": 1
-	});
-
-	before(function(done){
-		asset.save(function(err){
-			if(!err){
-				done();
-			}else{
-				done(err);
-			}
-		});
-	});
-
 	describe('count', function(){
+		var asset = new Asset({
+			"uuid": "aaaaa",
+			"path": "aa",
+			"name": "aa",
+			"type": "geo",
+			"count": 1
+		});
+
+		before(function(done){
+			asset.save(function(err){
+				if(!err){
+					done();
+				}else{
+					done(err);
+				}
+			});
+		});
+
 		it('should increase by 1 when a new ref from snode added', function(done){
 			var snode = new SNode({
 				data: "{\"assetId\":\"aaaaa\"}",
@@ -135,41 +134,67 @@ describe('GeoAsset', function(){
 				});
 			}					
 		});
+
+		after(function(done){
+			Asset.remove({
+				'uuid': 'aaaaa',
+				'type': 'geo'
+			}, function(err){
+				if(!err){
+					done();
+				}else{
+					done(err);
+				}
+			});
+		});
 	});
 
-	after(function(done){
-		Asset.remove({
-			'uuid': 'aaaaa',
-			'type': 'geo'
-		}, function(err){
-			if(!err){
-				done();
-			}else{
-				done(err);
-			}
+	describe('update', function(){
+		var asset = new Asset({
+			"uuid": "bbbbb",
+			"path": "aa",
+			"name": "aa",
+			"type": "geo",
+			"count": 1
+		});
+		before(function(done){
+			asset.save(function(err){
+				if(!err){
+					done();
+				}else{
+					done(err);
+				}
+			});
+		});
+		it('should be updated when a newAsset is provided', function(done) {
+			request('http://www.google.com', function (error, response, body) {
+			  if (!error && response.statusCode === 200) {
+			    console.log(body); // 打印google首页
+			  }
+			});
 		});
 	});
 });
 describe('ImgAsset', function(){
-	var asset = new Asset({
-		"uuid": "bbbbb",
-		"path": "aa",
-		"name": "aa",
-		"type": "img",
-		"count": 1
-	});
-
-	before(function(done){
-		asset.save(function(err){
-			if(!err){
-				done();
-			}else{
-				done(err);
-			}
-		});
-	});
-
 	describe('count', function(){
+		var asset = new Asset({
+			"uuid": "bbbbb",
+			"path": "aa",
+			"name": "aa",
+			"type": "img",
+			"count": 1
+		});
+
+		before(function(done){
+			asset.save(function(err){
+				if(!err){
+					done();
+				}else{
+					done(err);
+				}
+			});
+		});
+
 		it('should increase by 1 when a new ref from snode added', function(done){
 			var snode = new SNode({
 				data: "{\"assetId\":\"bbbbb\"}",
@@ -275,18 +300,18 @@ describe('ImgAsset', function(){
 				});
 			}
 		});
-	});
 
-	after(function(done){
-		Asset.remove({
-			'uuid': 'bbbbb',
-			'type': 'img'
-		}, function(err){
-			if(!err){
-				done();
-			}else{
-				done(err);
-			}
-		});
+		after(function(done){
+			Asset.remove({
+				'uuid': 'bbbbb',
+				'type': 'img'
+			}, function(err){
+				if(!err){
+					done();
+				}else{
+					done(err);
+				}
+			});
+		});		
 	});
 });
