@@ -498,7 +498,7 @@ var Viewport = function ( editor ) {
 
 		if ( System.support.webgl === true ) {
 
-			renderer = new THREE.WebGLRenderer( { antialias: true } );
+			renderer = new THREE.WebGLRenderer( { antialias: true, preserveDrawingBuffer: true } );
 
 		} else {
 
@@ -529,9 +529,6 @@ var Viewport = function ( editor ) {
 						switch(type){
 							case 'geometry':
 								asset.getGeoAsset(assets[type], function onEnd(geometry) {
-									if(child.name === 'pied_D' || child.name === 'pied_G'){
-										console.log("it's here");
-									}							
 									setGeometry(child.id, geometry);
 								});	
 							break;

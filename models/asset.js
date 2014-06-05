@@ -5,7 +5,7 @@ var mongoose = require("mongoose");
 var AssetSchema = new mongoose.Schema({
   uuid: String,
   path: String,
-  screenshot: String,
+  snapshot: String,
   name: String,
   type: String,
   count: {type: Number, default: 0},

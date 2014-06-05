@@ -40,6 +40,8 @@ app.get('/getGeoAsset', am.getGeoAsset);
 app.post('/updateGeoAsset', am.updateGeoAsset);
 app.post('/removeGeoAsset', am.removeGeoAsset);
 app.get('/listGeoAsset', am.listGeoAsset);
+app.post('/updateSnapshot', am.updateSnapshot);
+
 
 app.post('/addDirectory', am.addDirectory);
 app.post('/removeDirectory', am.removeDirectory);

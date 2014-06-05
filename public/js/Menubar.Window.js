@@ -52,6 +52,22 @@ Menubar.Window = function ( editor ) {
 	} );
 	options.add( option );	
 
+	var option = new UI.Panel();
+	option.setClass( 'option' );
+	option.setTextContent( 'Geometry Window' );
+	option.onClick( function () {
+
+		var geoWin = new GeoViewerWin();
+		document.body.appendChild( geoWin.dom );
+		geoWin.show();
+
+		var sphereGeometry = new THREE.SphereGeometry( 50, 32, 16 ); 
+		geoWin.setGeometry(sphereGeometry);
+
+	} );
+	options.add( option );	
+
+
 	return container;
 
-}
+};

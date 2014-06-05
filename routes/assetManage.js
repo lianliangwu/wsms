@@ -73,15 +73,15 @@ SNode.signals.nodeRemoved.add(function onEvent(node){
 							}
 						});
 
-						//remove screen shot
-						if(asset.screenshot){
-							path = "./public/" + asset.screenshot;
+						//remove snapshot
+						if(asset.snapshot){
+							path = "./public/" + asset.snapshot;
 							fs.unlink(path, function onEnd(err) {
 								if(err){
 									console.log(err);
 									return;
 								}
-								console.log('remove screenshot success.');
+								console.log('remove snapshot success.');
 							});
 						}
 						asset.remove();
@@ -347,6 +347,62 @@ exports.listImgAsset = function (req, res){
 			'assets': assets
 		});
 	});	
+};
+
+exports.updateSnapshot = function (req, res){
+	var imgData = req.body.imgData;
+	var assetId = req.body.assetId;
+	assetId = "9D080CF5-A1D7-4CEA-BC76-CE077C45A29A";
+
+	var base64Data = imgData.replace(/^data:image\/png;base64,/,"");
+
+	Asset.findOne({
+		'uuid': assetId
+	}, function onEnd(err, asset){
+		if(err || !asset){
+			console.log(err);
+			res.send({
+				success: false
+			});
+		}
+
+		//remove the old snapshot
+		if(asset.snapshot !== undefined){
+			fs.unlink(asset.snapshot, function onEnd(err){
+				if(!err){
+					console.log('remove snapshot success.');
+				}else{
+					console.log(err);
+				}
+			});
+		}
+
+		var path = "./public/" + DIR + assetId + ".png";
+		fs.writeFile(path, base64Data, 'base64', function onEnd(err) {
+			if(err){
+				console.log(err);
+				res.send({
+					success: false
+				});
+			}
+
+			asset.snapshot = DIR + assetId + ".png";
+
+			asset.save(function onEnd(err){
+				if(err){
+					console.log(err);
+					res.send({
+						success: false
+					});
+				}	
+				
+				res.send({
+					success: true
+				});
+			});
+		});	
+
+	});
 };
 
 exports.addDirectory = function (req, res){

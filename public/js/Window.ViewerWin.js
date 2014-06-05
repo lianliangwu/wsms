@@ -1,4 +1,6 @@
+/*global UI*/
 var ViewerWin = function ( ) {
+	"use strict";
 	var container = new UI.Window("Viewer");
 
 	var viewer = new UI.Viewer();
@@ -6,13 +8,13 @@ var ViewerWin = function ( ) {
 	container.add(viewer);
 	
 	container.signals.windowResized.add(function(){
-		var width = parseInt(container.getInnerWidth());
-		var height = parseInt(container.getInnerHeight());
+		var width = parseInt(container.getInnerWidth(), 10);
+		var height = parseInt(container.getInnerHeight(), 10);
 		viewer.resize(width, height);
 	});
 	container.signals.windowOpened.add(function(){
-		var width = parseInt(container.getInnerWidth());
-		var height = parseInt(container.getInnerHeight());
+		var width = parseInt(container.getInnerWidth(), 10);
+		var height = parseInt(container.getInnerHeight(), 10);
 		viewer.resize(width, height);
 	});
 
@@ -27,4 +29,4 @@ var ViewerWin = function ( ) {
 	container.viewer = viewer;
 	return container;
 
-}
+};

@@ -125,6 +125,18 @@ var Asset = function(editor){
 		xhr.send(formData);				
 	};
 
+	this.updateSnapshot = function(options, callback){
+		var params = {
+			imgData: options.imgData,
+			assetId: options.assetId
+		};
+
+		Ajax.post({
+			'url': 'updateSnapshot',
+			'params': params
+		}, callback);
+	};	
+
 	this.getGeoAsset = function(uuid, callback) {
 		// Set up the request.
 		var xhr = new XMLHttpRequest();
