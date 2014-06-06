@@ -72,7 +72,7 @@ var Asset = function(editor){
 		xhr.onload = function () {
 			if (xhr.status === 200 && xhr.readyState === 4) {
 
-				var data = JSON.parse(xhr.responseText).data;
+				var data = JSON.parse(xhr.responseText).asset;
 				if (data) {
 					loadImg(data.path);
 				}
@@ -137,6 +137,29 @@ var Asset = function(editor){
 		}, callback);
 	};	
 
+	this.getAssetInfo = function (uuid, callback){
+		var params = {
+			'uuid': uuid
+		};
+
+		Ajax.getJSON({
+			'url': 'getAsset',
+			'params': params
+		}, callback);
+
+	};
+
+	this.updateGeoAsset = function (newAsset, callback){
+		var params = {
+			'asset': JSON.stringify(newAsset)
+		};
+
+		Ajax.post({
+			'url': 'updateGeoAsset',
+			'params': params
+		}, callback);
+	};
+
 	this.getGeoAsset = function(uuid, callback) {
 		// Set up the request.
 		var xhr = new XMLHttpRequest();
@@ -148,7 +171,7 @@ var Asset = function(editor){
 		xhr.onload = function () {
 			if (xhr.status === 200 && xhr.readyState === 4) {
 
-				var data = JSON.parse(xhr.responseText).data;
+				var data = JSON.parse(xhr.responseText).asset;
 				if (data) {
 					loadGeo(data.path);
 				}

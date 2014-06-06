@@ -3,9 +3,10 @@ var GeoViewerWin = function () {
 	"use strict";
 	var container = new UI.Window("Geometry").setWidth('400px').setInnerHeight('300px');
 	var viewer = new UI.Viewer({"enableTransform": true});
-	var btnRow = new UI.Panel();
-	var snapShotBtn = new UI.Button( 'snapshot' ).setMarginLeft( '7px' ).onClick(takeShot);
 	var signals = viewer.editor.signals;
+	var btnRow = new UI.Panel();
+	var nameRow = new UI.Panel();
+	var snapShotBtn = new UI.Button( 'snapshot' ).setMarginLeft( '7px' ).onClick(takeShot);
 
 	var translate = new UI.Button( 'translate' ).onClick( function () {
 
@@ -25,6 +26,11 @@ var GeoViewerWin = function () {
 
 	} );
 
+	var nameInput = new UI.Input();
+	nameRow.add(new UI.Text("Name: "));
+	nameRow.add(nameInput);
+	nameRow.setTextAlign("center");
+
 	btnRow.add( translate );
 	btnRow.add( rotate );
 	btnRow.add( scale );
@@ -34,6 +40,7 @@ var GeoViewerWin = function () {
 
 	container.add(viewer);
 	container.add(btnRow);
+	container.add(nameRow);
 	container.setPosition({
 		top: '100px',
 		left: '600px'		
@@ -43,13 +50,33 @@ var GeoViewerWin = function () {
 
 	container.signals.windowResized.add(function(){
 		var width = parseInt(container.getInnerWidth(), 10);
-		var height = parseInt(container.getInnerHeight(), 10) - 25;
+		var height = parseInt(container.getInnerHeight(), 10) - 50;
 		viewer.resize(width, height);
 	});
 	container.signals.windowOpened.add(function(){
 		var width = parseInt(container.getInnerWidth(), 10);
-		var height = parseInt(container.getInnerHeight(), 10) - 25;
+		var height = parseInt(container.getInnerHeight(), 10) - 50;
 		viewer.resize(width, height);
+	});
+
+	nameInput.onChange(function onEvent(){
+		var name = nameInput.getValue();
+
+		var newAsset = {
+			'uuid': container.assetId,
+			'name': name
+		};
+
+		editor.asset.updateGeoAsset(newAsset, function onEnd(err, result){
+			if(err){
+				console.log(err);
+				return;
+			}
+			if(result.success === true){
+				console.log("asset updated.");
+				alert("asset updated.");
+			}			
+		});
 	});
 
 	container.render = function(){
@@ -81,6 +108,17 @@ var GeoViewerWin = function () {
 			scope.setGeometry(geometry);
 			scope.show();
 		});	
+
+		//get assetInfo
+		editor.asset.getAssetInfo(assetId, function onEnd(err, result){
+			if(err){
+				console.log(err);
+				return;
+			}
+			if(result.success === true){
+				nameInput.setValue(result.asset.name);
+			}
+		});
 	};
 
 	function takeShot(){

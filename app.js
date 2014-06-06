@@ -30,6 +30,7 @@ app.post('/saveScene', routes.saveScene);
 app.get('/loadScene', routes.loadScene);
 app.get('/getAllScenes', routes.getAllScenes);
 
+app.get('/getAsset', am.getAsset);
 app.post('/addImgAsset', am.addImgAsset);
 app.get('/getImgAsset', am.getImgAsset);
 app.post('/updateImgAsset', am.updateImgAsset);

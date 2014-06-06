@@ -198,9 +198,8 @@ exports.addImgAsset = function(req, res){
 	});
 };
 
-
-exports.getGeoAsset = function(req, res) {
-	var uuid = req.query['uuid'];
+exports.getAsset = function(req, res){
+	var uuid = req.query.uuid;
 
 	Asset.findOne({
 		'uuid': uuid
@@ -212,8 +211,28 @@ exports.getGeoAsset = function(req, res) {
 			});
 		}
 		res.send({
-			success: true,
-			data: asset
+			'success': true,
+			'asset': asset
+		});
+	});
+};
+
+exports.getGeoAsset = function(req, res) {
+	var uuid = req.query['uuid'];
+
+	Asset.findOne({
+		'uuid': uuid,
+		'type': 'geo'
+	}, function onEnd(err, asset){
+		if(err){
+			console.log(err);
+			res.send({
+				success: false
+			});
+		}
+		res.send({
+			'success': true,
+			'asset': asset
 		});
 	});
 };
@@ -222,7 +241,8 @@ exports.getImgAsset = function(req, res) {
   var uuid = req.query['uuid'];
 
 	Asset.findOne({
-		'uuid': uuid
+		'uuid': uuid,
+		'type': 'img'
 	}, function onEnd(err, asset) {
 		if (err) {
 			console.log(err);
@@ -231,8 +251,8 @@ exports.getImgAsset = function(req, res) {
 			});
 		}
 		res.send({
-			success: true,
-			data: asset
+			'success': true,
+			'asset': asset
 		});
 	});
 };
@@ -352,7 +372,6 @@ exports.listImgAsset = function (req, res){
 exports.updateSnapshot = function (req, res){
 	var imgData = req.body.imgData;
 	var assetId = req.body.assetId;
-	assetId = "9D080CF5-A1D7-4CEA-BC76-CE077C45A29A";
 
 	var base64Data = imgData.replace(/^data:image\/png;base64,/,"");
 

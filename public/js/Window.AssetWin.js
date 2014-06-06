@@ -131,6 +131,7 @@ var AssetWin = function ( editor ) {
 
 		box.add(img);
 		box.add(nameT);
+		box.setTextAlign("center");
 		return box;	
 	}
 
@@ -146,12 +147,24 @@ var AssetWin = function ( editor ) {
 				}
 			]
 		};
+		var ltree = {
+			name: "Local",
+			children: [
+				{
+					name: "Geometry"
+				},
+				{
+					name: "Image"
+				}
+			]
+		};
+
 		var count = 1;
 		var pad = '&nbsp;&nbsp;&nbsp;';
 		var options = {};
 
 		buildDir(tree, 1);
-		options[count] = pad + "Local";
+		buildDir(ltree, 1);
 		fancySelect.setOptions(options);
 
 		function buildDir(root, level) {
