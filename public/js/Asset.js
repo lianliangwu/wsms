@@ -85,7 +85,7 @@ var Asset = function(editor){
 		function loadImg(url) {
 
 	      var image = document.createElement( 'img' );
-	      var name = url.split().pop();
+	      var name = url.split("/").pop();
 	      image.src = url;
 
 

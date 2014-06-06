@@ -45,10 +45,16 @@ var GeoViewerWin = function () {
 	};
 
 	container.setAsset = function(assetId){
+		var scope = this;
 		this.assetId = assetId;
 
-		editor.asset.getGeoAsset(assetId, function onEnd(geometry) {
-			this.setGeometry(geometry);
+		editor.asset.getGeoAsset(assetId, function onEnd(data) {
+			var loader = new THREE.JSONLoader();
+			var result = loader.parse( data );
+			var geometry = result.geometry;
+
+			scope.setGeometry(geometry);
+			scope.show();
 		});	
 	};
 

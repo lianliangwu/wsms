@@ -1031,7 +1031,10 @@
 
 		if ( System.support.webgl === true ) {
 
-			renderer = new THREE.WebGLRenderer( { antialias: true, preserveDrawingBuffer: true } );
+			renderer = new THREE.WebGLRenderer( {
+				antialias: true, 
+				preserveDrawingBuffer: true //add this to support snapshot
+			});
 
 		} else {
 

@@ -543,12 +543,9 @@ var Viewport = function ( editor ) {
 			}
 		});
 
-		var setGeometry = function(id, data){
+		var setGeometry = function(id, geometry){
 			editor.selectById(id);
 			var object = editor.selected;
-			var loader = new THREE.JSONLoader();
-			var result = loader.parse( data );
-			var geometry = result.geometry;
 
 
 			//change the mesh with new geometry and old material
