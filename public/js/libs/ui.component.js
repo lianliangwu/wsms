@@ -553,7 +553,8 @@
 		return selected;
 	};
 
-	UI.Viewer = function() {
+	UI.Viewer = function(options) {
+		var enableTrans = options&&options.enableTransform;
 		UI.Element.call( this );
 
 		var dom = document.createElement( 'div' );
@@ -587,25 +588,25 @@
 		selectionBox.visible = false;
 		sceneHelpers.add( selectionBox );
 
-		// var transformControls = new THREE.TransformControls( camera, dom );
-		// transformControls.addEventListener( 'change', function () {
+		var transformControls = new THREE.TransformControls( camera, dom );
+		enableTrans&&transformControls.addEventListener( 'change', function () {
 
-		// 	controls.enabled = true;
+			controls.enabled = true;
 
-		// 	if ( transformControls.axis !== null ) {
+			if ( transformControls.axis !== null ) {
 
-		// 		controls.enabled = false;
+				controls.enabled = false;
 
-		// 	}
+			}
 
-		// 	if ( editor.selected !== null ) {
+			if ( editor.selected !== null ) {
 
-		// 		signals.objectChanged.dispatch( editor.selected );
+				signals.objectChanged.dispatch( editor.selected );
 
-		// 	}
+			}
 
-		// } );
-		// sceneHelpers.add( transformControls );
+		} );
+		enableTrans&&sceneHelpers.add( transformControls );
 
 		// fog
 
@@ -722,7 +723,7 @@
 		controls.center.fromArray( [0, 0, 0] )
 		controls.addEventListener( 'change', function () {
 
-//			transformControls.update();
+			enableTrans&&transformControls.update();
 			signals.cameraChanged.dispatch( camera );
 
 		} );
@@ -752,19 +753,19 @@
 
 		signals.transformModeChanged.add( function ( mode ) {
 
-//			transformControls.setMode( mode );
+			enableTrans&&transformControls.setMode( mode );
 
 		} );
 
 		signals.snapChanged.add( function ( dist ) {
 
-//			transformControls.setSnap( dist );
+			enableTrans&&transformControls.setSnap( dist );
 
 		} );
 
 		signals.spaceChanged.add( function ( space ) {
 
-//			transformControls.setSpace( space );
+			enableTrans&&transformControls.setSpace( space );
 
 		} );
 
@@ -819,7 +820,7 @@
 		signals.objectSelected.add( function ( object ) {
 
 			selectionBox.visible = false;
-//			transformControls.detach();
+			enableTrans&&transformControls.detach();
 
 			if ( object !== null ) {
 
@@ -833,7 +834,7 @@
 
 				if ( object instanceof THREE.PerspectiveCamera === false ) {
 
-//					transformControls.attach( object );
+					enableTrans&&transformControls.attach( object );
 
 				}
 
@@ -861,7 +862,7 @@
 
 		signals.objectChanged.add( function ( object ) {
 
-//			transformControls.update();
+			enableTrans&&transformControls.update();
 
 			if ( object !== camera ) {
 

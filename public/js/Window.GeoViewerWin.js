@@ -2,17 +2,42 @@
 var GeoViewerWin = function () {
 	"use strict";
 	var container = new UI.Window("Geometry").setWidth('400px').setInnerHeight('300px');
-
-	var viewer = new UI.Viewer();
-
+	var viewer = new UI.Viewer({"enableTransform": true});
 	var btnRow = new UI.Panel();
 	var snapShotBtn = new UI.Button( 'snapshot' ).setMarginLeft( '7px' ).onClick(takeShot);
+	var signals = viewer.editor.signals;
+
+	var translate = new UI.Button( 'translate' ).onClick( function () {
+
+		signals.transformModeChanged.dispatch( 'translate' );
+
+	} );
+
+	var rotate = new UI.Button( 'rotate' ).onClick( function () {
+
+		signals.transformModeChanged.dispatch( 'rotate' );
+
+	} );
+
+	var scale = new UI.Button( 'scale' ).onClick( function () {
+
+		signals.transformModeChanged.dispatch( 'scale' );
+
+	} );
+
+	btnRow.add( translate );
+	btnRow.add( rotate );
+	btnRow.add( scale );
 	btnRow.add(snapShotBtn);
 	btnRow.setTextAlign("center");
 
 
 	container.add(viewer);
 	container.add(btnRow);
+	container.setPosition({
+		top: '100px',
+		left: '600px'		
+	});
 	container.hide();
 	container.viewer = viewer;
 
