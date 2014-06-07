@@ -406,6 +406,10 @@ var autoMerge = function(options, callback) {
 
 		//check if the subgraph has been modified, comparing with version C 
 		function checkModified(nodeMap, rootId) {
+			var r = false;
+			if(rootId === "BD57CE60-3886-4220-BEDA-6F0E2E6C531A"){
+				console.log("it's here");
+			}
 			//check state and structure 
 			if(!nodeCmp(nodeMap[rootId], nodeMapC[rootId])){
 				return true;// modified
@@ -415,12 +419,16 @@ var autoMerge = function(options, callback) {
 			var nodeC = JSON.parse(nodeMapC[rootId].data);
 
 			//check children object
-			if(node.children !== undefined){
-				node.children.forEach(function onEach(ref) {
+			if(nodeMap[rootId].children !== undefined){
+				nodeMap[rootId].children.forEach(function onEach(ref) {
 					if(checkModified(nodeMap, ref)){
-						return true;
+						r = true;
 					}
 				});
+			}
+			
+			if(r){
+				return true;
 			}
 
 			//check geometry, material and texture
@@ -430,7 +438,7 @@ var autoMerge = function(options, callback) {
 						var uuid = node[key];
 
 						if(nodeMap[uuid] !== undefined && nodeMapC[uuid] !== undefined){
-							if(checkModified(nodeMap[uuid], nodeMapC[uuid])){
+							if(checkModified(nodeMap, uuid)){
 								return true;
 							}
 						}
@@ -438,7 +446,7 @@ var autoMerge = function(options, callback) {
 				}
 			}
 
-			return false;			
+			return r;			
 
 			//check if the property is a ref to geometry, material or texture
 			function isRef(key) {
@@ -471,7 +479,7 @@ var autoMerge = function(options, callback) {
 						addSubGraphToD(nodeMap, ref);
 					}
 				});	
-			}else{
+			}else{//reparented 
 				var childMap = {};
 				var childMapC = {};
 
