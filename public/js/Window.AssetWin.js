@@ -1,11 +1,12 @@
 /*global _, UI, GeoViewerWin*/
 var AssetWin = function ( editor ) {
 	"use strict";
+	var dirMap = {};
+
 	var container = new UI.Window("Asset Manager").setWidth('800px').setInnerHeight('400px');
 	var layoutDiv = new UI.Panel();
 	var leftDiv = new UI.Panel().setWidth('20%');
 	var rightDiv = new UI.Panel().setWidth('80%').setPosition('absolute').setTop(container.getHeaderHeight()).setRight('0px');
-	var dirMap = {};
 
 
 	//left part
@@ -41,6 +42,17 @@ var AssetWin = function ( editor ) {
 		fancySelect.setHeight(container.getInnerHeight());
 	});
 
+	container.getAssetIds = function (callback){
+		if(container.isCalling === true){
+			console.log('assetWin is already under calling');
+			alert('assetWin is already under calling');
+			return;
+		}
+		container.isCalling = true;
+		container.callback = callback;
+		container.show();
+	};
+
 	searchBtn.onClick(function onEvent(){
 		var nameStr = searchInput.getValue();
 
@@ -60,6 +72,20 @@ var AssetWin = function ( editor ) {
 			}			
 		});
 	});
+
+	applyBtn.onClick(function onEvent(){
+		if(container.isCalling){
+			var selectedIds = getSelected();
+			if(selectedIds.length <= 0){
+				alert('no assets selected!');
+				return;
+			}
+			container.hide();
+			container.isCalling = false;
+			container.callback&&container.callback(null, selectedIds);
+		}
+	});
+
 	fancySelect.onChange(function onEvent(){
 		var dir = dirMap[fancySelect.getValue()];
 
@@ -99,7 +125,7 @@ var AssetWin = function ( editor ) {
 		}
 	});
 
-	rightDiv.onDblclick(function (event){
+	rightDiv.onDblclick(function onEvent(event){
 		event.preventDefault();
 		if(event.target.className === 'Image'){
 			var assetId = event.target.id;
@@ -110,16 +136,33 @@ var AssetWin = function ( editor ) {
 		}
 	});
 
-	rightDiv.onClick(function (event){
+	rightDiv.onClick(function onEvent(event){
 		event.preventDefault();
 		var target = event.target;
 		if(target.className === 'Image'){
-			var color = target.style.borderColor;
-			color =target.selected ? "#ccc" : "#FFD800";
-			target.style.borderColor = color;
-			target.selected = color === "#ccc" ? false : true;
+			select(target);
 		}
 	});
+
+	function select(dom){
+		var color = dom.style.borderColor;
+		color =dom.selected ? "#ccc" : "#FFD800";
+		dom.style.borderColor = color;
+		dom.selected = color === "#ccc" ? false : true;		
+	}
+
+	function getSelected(){
+		var imgs = rightDiv.dom.getElementsByTagName('img');
+		var selectedId = [];
+
+		_.each(imgs, function onEach(img){
+			if(img.selected === true){
+				selectedId.push(img.id);
+			}
+		});
+
+		return selectedId;
+	}
 
 	function listContent(assets){
 		assetsPanel.clear();

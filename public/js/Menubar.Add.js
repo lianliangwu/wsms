@@ -18,6 +18,42 @@ Menubar.Add = function ( editor ) {
 	var meshCount = 0;
 	var lightCount = 0;
 
+	// add geometry
+
+	var option = new UI.Panel();
+	option.setClass( 'option' );
+	option.setTextContent( 'GeoAsset' );
+	option.onClick( function () {
+		editor.assetWin.getAssetIds(function onEnd(err, assetIds){
+			if(err){
+				console.log(err);
+				return;
+			}
+
+			editor.asset.getGeoAsset(assetIds[0], function onEnd(geometryJSON) {
+				addAssetToScene(geometryJSON);
+			});
+
+			function addAssetToScene(data){
+				var loader = new THREE.JSONLoader();
+				var result = loader.parse( data );
+				var geometry = result.geometry;
+
+				var material = new THREE.MeshLambertMaterial();
+				var mesh = new THREE.Mesh( geometry, material );
+
+				editor.addObject(mesh);
+				editor.select( mesh );
+			};
+		});
+	} );
+	options.add( option );
+
+	// divider
+
+	options.add( new UI.HorizontalRule() );
+
+
 	// add object
 
 	var option = new UI.Panel();
