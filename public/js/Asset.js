@@ -257,5 +257,16 @@ var Asset = function(editor){
 		}, callback);		
 	};
 
+	this.searchAssets = function (options, callback){
+		var params = {
+			nameStr: options.nameStr,
+			type: options.type
+		};
+
+		Ajax.getJSON({
+			'url': 'searchAssets',
+			'params': params
+		}, callback);		
+	};
 
 };

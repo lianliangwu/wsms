@@ -24,7 +24,7 @@ UI.Element.prototype = {
 
 		for ( var i = 0; i < array.length; i ++ ) {
 
-			this.dom.style[ style ] = array[ i ];//something may be wrong here
+			this.dom.style[ style ] = array[ i ];
 
 		}
 
@@ -77,7 +77,7 @@ properties.forEach( function ( property ) {
 
 // events
 
-var events = [ 'KeyUp', 'KeyDown', 'MouseOver', 'MouseOut', 'Click', 'Change' ];
+var events = [ 'KeyUp', 'KeyDown', 'MouseOver', 'MouseOut', 'Click', 'Change', 'Dblclick' ];
 
 events.forEach( function ( event ) {
 

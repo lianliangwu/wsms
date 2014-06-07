@@ -41,13 +41,32 @@ var AssetWin = function ( editor ) {
 		fancySelect.setHeight(container.getInnerHeight());
 	});
 
+	searchBtn.onClick(function onEvent(){
+		var nameStr = searchInput.getValue();
+
+		editor.asset.searchAssets({
+			'nameStr': nameStr,
+			'type': ""
+		},function onEnd(err, result){
+			if(err){
+				console.log(err);
+				return;
+			}
+
+			if(result.success === true){
+				listContent(result.assets);
+			}else{
+				alert("list fail");
+			}			
+		});
+	});
 	fancySelect.onChange(function onEvent(){
 		var dir = dirMap[fancySelect.getValue()];
 
 		if(dir.name === 'Geometry'){
 			editor.asset.listGeoAsset({
 				'start': 0,
-				'limit': 10
+				'limit': 12
 			}, function onEnd(err, result){
 				if(err){
 					console.log(err);
@@ -55,7 +74,7 @@ var AssetWin = function ( editor ) {
 				}
 
 				if(result.success === true){
-					listDir(dir, result.assets);
+					listContent(result.assets);
 				}else{
 					alert("list fail");
 				}
@@ -72,7 +91,7 @@ var AssetWin = function ( editor ) {
 				}
 
 				if(result.success === true){
-					listDir(dir, result.assets);
+					listContent(result.assets);
 				}else{
 					alert("list fail");
 				}
@@ -80,7 +99,7 @@ var AssetWin = function ( editor ) {
 		}
 	});
 
-	rightDiv.onClick(function onEvent(event){
+	rightDiv.onDblclick(function (event){
 		event.preventDefault();
 		if(event.target.className === 'Image'){
 			var assetId = event.target.id;
@@ -91,7 +110,18 @@ var AssetWin = function ( editor ) {
 		}
 	});
 
-	function listDir(dir, assets){
+	rightDiv.onClick(function (event){
+		event.preventDefault();
+		var target = event.target;
+		if(target.className === 'Image'){
+			var color = target.style.borderColor;
+			color =target.selected ? "#ccc" : "#FFD800";
+			target.style.borderColor = color;
+			target.selected = color === "#ccc" ? false : true;
+		}
+	});
+
+	function listContent(assets){
 		assetsPanel.clear();
 
 		_.each(assets, function onEach(asset){
@@ -132,6 +162,7 @@ var AssetWin = function ( editor ) {
 		box.add(img);
 		box.add(nameT);
 		box.setTextAlign("center");
+		box.setCursor("pointer");
 		return box;	
 	}
 

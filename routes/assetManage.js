@@ -586,3 +586,26 @@ exports.listDirContent = function(req, res){
 		});
 	});
 };
+
+exports.searchAssets = function (req, res){
+	var nameStr = req.query.nameStr;
+	var type = req.query.type;
+
+	var nameRegex = new RegExp(nameStr, 'i');
+	var typeRegex = new RegExp(type, "i");
+	var query = Asset.find({'name': nameRegex, 'type': typeRegex}).limit(12);
+
+	query.exec(function onEnd(err, assets){
+		if(err){
+			console.log(err);
+			res.send({
+				'success': false
+			});
+		}
+
+		res.send({
+			'success': true,
+			'assets': assets
+		});
+	});
+};
