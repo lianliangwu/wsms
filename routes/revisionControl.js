@@ -6,6 +6,7 @@ var Scene = require('../models/scene.js');
 var SNode = require('../models/sNode.js');
 var RNode = require('../models/rNode.js');
 var Branch = require('../models/branch.js');
+var assetManage = require('./assetManage.js');
 var Tag = require('../models/tag.js');
 var textureMaps = ['map', 'bumpMap', 'lightMap', 'normalMap', 'specularMap', 'envMap'];
 
@@ -1301,6 +1302,11 @@ exports.commit = function(req, res) {
 
 				saveDeltaNodes(deltaNodes);
 				saveRNode(scene.newestVersion, preVersions);
+				assetManage._autoRemove(function onEnd(err){
+					if(err){
+						console.log(err);
+					}
+				});
 
 				res.send({
 					'success': true,

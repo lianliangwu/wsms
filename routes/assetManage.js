@@ -3,7 +3,7 @@ var Asset = require('../models/asset.js');
 var SNode = require('../models/sNode.js');
 var DNode = require('../models/dNode.js');
 var fs = require('fs');
-var DIR = 'upload2/';
+var DIR = 'upload3/';
 
 function isObjectId(str){
 	return (/^[0-9a-fA-F]{24}$/).test(str);
@@ -95,6 +95,8 @@ SNode.signals.nodeRemoved.add(function onEvent(node){
 		}
 	}	
 });
+
+
 
 function addAsset(newAsset, callback){
 
@@ -606,6 +608,39 @@ exports.searchAssets = function (req, res){
 		res.send({
 			'success': true,
 			'assets': assets
+		});
+	});
+};
+
+//auto remove the assets, count==0
+exports._autoRemove = function (callback){
+	Asset.find({
+		"count": 0,
+		"autoRemove": true
+	}, function onEnd(err, assets){
+		assets.forEach(function onEach(asset){
+			//remove asset
+			var path = "./public/" + asset.path;
+			fs.unlink(path, function onEnd(err){
+				if(!err){
+					console.log('removeFile success.');
+				}else{
+					console.log(err);
+				}
+			});
+
+			//remove snapshot
+			if(asset.snapshot){
+				path = "./public/" + asset.snapshot;
+				fs.unlink(path, function onEnd(err) {
+					if(err){
+						console.log(err);
+						return;
+					}
+					console.log('remove snapshot success.');
+				});
+			}
+			asset.remove();			
 		});
 	});
 };
