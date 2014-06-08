@@ -31,13 +31,14 @@ MergeControlWin.ControlBtns = function (mergeEditor) {
 		}
 	} );
 
-	btnRow.add( cancelBtn );
-	btnRow.add( commitBtn );
-	btnRow.add( new UI.Break() );
+
+	// btnRow.add( new UI.Break() );
 	btnRow.add( colorSet );
 	btnRow.add( new UI.Text( 'color' ) );
 	btnRow.add( outlineSet );
 	btnRow.add( new UI.Text( 'outline' ) );	
+	// btnRow.add( cancelBtn );
+	btnRow.add( commitBtn );	
 
 	container.add( new UI.Break() );
 	container.add(btnRow);

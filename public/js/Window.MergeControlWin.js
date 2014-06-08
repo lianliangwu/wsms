@@ -13,7 +13,7 @@ var MergeControlWin = function(mergeEditor){
 	container.add(attrList);
 
 	//container configuration
-	container.setOverflow('scroll');
+	// container.setOverflow('scroll');
 	container.setWidth(300);
 	container.setLeft(document.body.scrollWidth/3 + 'px');
 	container.hide();

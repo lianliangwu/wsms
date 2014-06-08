@@ -106,9 +106,9 @@ var MergeEditor = (function module(){
 
 			function paintSubScene( editor, object, type ) {
 				object.traverse(function ( child ) {
-					if(editor.getObjectType(object) === 'Mesh'){
-						editor.diffColor.setColor(object, type);
-						editor.diffColor.setOutline(object, type);
+					if(editor.getObjectType(child) === 'Mesh'){
+						editor.diffColor.setColor(child, type);
+						editor.diffColor.setOutline(child, type);
 					}
 				});
 			}

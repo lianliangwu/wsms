@@ -205,7 +205,7 @@
 			footer.style.position = "absolute";
 			footer.style.bottom = '0px';
 			footer.style.width = '100%';
-			footer.style.height = '25px';	
+			footer.style.height = '25px';
 			footer.className = 'footer'
 
 			var closeBtn = document.createElement('img');
@@ -1065,7 +1065,7 @@
 							switch(type){
 								case 'geometry':
 									asset.getGeoAsset(assets[type], function onEnd(geometry) {
-										setGeometry(uuid, geometry);
+										setGeometry(child.id, geometry);
 									});	
 								break;
 								default:
@@ -1079,8 +1079,8 @@
 				}
 			});
 
-			var setGeometry = function(uuid, data){
-				editor.selectByUuid(uuid);
+			var setGeometry = function(id, data){
+				editor.selectById(id);
 				var object = editor.selected;
 				var loader = new THREE.JSONLoader();
 				var result = loader.parse( data );
@@ -1091,13 +1091,17 @@
 				geometry.uuid = object.geometry.uuid;
 				var mesh = new THREE.Mesh( geometry, object.material );
 				editor.addObject( mesh );
+				editor.parent(mesh, object.parent);
 
 				mesh.name = object.name;
 				mesh.applyMatrix(object.matrix);
 				mesh.uuid = object.uuid;
-				mesh.userData = object.userData;			
+				mesh.userData = object.userData;
+				_.each(object.children, function onEach(child) {//bug fix, mesh can be intermediate node.	
+					editor.parent(child, mesh);
+				});
 				
-				editor.removeObject(object);			
+				editor.removeObject(object);				
 			}
 
 			var setTexture = function(uuid, type, img, sourceFile, textureId) {

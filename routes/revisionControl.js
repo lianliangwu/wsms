@@ -75,6 +75,10 @@ var getSceneFromNodes = function(nodes, rootId) {
 		if( children !== undefined){
 			for (i = 0, l = children.length; i < l; i++) {
 				tempId = children[i];
+
+				if(nodeMap[tempId] === undefined){
+					console.log("it'here");
+				}
 				tempObject = JSON.parse(nodeMap[tempId].data);
 				//
 				tempObject.children = nodeMap[tempId].children;
@@ -380,7 +384,7 @@ var autoMerge = function(options, callback) {
 		var mergedChildren;
 
 		if(propCmp(nodeMapA[nodeUuid].children, nodeMapB[nodeUuid].children)){
-			return nodeMapA[nodeUuid].children;
+			return JSON.parse(JSON.stringify(nodeMapA[nodeUuid].children));
 		}
 
 		merge();
@@ -407,9 +411,6 @@ var autoMerge = function(options, callback) {
 		//check if the subgraph has been modified, comparing with version C 
 		function checkModified(nodeMap, rootId) {
 			var r = false;
-			if(rootId === "BD57CE60-3886-4220-BEDA-6F0E2E6C531A"){
-				console.log("it's here");
-			}
 			//check state and structure 
 			if(!nodeCmp(nodeMap[rootId], nodeMapC[rootId])){
 				return true;// modified
@@ -426,7 +427,7 @@ var autoMerge = function(options, callback) {
 					}
 				});
 			}
-			
+
 			if(r){
 				return true;
 			}

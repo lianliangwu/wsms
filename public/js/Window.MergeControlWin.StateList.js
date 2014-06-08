@@ -3,7 +3,7 @@ MergeControlWin.StateList = function( mergeEditor ){
 	//node info list
 	var container = new UI.Panel();
 	var headerRow = new UI.Panel();
-	var fancySelect = new UI.FancySelect();
+	var fancySelect = new UI.FancySelect().setHeight("90px");
 	var resultRow = new UI.Panel();
 	var resultSelect = new UI.Select().setWidth( '50%' ).setColor( '#444' ).setFontSize( '12px' );
 
