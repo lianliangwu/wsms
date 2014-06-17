@@ -1,11 +1,13 @@
 var Engine = function(editor){
+	"use strict";
+	
 	var scene = editor.scene;
 	var signals = editor.signals;
 	var object = null;
 
 	var getByUuid = function ( uuid ) {
 		var scope = this;
-		var object = null
+		var object = null;
 
 		scene.traverse( function ( child ) {
 
@@ -26,27 +28,27 @@ var Engine = function(editor){
 			editor.addObject( op.node );
 
 			break;
-		case 1://update node
+		case 1://update state
 			object = getByUuid( op.nodeId );
 
-			if ( object != null ){
+			if ( object !== null ){
 				object[op.key] = op.after; 
 
 				signals.objectChanged.dispatch( object );
 			}
 
 			break;
-		case 2:
+		case 2://update structure
 			break;
 		default:
 
 			break;
 		}
-	}
+	};
 
 	this.undo = function () {
 
-	}
+	};
 
 	this.updateObject = {
 		setMatrix: function ( object, matrix ) {
@@ -59,4 +61,4 @@ var Engine = function(editor){
 			signals.objectChanged.dispatch( object );
 		}
 	};
-}
+};

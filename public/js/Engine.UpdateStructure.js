@@ -1,0 +1,3 @@
+var UpdateStructure = function () {
+	
+};
