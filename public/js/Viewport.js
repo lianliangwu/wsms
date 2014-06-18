@@ -512,7 +512,7 @@ var Viewport = function ( editor ) {
 	renderer.autoUpdateScene = false;
 	container.dom.appendChild( renderer.domElement );
 
-	animate();
+//	animate();
 
 	//
 	function loadAssets() {
@@ -669,11 +669,11 @@ var Viewport = function ( editor ) {
 
 	}
 
-	function animate() {
+	// function animate() {
 
-		requestAnimationFrame( animate );
+	// 	requestAnimationFrame( animate );
 
-	}
+	// }
 
 	function render() {
 

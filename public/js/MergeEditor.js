@@ -64,20 +64,20 @@ var MergeEditor = (function module(){
 			this.signals.nodeSelected.dispatch(uuid);		
 		},
 		updateNode: function (key, value) {
-			var updateObject = this.viewerD.editor.engine.updateObject;
-			var object = this.viewerD.editor.selected;
+			// var updateObject = this.viewerD.editor.engine.updateObject;
+			// var object = this.viewerD.editor.selected;
 
-			if(key === 'matrix'){
-				var matrix = new THREE.Matrix4(
-					value[0],value[4],value[8],value[12],
-					value[1],value[5],value[9],value[13],
-					value[2],value[6],value[10],value[14],
-					value[3],value[7],value[11],value[15]);
-				updateObject.setMatrix(object, matrix);
-			}
-			if(key === 'name'){
-				updateObject.setName(object, value);
-			}		
+			// if(key === 'matrix'){
+			// 	var matrix = new THREE.Matrix4(
+			// 		value[0],value[4],value[8],value[12],
+			// 		value[1],value[5],value[9],value[13],
+			// 		value[2],value[6],value[10],value[14],
+			// 		value[3],value[7],value[11],value[15]);
+			// 	updateObject.setMatrix(object, matrix);
+			// }
+			// if(key === 'name'){
+			// 	updateObject.setName(object, value);
+			// }		
 		},
 		updateGeometry: function () {},
 		updateMaterial: function () {},
