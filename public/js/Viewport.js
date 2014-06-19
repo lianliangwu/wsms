@@ -486,6 +486,12 @@ var Viewport = function ( editor ) {
 
 	} );
 
+	signals.render.add( function () {
+
+		render();
+	
+	});
+
 	//
 
 	var clearColor, renderer;

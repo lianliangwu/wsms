@@ -1,67 +1,56 @@
+/*global UpdateState, OperationHistory, Operation*/
 var Engine = (function(){
 	"use strict";
-	var scene = null;
+	var editor = null;
 	var signals = null;
 	var object = null;
+	var operations = new OperationHistory();
 
 	function Engine (editor) {
-		scene = editor.scene;
+		editor = editor;
 		signals = editor.signals;
 	}
 
-	Engine.prototype.execOp = function(op){
+	function updateState (object, op) {
+		switch(op.key){
+			case "position":
+				UpdateState.setPosition(object, op.after);
+			break;
+			case "rotation":
+				UpdateState.setRotation(object, op.after);
+			break;
+			case "scale":
+				UpdateState.setScale(object, op.after);
+			break;
+			default:
+			break;
+		}
+	}
 
+	Engine.prototype.execute = function(op){
+		switch( op.type ){
+		case Operation.CREATE://create node
+
+			break;
+		case Operation.UPDATE_STATE://update state
+			object = editor.getObjectByUuid(op.uuid);
+
+			if ( object !== null ){
+				updateState(object, op);
+				operations.add(op);
+				signals.render.dispatch();
+			}
+
+			break;
+		case Operation.UPDATE_STRUCT://update structure
+			break;
+		default:
+			break;
+		}
 	};
-	Engine.prototype.undoOp = function(){};
-	Engine.prototype.redoOp = function(){};
+	Engine.prototype.undo = function(){};
+	Engine.prototype.redo = function(){};
 	Engine.prototype.replay = function(){};
 
 	return Engine;
 })();
-// var Engine = function(editor){
-
-// 	var scene = editor.scene;
-// 	var signals = editor.signals;
-// 	var object = null;
-
-// 	var getByUuid = function ( uuid ) {
-// 		var scope = this;
-// 		var object = null;
-
-// 		scene.traverse( function ( child ) {
-
-// 			if ( child.uuid === uuid ) {
-
-// 				object = child;
-// 				return;
-// 			}
-
-// 		} );
-
-// 		return object;
-// 	};
-
-// 	this.execute = function( op ){
-// 		switch( op.type ){
-// 		case 0://create node
-// 			editor.addObject( op.node );
-
-// 			break;
-// 		case 1://update state
-// 			object = getByUuid( op.nodeId );
-
-// 			if ( object !== null ){
-// 				object[op.key] = op.after; 
-
-// 				signals.objectChanged.dispatch( object );
-// 			}
-
-// 			break;
-// 		case 2://update structure
-// 			break;
-// 		default:
-
-// 			break;
-// 		}
-// 	};
-// };

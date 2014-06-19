@@ -7,6 +7,7 @@ var Editor = function () {
 		// actions
 
 		playAnimations: new SIGNALS.Signal(),
+		render: new SIGNALS.Signal(),
 
 		// notifications
 
