@@ -25,6 +25,8 @@ var Operation = (function(){
 			default:
 			break;
 		}
+
+		return operation;
 	}
 
 	//build the state of operation

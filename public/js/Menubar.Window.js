@@ -67,6 +67,17 @@ Menubar.Window = function ( editor ) {
 	} );
 	options.add( option );	
 
+	// history
+
+	var option = new UI.Panel();
+	option.setClass( 'option' );
+	option.setTextContent( 'History Window' );
+	option.onClick( function () {
+
+		editor.historyWin.show();
+
+	} );
+	options.add( option );
 
 	return container;
 
