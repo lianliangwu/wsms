@@ -16,6 +16,7 @@ var Operation = (function(){
 				if(options&&options.key&&options.object){
 					operation.key = options.key;
 					operation.uuid = options.object.uuid;
+					
 					buildState(operation, options.key, options.object);
 				}
 			break;

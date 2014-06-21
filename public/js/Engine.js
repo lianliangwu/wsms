@@ -6,8 +6,8 @@ var Engine = (function(){
 	var object = null;
 	var operations = new OperationHistory();
 
-	function Engine (editor) {
-		editor = editor;
+	function Engine (e) {
+		editor = e;
 		signals = editor.signals;
 	}
 
