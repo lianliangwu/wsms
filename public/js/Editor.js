@@ -415,7 +415,6 @@ Editor.prototype = {
 		var scope = this;
 		var r;
 
-
 		this.scene.traverse( function ( child ) {
 
 			if ( child.uuid === uuid ) {

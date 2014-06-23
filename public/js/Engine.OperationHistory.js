@@ -1,33 +1,50 @@
+/*global signals*/
 var OperationHistory = (function(){
 	"use strict";
-	function OperationHistory () {
-		this.operations = [];
-		this.top = -1;
-		this.count = 0;
+	var operations = [];
+	var top = -1;
+	var count = 0;
+	var SIGNALS = signals; 
+
+	var sig = {
+		operationAdded: new SIGNALS.Signal(),
+		operationUdone: new SIGNALS.Signal(),
+		operationRedone: new SIGNALS.Signal()
+	};
+
+	function add (op) {
+		if (operations[top + 1] !== undefined){//check and remove the undone operations
+			operations.length = top + 1;
+		}
+		op.id = (count)++;
+		top = operations.push(op) - 1;
+
+		sig.operationAdded.dispatch(op);
 	}
 
-	OperationHistory.prototype.add = function (op) {
-		if (this.operations[this.top + 1] !== undefined){//check and remove the undone operations
-			this.operations.length = this.top + 1;
-		}
-		op.id = (this.count)++;
-		this.top = this.operations.push(op) - 1;
-	};
+	function undo () {
+		var r = operations[top];
+		--top;
 
-	OperationHistory.prototype.undo = function () {
-		var r = this.operations[this.top];
-		--this.top;
+		sig.operationUdone.dispatch(r);
 		return r;
-	};
+	}
 
-	OperationHistory.prototype.redo = function () {
+	function redo () {
 		var r;
-		if (this.operations[this.top + 1] !== undefined){
-			r = this.operations[this.top + 1];
-			++this.top;
+		if (operations[top + 1] !== undefined){
+			r = operations[top + 1];
+			++top;
+
+			sig.operationRedone.dispatch(r);
 		}
 		return r;
-	};
+	}
 
-	return OperationHistory;
+	return {
+		'add': add,
+		'undo': undo,
+		'redo': redo,
+		'signals': sig
+	};
 }());

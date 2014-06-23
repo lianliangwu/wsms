@@ -203,21 +203,34 @@ input.Number {
 	#mergeInforWin .FancySelect{
 		margin: 5px 0px;
 	}
-	#mergeInforWin .FancySelect .option .merged{
-		color: green;
+		#mergeInforWin .FancySelect .option .merged{
+			color: green;
+		}
+		#mergeInforWin .FancySelect .option .conflicted{
+			color: red;
+		}
+		#mergeInforWin .FancySelect .option .modified{
+			color: blue;
+		}
+		#mergeInforWin .FancySelect .option span {
+			width: 33%;
+			display: inline-block;
+			overflow: hidden;
+			text-align: center;		
+		}
+#historyWin {}
+	#historyWin .FancySelect{
+		height: 80%;
+		width: 85%;
+		margin: 0px auto;
+		overflow: auto;
 	}
-	#mergeInforWin .FancySelect .option .conflicted{
-		color: red;
-	}
-	#mergeInforWin .FancySelect .option .modified{
-		color: blue;
-	}
-	#mergeInforWin .FancySelect .option span {
-		width: 33%;
-		display: inline-block;
-		overflow: hidden;
-		text-align: center;		
-	}
+		#historyWin .FancySelect .option span{
+			min-width: 33%;
+			display: inline-block;
+			text-align: center;			
+		}
+
 #toolbar {
 	position: absolute;
 	left: 0px;

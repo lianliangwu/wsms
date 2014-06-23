@@ -269,6 +269,92 @@ Sidebar.Object3D = function ( editor ) {
 
 	}
 
+	var updateByEngine = (function(){
+		var funcArrays = [];
+
+		function checkPosition(object) {
+			var x = objectPositionX.getValue(),
+				y = objectPositionY.getValue(),
+				z = objectPositionZ.getValue();
+
+			//check if changed
+			if(object.position.x === x && object.position.y === y && object.position.z === z){
+				return;
+			}	
+
+			var operation = new Operation(Operation.UPDATE_STATE,{
+				'object': object,
+				'key': 'position'
+			});
+
+			operation.after.x = x;
+			operation.after.y = y;
+			operation.after.z = z;
+
+			return operation;
+		}
+		funcArrays.push(checkPosition);
+
+		function checkRotation(object){
+			var x = objectRotationX.getValue();
+			var y = objectRotationY.getValue();
+			var z = objectRotationZ.getValue();
+
+			if(object.rotation.x === x && object.rotation.y === y && object.rotation.z ===z ){
+				return;
+			}
+
+			var operation = new Operation(Operation.UPDATE_STATE,{
+				'object': object,
+				'key': 'rotation'
+			});
+
+			operation.after.x = x;
+			operation.after.y = y;
+			operation.after.z = z;
+
+			return operation;
+		}
+		funcArrays.push(checkRotation);
+
+		function checkScale(object){
+			var x = objectScaleX.getValue();
+			var y = objectScaleY.getValue();
+			var z = objectScaleZ.getValue();
+
+			if(object.scale.x === x && object.scale.y === y && object.scale.z ===z ){
+				return;
+			}
+
+			var operation = new Operation(Operation.UPDATE_STATE,{
+				'object': object,
+				'key': 'scale'
+			});
+
+			operation.after.x = x;
+			operation.after.y = y;
+			operation.after.z = z;
+
+			return operation;
+		}
+		funcArrays.push(checkScale);
+
+		return function (object){
+			var operation = null;
+			var r = false;//log if object is updated
+
+			_.each(funcArrays, function onEach(func) {
+				operation = func(object); 
+				if(operation){
+					editor.engine.exec(operation);
+					r = true; 
+				}
+			});
+
+			return r;
+		};
+	})();
+
 	function update() {
 
 		var object = editor.selected;
@@ -285,6 +371,11 @@ Sidebar.Object3D = function ( editor ) {
 
 				}
 
+			}
+
+			var boo = updateByEngine(object);
+			if(boo){//if updated by engine
+				return;
 			}
 
 			object.position.x = objectPositionX.getValue();

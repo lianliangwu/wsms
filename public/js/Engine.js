@@ -1,14 +1,10 @@
 /*global UpdateState, OperationHistory, Operation*/
 var Engine = (function(){
 	"use strict";
-	var editor = null;
-	var signals = null;
 	var object = null;
-	var operations = new OperationHistory();
+	var operations = OperationHistory;
 
-	function Engine (e) {
-		editor = e;
-		signals = editor.signals;
+	function Engine () {
 	}
 
 	function updateState (object, op) {
@@ -27,7 +23,7 @@ var Engine = (function(){
 		}
 	}
 
-	Engine.prototype.execute = function(op){
+	Engine.prototype.exec = function(op){
 		switch( op.type ){
 		case Operation.CREATE://create node
 
@@ -38,7 +34,7 @@ var Engine = (function(){
 			if ( object !== null ){
 				updateState(object, op);
 				operations.add(op);
-				signals.render.dispatch();
+				editor.signals.render.dispatch();
 			}
 
 			break;
