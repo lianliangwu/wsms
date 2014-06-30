@@ -17,34 +17,46 @@ var OperationHistory = (function(){
 			operations.length = top + 1;
 		}
 		op.id = (count)++;
-		top = operations.push(op) - 1;
+		operations.push(op);
+		++top;
 
 		sig.operationAdded.dispatch(op);
 	}
 
 	function undo () {
-		var r = operations[top];
-		--top;
+		var op = null;
+		if(top>=0){
+			op = operations[top];
+			--top;
 
-		sig.operationUdone.dispatch(r);
-		return r;
+			sig.operationUdone.dispatch(op);
+			return op;	
+		}
 	}
 
 	function redo () {
-		var r;
+		var op = null;
 		if (operations[top + 1] !== undefined){
-			r = operations[top + 1];
+			op = operations[top + 1];
 			++top;
 
-			sig.operationRedone.dispatch(r);
+			sig.operationRedone.dispatch(op);
 		}
-		return r;
+		return op;
+	}
+
+	/*
+	* return operation or undefined(no operations)
+	*/
+	function getCurrent() {
+		return operations[top];
 	}
 
 	return {
 		'add': add,
 		'undo': undo,
 		'redo': redo,
-		'signals': sig
+		'signals': sig,
+		'getCurrent': getCurrent
 	};
 }());

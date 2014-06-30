@@ -1,11 +1,8 @@
-/*global UpdateState, OperationHistory, Operation*/
-var Engine = (function(){
+/*global UpdateState, OperationHistory, Operation, editor*/
+var Engine = function(editor){
 	"use strict";
 	var object = null;
 	var operations = OperationHistory;
-
-	function Engine () {
-	}
 
 	function updateState (object, op) {
 		switch(op.key){
@@ -23,7 +20,7 @@ var Engine = (function(){
 		}
 	}
 
-	Engine.prototype.exec = function(op){
+	function exec(op){
 		switch( op.type ){
 		case Operation.CREATE://create node
 
@@ -43,10 +40,105 @@ var Engine = (function(){
 		default:
 			break;
 		}
-	};
-	Engine.prototype.undo = function(){};
-	Engine.prototype.redo = function(){};
-	Engine.prototype.replay = function(){};
+	}
 
-	return Engine;
-})();
+	function undo(id){
+		var op = null;
+
+		op = operations.getCurrent();
+		while(op && id <= op.id){
+			
+			undoByType(op);
+			operations.undo();
+			op = operations.getCurrent();
+
+		}
+
+
+		function undoByType(op){
+			var newOp = null;
+
+			switch( op.type ){
+			case Operation.CREATE:
+
+				break;
+			case Operation.UPDATE_STATE:
+				object = editor.getObjectByUuid(op.uuid);
+
+				if ( object !== null ){
+					newOp = makeUndo(op);
+
+					updateState(object, newOp);
+					editor.signals.render.dispatch();
+				}
+
+				break;
+			case Operation.UPDATE_STRUCT:
+				break;
+			default:
+				break;
+			}			
+		}
+
+		function makeUndo(op){
+			var newOp = JSON.parse(JSON.stringify(op));
+
+			var temp = newOp.before;
+			newOp.before = newOp.after;
+			newOp.after = temp;
+
+			return newOp;
+		}
+	}
+
+	function redo(id){
+		var op = null;
+		var preOp = null;
+
+		op = operations.getCurrent();
+		while(op===undefined || id > op.id){
+
+			operations.redo();
+
+			preOp = op;
+			op = operations.getCurrent();
+			redoByType(op);
+			
+			if(preOp === op){
+				break;
+			}
+
+		}
+
+		function redoByType(op){
+			switch( op.type ){
+			case Operation.CREATE:
+
+				break;
+			case Operation.UPDATE_STATE:
+				object = editor.getObjectByUuid(op.uuid);
+
+				if ( object !== null ){
+					updateState(object, op);
+					editor.signals.render.dispatch();
+				}
+
+				break;
+			case Operation.UPDATE_STRUCT:
+				break;
+			default:
+				break;
+			}			
+		}
+
+	}
+	function replay(){}
+
+
+	return {
+		'exec': exec,
+		'undo': undo,
+		'redo': redo,
+		'replay': replay
+	};
+};

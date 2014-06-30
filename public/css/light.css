@@ -213,7 +213,8 @@ input.Number {
 			color: blue;
 		}
 		#mergeInforWin .FancySelect .option span {
-			width: 33%;
+			width: 31%;
+			padding: 0px 2%;
 			display: inline-block;
 			overflow: hidden;
 			text-align: center;		

@@ -271,6 +271,11 @@ Sidebar.Object3D = function ( editor ) {
 
 	var updateByEngine = (function(){
 		var funcArrays = [];
+		var precision = 2;
+
+		function toFixedNumber(n){
+			return parseFloat(n.toFixed(precision));
+		}
 
 		function checkPosition(object) {
 			var x = objectPositionX.getValue(),
@@ -278,9 +283,13 @@ Sidebar.Object3D = function ( editor ) {
 				z = objectPositionZ.getValue();
 
 			//check if changed
-			if(object.position.x === x && object.position.y === y && object.position.z === z){
+			var pX = toFixedNumber(object.position.x);
+			var pY = toFixedNumber(object.position.y);
+			var pZ = toFixedNumber(object.position.z);
+
+			if(pX === x && pY === y && pZ === z ){
 				return;
-			}	
+			}
 
 			var operation = new Operation(Operation.UPDATE_STATE,{
 				'object': object,
@@ -300,7 +309,11 @@ Sidebar.Object3D = function ( editor ) {
 			var y = objectRotationY.getValue();
 			var z = objectRotationZ.getValue();
 
-			if(object.rotation.x === x && object.rotation.y === y && object.rotation.z ===z ){
+			var pX = toFixedNumber(object.rotation.x);
+			var pY = toFixedNumber(object.rotation.y);
+			var pZ = toFixedNumber(object.rotation.z);
+
+			if(pX === x && pY === y && pZ === z ){
 				return;
 			}
 
@@ -322,7 +335,11 @@ Sidebar.Object3D = function ( editor ) {
 			var y = objectScaleY.getValue();
 			var z = objectScaleZ.getValue();
 
-			if(object.scale.x === x && object.scale.y === y && object.scale.z ===z ){
+			var pX = toFixedNumber(object.scale.x);
+			var pY = toFixedNumber(object.scale.y);
+			var pZ = toFixedNumber(object.scale.z);
+
+			if(pX === x && pY === y && pZ === z ){
 				return;
 			}
 

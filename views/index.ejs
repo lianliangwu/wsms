@@ -139,7 +139,7 @@
 			document.body.appendChild( versionWin.dom );
 			editor.versionWin = versionWin;
 
-			var historyWin = new HistoryWin( editor ).setId( 'historyWin' ); 
+			var historyWin = HistoryWin().setId( 'historyWin' ); 
 			document.body.appendChild( historyWin.dom );
 			editor.historyWin = historyWin;			
 
