@@ -81,13 +81,38 @@ var Engine = function(editor){
 		}
 
 		function makeUndo(op){
-			var newOp = JSON.parse(JSON.stringify(op));
-
-			var temp = newOp.before;
-			newOp.before = newOp.after;
-			newOp.after = temp;
+			var newOp = null;
+			switch(op.type){
+			case Operation.CREATE:
+				break;
+			case Operation.UPDATE_STATE:
+				newOp = getUndoByKey(op);
+				break;
+			case Operation.UPDATE_STRUCT:
+				break;
+			default:
+				break;			
+			}
 
 			return newOp;
+
+			//the method depends on the value type
+			function getUndoByKey(op){
+				var newOp = null;
+
+				switch(op.key){
+				case "position":
+				case "rotation":
+				case "scale":
+					newOp = JSON.parse(JSON.stringify(op));
+
+					newOp.before = op.after.clone();
+					newOp.after = op.before.clone();
+				break;
+				}
+
+				return newOp;
+			}
 		}
 	}
 
