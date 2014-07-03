@@ -26,10 +26,15 @@ Menubar.Edit = function ( editor ) {
 
 		if ( object.parent === undefined ) return; // avoid cloning the camera or scene
 
-		object = object.clone();
+		var operation = new Operation(Operation.CREATE, {
+			'object': object.uuid
+		});
+		editor.engine.exec(operation);
 
-		editor.addObject( object );
-		editor.select( object );
+		// object = object.clone();
+
+		// editor.addObject( object );
+		// editor.select( object );
 
 	} );
 	options.add( option );
@@ -41,8 +46,13 @@ Menubar.Edit = function ( editor ) {
 	option.setTextContent( 'Delete' );
 	option.onClick( function () {
 
-		editor.removeObject( editor.selected );
-		editor.deselect();
+		var operation = new Operation(Operation.UPDATE_STRUCT, {
+			'uuid': editor.selected.uuid,
+			'method': 'remove'
+		});
+		editor.engine.exec(operation);
+		// editor.removeObject( editor.selected );
+		// editor.deselect();
 
 	} );
 	options.add( option );

@@ -411,6 +411,21 @@ Editor.prototype = {
 		this.signals.objectSelected.dispatch( object );
 
 	},
+	getObjectById: function(id){
+		var scope = this;
+		var r;
+
+		this.scene.traverse( function ( child ) {
+
+			if ( child.id === id ) {
+
+				r = child;
+
+			}
+
+		} );
+		return r;
+	},
 	getObjectByUuid: function (uuid) {
 		var scope = this;
 		var r;

@@ -1,3 +1,4 @@
+/*global Operation*/
 Menubar.Add = function ( editor ) {
 
 	var container = new UI.Panel();
@@ -104,23 +105,26 @@ Menubar.Add = function ( editor ) {
 	option.setClass( 'option' );
 	option.setTextContent( 'Box' );
 	option.onClick( function () {
-
-		var width = 100;
-		var height = 100;
-		var depth = 100;
-
-		var widthSegments = 1;
-		var heightSegments = 1;
-		var depthSegments = 1;
-
-		var geometry = new THREE.BoxGeometry( width, height, depth, widthSegments, heightSegments, depthSegments );
-		var mesh = new THREE.Mesh( geometry, new THREE.MeshPhongMaterial() );
-		mesh.name = 'Box ' + ( ++ meshCount );
-
-		editor.addObject( mesh );
-		editor.select( mesh );
-
+		addPrimary('Box');
 	} );
+	// option.onClick( function () {
+
+	// 	var width = 100;
+	// 	var height = 100;
+	// 	var depth = 100;
+
+	// 	var widthSegments = 1;
+	// 	var heightSegments = 1;
+	// 	var depthSegments = 1;
+
+	// 	var geometry = new THREE.BoxGeometry( width, height, depth, widthSegments, heightSegments, depthSegments );
+	// 	var mesh = new THREE.Mesh( geometry, new THREE.MeshPhongMaterial() );
+	// 	mesh.name = 'Box ' + ( ++ meshCount );
+
+	// 	editor.addObject( mesh );
+	// 	editor.select( mesh );
+
+	// } );
 	options.add( option );
 
 	// add circle
@@ -391,4 +395,12 @@ Menubar.Add = function ( editor ) {
 
 	return container;
 
+	function addPrimary(primaryName){
+		var operation = new Operation(Operation.CREATE, {
+			'primary': primaryName
+		});
+		if(operation){
+			editor.engine.exec(operation);
+		}
+	}
 }

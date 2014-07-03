@@ -34,17 +34,28 @@ var HistoryWin = function(){
 
 		switch(op.type){
 			case Operation.CREATE: 
-				type = 'CREATE';
+				if(op.object){
+					type = 'clone';
+				}else{
+					type = 'add';
+				}
 				break;
 			case Operation.UPDATE_STATE:
-				type = 'UPDATE_STATE';
+				// type = 'UPDATE_STATE';
+				type = 'update ' + op.key;
 				break;
 			case Operation.UPDATE_STRUCT:
-				type = 'UPDATE_STRUCT';
+				// type = 'UPDATE_STRUCT';
+				type = op.method;
 				break;
 			default:break;
 		}
-		name = editor.getObjectByUuid(op.uuid).name;
+
+		if(op.method === 'remove'){
+			name = editor.engine.getRemovedObject(op.uuid).name;
+		}else{
+			name = editor.getObjectByUuid(op.uuid).name;
+		}
 		time = new Date().toLocaleTimeString();
 
 		var col1 = '<span>' + time +'</span>';

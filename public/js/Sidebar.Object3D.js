@@ -384,7 +384,14 @@ Sidebar.Object3D = function ( editor ) {
 
 				if ( object.parent.id !== newParentId && object.id !== newParentId ) {
 
-					editor.parent( object, editor.scene.getObjectById( newParentId, true ) );
+					var operation = new Operation(Operation.UPDATE_STRUCT, {
+						'uuid': object.uuid,
+						'fromParent': object.parent.uuid,
+						'toParent': editor.getObjectById( newParentId ).uuid,
+						'method': 'parent'
+					});
+					editor.engine.exec(operation);
+					// editor.parent( object, editor.scene.getObjectById( newParentId, true ) );
 
 				}
 
