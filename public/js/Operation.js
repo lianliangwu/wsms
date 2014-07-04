@@ -16,10 +16,10 @@ var Operation = (function(){
 			break;
 			case UPDATE_STATE:
 				operation.type = UPDATE_STATE;
-				if(options&&options.key&&options.object){
+				if(options&&options.key&&options.target){
 					operation.key = options.key;
-					operation.uuid = options.object.uuid;
-					buildState(operation, options.key, options.object);
+					operation.uuid = options.target.uuid;
+					buildState(operation, options.target, options.key);
 				}
 			break;
 			case UPDATE_STRUCT:
@@ -43,13 +43,13 @@ var Operation = (function(){
 	}
 
 	//build the state of operation UPDATE_STATE
-	function buildState(op, key, object){
-		if(object[key].clone){
-			op.before = object[key].clone();
-			op.after = object[key].clone();
+	function buildState(op, target, key){
+		if(target[key].clone){
+			op.before = target[key].clone();
+			op.after = target[key].clone();
 		}else{
-			op.before = clone(object[key]);
-			op.after = clone(object[key]);
+			op.before = clone(target[key]);
+			op.after = clone(target[key]);
 		}
 
 		function clone(value){
@@ -69,20 +69,6 @@ var Operation = (function(){
 			}
 			return result;
 		}
-		// switch(key){
-		// 	case "position":
-		// 		op.before = object.position.clone();
-		// 		op.after = object.position.clone();
-		// 	break;
-		// 	case "rotation":
-		// 		op.before = object.rotation.clone();
-		// 		op.after = object.rotation.clone();
-		// 	break;
-		// 	case "scale":
-		// 		op.before = object.scale.clone();
-		// 		op.after = object.scale.clone();
-		// 	break;
-		// }
 	}
 
 	Operation.CREATE = CREATE;

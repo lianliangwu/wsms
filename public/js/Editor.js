@@ -282,6 +282,10 @@ Editor.prototype = {
 
 	},
 
+	getGeometry: function ( uuid ) {
+		return this.geometries[ uuid ];
+	},
+
 	setGeometryName: function ( geometry, name ) {
 
 		geometry.name = name;
@@ -293,6 +297,10 @@ Editor.prototype = {
 
 		this.materials[ material.uuid ] = material;
 
+	},
+
+	getMaterial: function ( uuid ) {
+		return this.materials[ uuid ];
 	},
 
 	setMaterialName: function ( material, name ) {

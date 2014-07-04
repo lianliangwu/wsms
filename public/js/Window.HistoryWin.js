@@ -28,6 +28,7 @@ var HistoryWin = function(){
 	});
 
 	function addItem(op){
+		var target;
 		var type;
 		var name;
 		var time;
@@ -52,10 +53,18 @@ var HistoryWin = function(){
 		}
 
 		if(op.method === 'remove'){
-			name = editor.engine.getRemovedObject(op.uuid).name;
+			target = editor.engine.getRemovedObject(op.uuid);
 		}else{
-			name = editor.getObjectByUuid(op.uuid).name;
+			target = editor.getObjectByUuid(op.uuid);
+			if(!target){
+				target = editor.getMaterial(op.uuid);
+			}
+			if(!target){
+				target = editor.getGeometry(op.uuid);
+			}
 		}
+		
+		name = target.name;
 		time = new Date().toLocaleTimeString();
 
 		var col1 = '<span>' + time +'</span>';

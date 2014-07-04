@@ -300,7 +300,71 @@ Sidebar.Material = function ( editor ) {
 
 	container.add( materialWireframeRow );
 
+	//wzh
+	var updateByEngine = (function(){
+		var funcArrays = [];
+		var precision = 2;
 
+		function toFixedNumber(n){
+			return parseFloat(n.toFixed(precision));
+		}
+
+		function checkColor(material){
+			var oldColor = materialColor.getHexValue();
+			var newColor = material.color.getHex();
+
+			if(oldColor === newColor){
+				return;
+			}
+
+			var operation = new Operation(Operation.UPDATE_STATE,{
+				'target': material,
+				'key': 'color'
+			});
+
+			operation.after.setHex(materialColor.getHexValue());
+
+			return operation;
+		}
+		funcArrays.push(checkColor);
+
+		function checkAmbient(material){
+			var oldColor = materialAmbient.getHexValue();
+			var newColor = material.ambient.getHex();
+
+			if(oldColor === newColor){
+				return;
+			}
+
+			var operation = new Operation(Operation.UPDATE_STATE,{
+				'target': material,
+				'key': 'ambient'
+			});
+
+			operation.after.setHex(materialAmbient.getHexValue());
+
+			return operation;
+		}
+		funcArrays.push(checkAmbient);
+		// function checkEmissive(){}
+		// function checkSpecular(){}
+		// function checkShininess(){}
+
+		return function (material){
+			var operation = null;
+			var r = false;//log if object is updated
+
+			_.each(funcArrays, function onEach(func) {
+				operation = func(material); 
+				if(operation){
+					editor.engine.exec(operation);
+					r = true; 
+				}
+			});
+
+			return r;
+		};
+	})();
 	//
 
 	function update() {
@@ -317,6 +381,11 @@ Sidebar.Material = function ( editor ) {
 		if ( geometry instanceof THREE.BufferGeometry && geometry.attributes.uv !== undefined ) objectHasUvs = true;
 
 		if ( material ) {
+
+			var boo = updateByEngine(material);
+			if(boo){//if updated by engine
+				return;
+			}			
 
 			if ( material.uuid !== undefined ) {
 

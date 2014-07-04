@@ -287,12 +287,12 @@ Sidebar.Object3D = function ( editor ) {
 			var pY = toFixedNumber(object.position.y);
 			var pZ = toFixedNumber(object.position.z);
 
-			if(pX === x && pY === y && pZ === z ){
+			if(pX === x && pY === y && pZ === z){
 				return;
 			}
 
 			var operation = new Operation(Operation.UPDATE_STATE,{
-				'object': object,
+				'target': object,
 				'key': 'position'
 			});
 
@@ -318,7 +318,7 @@ Sidebar.Object3D = function ( editor ) {
 			}
 
 			var operation = new Operation(Operation.UPDATE_STATE,{
-				'object': object,
+				'target': object,
 				'key': 'rotation'
 			});
 
@@ -344,7 +344,7 @@ Sidebar.Object3D = function ( editor ) {
 			}
 
 			var operation = new Operation(Operation.UPDATE_STATE,{
-				'object': object,
+				'target': object,
 				'key': 'scale'
 			});
 

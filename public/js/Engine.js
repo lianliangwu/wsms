@@ -30,25 +30,24 @@ var Engine = function(editor){
 	}
 
 	function updateState(op){
-		var object = editor.getObjectByUuid(op.uuid);
-		if(!object){
-			return false;
-		}
-		switch(op.key){
-			case "position":
-				UpdateState.setPosition(object, op.after);
-			break;
-			case "rotation":
-				UpdateState.setRotation(object, op.after);
-			break;
-			case "scale":
-				UpdateState.setScale(object, op.after);
-			break;
-			default:
-			break;
+		var target = editor.getObjectByUuid(op.uuid);
+		if(target){
+			UpdateState.updateObject(target, op.key, op.after);
+			return true;
 		}
 
-		return true;
+		target = editor.getMaterial(op.uuid);
+		if(target){
+			UpdateState.updateMaterial(target, op.key, op.after);
+			return true;
+		}
+
+		target = editor.getGeometry(op.uuid);
+		if(target){
+			UpdateState.updateGeometry(target, op.key, op.after);
+			return true;
+		}
+		return false;
 	}
 
 	function updateStruct(op){
