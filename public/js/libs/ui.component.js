@@ -7,7 +7,7 @@
 	}	
 
 	function getNumber (value) {
-		var r = parseInt(value);
+		var r = parseInt(value, 10);
 		return isNaN(r) ? 0 : r;
 	}
 
@@ -364,11 +364,31 @@
 		};
 
 		Window.prototype.getWidth = function(){
-			return this.dom.offsetWidth;
+			var width = this.dom.offsetWidth;
+			if(!width){
+				var borderL = getNumber(this.dom.style.borderLeftWidth);
+				var borderR = getNumber(this.dom.style.borderRightWidth);
+				var paddingL = getNumber(this.dom.style.paddingLeft);
+				var paddingR = getNumber(this.dom.style.paddingRight);
+				width = parseInt(this.dom.style.width, 10);
+
+				width += borderL + paddingL + paddingR + borderR;
+			}
+			return width;
 		};
 
 		Window.prototype.getHeight = function(){
-			return this.dom.offsetHeight;
+			var height = this.dom.offsetHeight;
+			if(!height){
+				var borderT = getNumber(this.dom.style.borderTopWidth);
+				var borderB = getNumber(this.dom.style.borderBottomWidth);
+				var paddingT = getNumber(this.dom.style.paddingTop);
+				var paddingB = getNumber(this.dom.style.paddingBottom);				
+				height = parseInt(this.dom.style.height, 10);
+
+				height += borderT + paddingT + paddingB + borderB;
+			}			
+			return height;
 		};
 
 		Window.prototype.setWidth = function(width){

@@ -4,35 +4,7 @@ var Operation = (function(){
 	var CREATE = 0;
 	var UPDATE_STATE = 1;
 	var UPDATE_STRUCT = 2;
-
-	function Operation(type, options){
-		var operation = {};
-
-		switch(type){
-			case CREATE:
-				operation.type = CREATE;
-				copy(options, operation);
-				operation.uuid = THREE.Math.generateUUID();
-			break;
-			case UPDATE_STATE:
-				operation.type = UPDATE_STATE;
-				if(options&&options.key&&options.target){
-					operation.key = options.key;
-					operation.uuid = options.target.uuid;
-					buildState(operation, options.target, options.key);
-				}
-			break;
-			case UPDATE_STRUCT:
-				operation.type = UPDATE_STRUCT;
-				copy(options, operation);
-			break;
-			default:
-			break;
-		}
-
-		return operation;
-	}
-
+	
 	//copy all the property of a to b
 	function copy(a, b){
 		for(var property in a){
@@ -69,7 +41,68 @@ var Operation = (function(){
 			}
 			return result;
 		}
+	}	
+
+	function Operation(type, options){
+
+		switch(type){
+			case CREATE:
+				this.type = CREATE;
+				copy(options, this);
+				this.uuid = THREE.Math.generateUUID();
+			break;
+			case UPDATE_STATE:
+				this.type = UPDATE_STATE;
+				if(options&&options.key&&options.target){
+					this.key = options.key;
+					this.uuid = options.target.uuid;
+					buildState(this, options.target, options.key);
+				}
+			break;
+			case UPDATE_STRUCT:
+				this.type = UPDATE_STRUCT;
+				copy(options, this);
+			break;
+			default:
+			break;
+		}
 	}
+	Operation.prototype = {
+		getUndo: function(){
+			var newOp = null;
+			switch(this.type){
+				case Operation.CREATE:
+					break;
+				case Operation.UPDATE_STATE:
+					newOp = makeUndoState(this);
+					break;
+				case Operation.UPDATE_STRUCT:
+					break;
+				default:
+					break;			
+			}
+
+			return newOp;
+
+			//the method depends on the value type
+			function makeUndoState(op){
+				var newOp = null;
+
+				switch(op.key){
+					case "position":
+					case "rotation":
+					case "scale":
+						newOp = JSON.parse(JSON.stringify(op));
+
+						newOp.before = op.after.clone();
+						newOp.after = op.before.clone();
+					break;
+				}
+
+				return newOp;
+			}			
+		}
+	};
 
 	Operation.CREATE = CREATE;
 	Operation.UPDATE_STATE = UPDATE_STATE;

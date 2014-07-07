@@ -63,6 +63,7 @@
 		<script src="js/Engine.UpdateState.js"></script>
 		<script src="js/Engine.UpdateStructure.js"></script>
 		<script src="js/Engine.CreateObject.js"></script>
+		<script src="js/Engine.ExecuteOperation.js"></script>
 		<script src="js/Engine.js"></script>			
 		<script src="js/RevisionControl.js"></script>
 		<script src="js/DiffColor.js"></script>
@@ -241,5 +242,22 @@
 			onWindowResize();
 	//		test_workflow();
 		</script>
+
+		<link rel="stylesheet" href="lib/mocha/mocha.css" />
+		<script src="lib/mocha/mocha.js"></script>
+		<script>mocha.setup('bdd');</script>
+
+		<!-- Chai -->
+		<script src="lib/chai/chai.js"></script>
+		<script>var expect = chai.expect</script>		
+
+		<script src="js/Window.TestWin.js"></script>
+		<script src="browser/test_UI.js"></script>
+		<style type="text/css">
+			#mocha-stats{
+				position: absolute;
+				top:35px;
+			}
+		</style>
 	</body>
 </html>

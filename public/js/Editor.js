@@ -52,7 +52,7 @@ var Editor = function () {
 	this.scene = new THREE.Scene();
 	this.sceneHelpers = new THREE.Scene();
 
-	this.engine = new Engine(this);
+	this.engine = Engine;
 	this.diffColor = new DiffColor(this); 
 
 	this.scene.uuid = THREE.Math.generateUUID();//wzh

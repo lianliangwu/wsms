@@ -143,15 +143,17 @@ Menubar.Edit = function ( editor ) {
 
 	// //load scene
 
-	// var option = new UI.Panel();
-	// option.setClass( 'option' );
-	// option.setTextContent( 'Load Scene' );
-	// option.onClick( function () {
+	var option = new UI.Panel();
+	option.setClass( 'option' );
+	option.setTextContent( 'Test' );
+	option.onClick( function () {
 
-	// 	editor.loadScene('9BE88E13-8F5C-406F-8B0D-22A91D7DA7A1');	
+		TestWin.clear();
+		TestWin.show();
+		mocha.run();
 
-	// } );
-	// options.add( option );
+	} );
+	options.add( option );
 
 	// //commit scene
 
