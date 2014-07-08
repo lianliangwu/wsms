@@ -55,6 +55,8 @@ var OperationHistory = (function(){
 
 	function resetOperations(){
 		operations.length = 0;
+		top = -1;
+		count = 0;
 		sig.operationReset.dispatch(operations);
 	}
 
