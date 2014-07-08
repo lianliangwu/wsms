@@ -78,6 +78,7 @@ var Operation = (function(){
 					newOp = makeUndoState(this);
 					break;
 				case Operation.UPDATE_STRUCT:
+					newOp = makeUndoStruct(this);
 					break;
 				default:
 					break;
@@ -109,7 +110,29 @@ var Operation = (function(){
 				}
 
 				return newOp;
-			}			
+			}
+
+			function makeUndoStruct(op){
+				var newOp = null;
+
+				switch(op.method){
+					case "remove":
+						newOp = new Operation(Operation.CREATE, {
+							'uuid': op.uuid,
+							'parent': op.fromParent
+						});
+					break;
+					case "parent":
+						newOp = JSON.parse(JSON.stringify(op));
+						newOp.fromParent = op.toParent;
+						newOp.toParent = op.fromParent;
+					break;
+					default:
+					break;
+				}
+
+				return newOp;
+			}
 		},
 		getRedo: function(){
 			var newOp = null;

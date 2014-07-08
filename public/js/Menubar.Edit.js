@@ -49,12 +49,11 @@ Menubar.Edit = function ( editor ) {
 
 		var operation = new Operation(Operation.UPDATE_STRUCT, {
 			'uuid': editor.selected.uuid,
-			'method': 'remove'
+			'method': 'remove',
+			'fromParent': editor.selected.parent.uuid
 		});
 		editor.engine.exec(operation);
-		// editor.removeObject( editor.selected );
-		// editor.deselect();
-
+		
 	} );
 	options.add( option );
 

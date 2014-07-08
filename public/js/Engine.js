@@ -85,11 +85,12 @@ var Engine = (function(){
 					editor.signals.render.dispatch();
 					break;
 				case Operation.UPDATE_STATE:
-					ExecuteOperation.execute(op);
+					ExecuteOperation.execute(op.getRedo());
 					editor.signals.render.dispatch();
-
 					break;
 				case Operation.UPDATE_STRUCT:
+					ExecuteOperation.execute(op.getRedo());
+					editor.signals.render.dispatch();
 					break;
 				default:
 					break;
