@@ -28,7 +28,18 @@ describe('GeoAsset', function(){
 				}
 			});
 		});
-
+		after(function(done){
+			Asset.remove({
+				'uuid': 'bbbbb',
+				'type': 'img'
+			}, function(err){
+				if(!err){
+					done();
+				}else{
+					done(err);
+				}
+			});
+		});	
 		it('should increase by 1 when a new ref from snode added', function(done){
 			var snode = new SNode({
 				data: "{\"assetId\":\"aaaaa\"}",
@@ -299,19 +310,6 @@ describe('ImgAsset', function(){
 					}
 				});
 			}
-		});
-
-		after(function(done){
-			Asset.remove({
-				'uuid': 'bbbbb',
-				'type': 'img'
-			}, function(err){
-				if(!err){
-					done();
-				}else{
-					done(err);
-				}
-			});
-		});		
+		});	
 	});
 });
