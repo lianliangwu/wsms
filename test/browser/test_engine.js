@@ -1,19 +1,30 @@
-/*global describe, it, expect, before, after, delete, Operation, OperationHistory, ExecuteOperation, editor*/
+/*global _, describe, it, expect, before, after, delete, Operation, OperationHistory, ExecuteOperation, editor*/
 (function(){
     "use strict";
-    function addOperation(){
-        var op = new Operation(Operation.CREATE, {
-            'primary': 'Box',
-            'parent': editor.scene.uuid
-        });
-        ExecuteOperation.execute(op);        
-        OperationHistory.add(op);
-    }
 
     describe("Test Egine.OperationHistory", function () {
+        var addedObjects = [];
+        function addOperation(){
+            var op = new Operation(Operation.CREATE, {
+                'primary': 'Box',
+                'parent': editor.scene.uuid
+            });
+            ExecuteOperation.execute(op);        
+            OperationHistory.add(op);
+
+            addedObjects.push(op.uuid);
+        }        
+
         after(function(){
             OperationHistory.__resetOperations();
+            _.forEach(addedObjects, function(uuid){
+                var object = editor.getObjectByUuid(uuid);
+                if(object){
+                    editor.removeObject(object);
+                }
+            });
         });
+
         it("should add the new operations", function () {
             //add three operations
             addOperation();
