@@ -1,4 +1,4 @@
-/*global CreateObject, UpdateState, UpdateStructure, editor*/
+/*global CreateObject, UpdateState, UpdateStructure, Operation, editor*/
 var ExecuteOperation = (function () {
 	"use strict";
 
@@ -11,7 +11,7 @@ var ExecuteOperation = (function () {
 		var object = null;
 		//add primary object
 		if(op.primary){
-			CreateObject.addPrimary(op.uuid, op.primary);
+			CreateObject.addPrimary(op.uuid, op.primary, op.parent);
 		}
 		//add from asset
 		if(op.asset){
@@ -27,7 +27,12 @@ var ExecuteOperation = (function () {
 			if(!object){
 				return false;
 			}			
-			CreateObject.cloneObject(op.uuid, object);
+			CreateObject.cloneObject(op.uuid, object, op.parent);
+		}
+		//add from trash
+		if(op.uuid&&removedObject[op.uuid]){
+			CreateObject.addObject(removedObject[op.uuid], op.parent);
+			delete removedObject[op.uuid];
 		}
 		return true;
 	}
@@ -81,21 +86,43 @@ var ExecuteOperation = (function () {
 				}
 				UpdateStructure.parent(object, parent);
 			break;
+			case "addFromTrash":
+			break;
 			default:
 			break;
 		}
 		return true;
 	}
+
 	function getRemovedObject(uuid){
 		if(removedObject[uuid]){
 			return removedObject[uuid];
 		}
-	}	
+	}
+
+	function executeOperation(op){
+		var result;
+		switch( op.type ){
+			case Operation.CREATE:
+				result = createObject(op);
+				break;
+			case Operation.UPDATE_STATE:
+				result = updateState(op);
+				break;
+			case Operation.UPDATE_STRUCT:
+				result = updateStruct(op);
+				break;
+			default:
+				break;
+		}
+		return result;
+	}
 
 	return {
 		createObject: createObject,
 		updateState: updateState,
 		updateStruct: updateStruct,
-		getRemovedObject: getRemovedObject
+		getRemovedObject: getRemovedObject,
+		execute: executeOperation
 	};
 })();

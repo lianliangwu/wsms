@@ -397,7 +397,8 @@ Menubar.Add = function ( editor ) {
 
 	function addPrimary(primaryName){
 		var operation = new Operation(Operation.CREATE, {
-			'primary': primaryName
+			'primary': primaryName,
+			'parent': editor.scene.uuid
 		});
 		if(operation){
 			editor.engine.exec(operation);

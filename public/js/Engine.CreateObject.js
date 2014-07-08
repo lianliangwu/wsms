@@ -4,7 +4,7 @@ var CreateObject = (function () {
 
 	var objectCount = {};
 
-	function addPrimary(uuid, primaryName){
+	function addPrimary(uuid, primaryName, parent){
 		switch(primaryName){
 			case "Box":
 				objectCount['Box'] = objectCount['Box']||1;
@@ -21,30 +21,35 @@ var CreateObject = (function () {
 				mesh.name = 'Box ' + ( ++ objectCount['Box'] );
 				mesh.uuid = uuid;
 
-				editor.addObject( mesh );
-				editor.select( mesh );
+				addToParent(mesh, parent);
 			break;
 			default:
 			break;
 		}
 	}
 
-	function addFromAsset(uuid, assetId){}
+	function addFromAsset(uuid, assetId, parent){}
 
-	function addFromFile(uuid, fileId){}
+	function addFromFile(uuid, fileId, parent){}
 
-	function cloneObject(uuid, object){
+	function cloneObject(uuid, object, parent){
 		object = object.clone();
 		object.uuid = uuid;
 
+		addToParent(object, parent);
+	}
+
+	function addToParent(object, parent){
 		editor.addObject( object );
-		editor.select( object );		
+		editor.parent(parent);
+		editor.select( object );
 	}
 
 	return {
 		addPrimary: addPrimary,
 		addFromAsset: addFromAsset,
 		addFromFile: addFromFile,
-		cloneObject: cloneObject
+		cloneObject: cloneObject,
+		addObject: addToParent
 	};
 })();

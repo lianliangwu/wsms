@@ -4,31 +4,28 @@ var Engine = (function(){
 	var operations = OperationHistory;
 
 	function exec(op){
-		var boo = false;
-		switch( op.type ){
-			case Operation.CREATE://create object
-				boo = ExecuteOperation.createObject(op);
-				if(boo){
-					operations.add(op);
-					editor.signals.render.dispatch();				
-				}
-				break;
-			case Operation.UPDATE_STATE://update state
-				boo = ExecuteOperation.updateState(op);
-				if(boo){
-					operations.add(op);
-					editor.signals.render.dispatch();
-				}
-				break;
-			case Operation.UPDATE_STRUCT://update structure
-				boo = ExecuteOperation.updateStruct(op);
-				if(boo){
-					operations.add(op);
-					editor.signals.render.dispatch();
-				}
-				break;
-			default:
-				break;
+
+		if(executeByType(op)){
+			operations.add(op);
+			editor.signals.render.dispatch();			
+		}
+
+		function executeByType(){
+			var boo = false;
+			switch( op.type ){
+				case Operation.CREATE://create object
+					boo = ExecuteOperation.execute(op);
+					break;
+				case Operation.UPDATE_STATE://update state
+					boo = ExecuteOperation.execute(op);
+					break;
+				case Operation.UPDATE_STRUCT://update structure
+					boo = ExecuteOperation.execute(op);
+					break;
+				default:
+					break;
+			}
+			return boo;
 		}
 	}
 
@@ -45,20 +42,21 @@ var Engine = (function(){
 		}
 
 		function undoByType(op){
-			var newOp = null;
-			var object = null;
 
 			switch( op.type ){
 				case Operation.CREATE:
-
+					ExecuteOperation.execute(op.getUndo());
+					editor.signals.render.dispatch();
 					break;
 				case Operation.UPDATE_STATE:
 
-						ExecuteOperation.updateState(op.getUndo());
-						editor.signals.render.dispatch();
+					ExecuteOperation.execute(op.getUndo());
+					editor.signals.render.dispatch();
 
 					break;
 				case Operation.UPDATE_STRUCT:
+					ExecuteOperation.execute(op.getUndo());
+					editor.signals.render.dispatch();
 					break;
 				default:
 					break;
@@ -81,14 +79,13 @@ var Engine = (function(){
 		}
 
 		function redoByType(op){
-			var object;
 			switch( op.type ){
 				case Operation.CREATE:
-
+					ExecuteOperation.execute(op.getRedo());
+					editor.signals.render.dispatch();
 					break;
 				case Operation.UPDATE_STATE:
-					object = editor.getObjectByUuid(op.uuid);
-					ExecuteOperation.updateState(op);
+					ExecuteOperation.execute(op);
 					editor.signals.render.dispatch();
 
 					break;

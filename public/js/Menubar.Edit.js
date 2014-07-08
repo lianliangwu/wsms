@@ -27,7 +27,8 @@ Menubar.Edit = function ( editor ) {
 		if ( object.parent === undefined ) return; // avoid cloning the camera or scene
 
 		var operation = new Operation(Operation.CREATE, {
-			'object': object.uuid
+			'object': object.uuid,
+			'parent': object.parent.uuid
 		});
 		editor.engine.exec(operation);
 

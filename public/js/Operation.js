@@ -48,8 +48,8 @@ var Operation = (function(){
 		switch(type){
 			case CREATE:
 				this.type = CREATE;
-				copy(options, this);
 				this.uuid = THREE.Math.generateUUID();
+				copy(options, this);
 			break;
 			case UPDATE_STATE:
 				this.type = UPDATE_STATE;
@@ -72,6 +72,7 @@ var Operation = (function(){
 			var newOp = null;
 			switch(this.type){
 				case Operation.CREATE:
+					newOp = makeUndoCreate(this);
 					break;
 				case Operation.UPDATE_STATE:
 					newOp = makeUndoState(this);
@@ -79,12 +80,20 @@ var Operation = (function(){
 				case Operation.UPDATE_STRUCT:
 					break;
 				default:
-					break;			
+					break;
 			}
 
 			return newOp;
 
-			//the method depends on the value type
+			function makeUndoCreate(op){
+				var newOp = new Operation(Operation.UPDATE_STRUCT, {
+					'uuid': op.uuid,
+					'method': 'remove'
+				});
+
+				return newOp;
+			}
+			
 			function makeUndoState(op){
 				var newOp = null;
 
@@ -101,6 +110,38 @@ var Operation = (function(){
 
 				return newOp;
 			}			
+		},
+		getRedo: function(){
+			var newOp = null;
+			switch(this.type){
+				case Operation.CREATE:
+					newOp = makeRedoCreate(this);
+					break;
+				case Operation.UPDATE_STATE:
+					newOp = makeRedoState(this);
+					break;
+				case Operation.UPDATE_STRUCT:
+					newOp = makeRedoStruct(this);
+					break;
+				default:
+					break;			
+			}
+
+			return newOp;
+
+			function makeRedoCreate(op){
+				var newOp = new Operation(Operation.CREATE, {
+					'uuid': op.uuid,
+					'parent': op.parent
+				});
+				return newOp;
+			}
+			function makeRedoState(op){
+				return op;
+			}
+			function makeRedoStruct(op){
+				return op;
+			}
 		}
 	};
 
