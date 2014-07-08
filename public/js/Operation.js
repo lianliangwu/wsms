@@ -1,4 +1,4 @@
-/*global THREE*/
+/*global THREE, editor*/
 var Operation = (function(){
 	"use strict";
 	var CREATE = 0;
@@ -44,7 +44,6 @@ var Operation = (function(){
 	}	
 
 	function Operation(type, options){
-
 		switch(type){
 			case CREATE:
 				this.type = CREATE;

@@ -8,8 +8,9 @@ var OperationHistory = (function(){
 
 	var sig = {
 		operationAdded: new SIGNALS.Signal(),
-		operationUdone: new SIGNALS.Signal(),
-		operationRedone: new SIGNALS.Signal()
+		operationUndone: new SIGNALS.Signal(),
+		operationRedone: new SIGNALS.Signal(),
+		operationReset: new SIGNALS.Signal()
 	};
 
 	function add (op) {
@@ -29,9 +30,9 @@ var OperationHistory = (function(){
 			op = operations[top];
 			--top;
 
-			sig.operationUdone.dispatch(op);
-			return op;	
+			sig.operationUndone.dispatch(op);	
 		}
+		return op;
 	}
 
 	function redo () {
@@ -52,11 +53,19 @@ var OperationHistory = (function(){
 		return operations[top];
 	}
 
+	function resetOperations(){
+		operations.length = 0;
+		sig.operationReset.dispatch(operations);
+	}
+
 	return {
 		'add': add,
 		'undo': undo,
 		'redo': redo,
 		'signals': sig,
-		'getCurrent': getCurrent
+		'getCurrent': getCurrent,
+		'__getOperations': function(){return operations;},
+		'__getCount': function(){return top+1;},
+		'__resetOperations': resetOperations
 	};
 }());

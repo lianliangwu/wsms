@@ -231,6 +231,9 @@ input.Number {
 			display: inline-block;
 			text-align: center;			
 		}
+		#historyWin .FancySelect .option .undone span{
+			text-decoration: line-through;
+		}
 
 #toolbar {
 	position: absolute;
