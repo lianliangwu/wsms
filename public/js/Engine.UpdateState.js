@@ -1,3 +1,4 @@
+/*global editor, THREE, _*/
 var UpdateState = function () {
 	"use strict";
 	
@@ -44,7 +45,71 @@ var UpdateState = function () {
 	}
 
 	function updateGeometry(geometry, key, value){
+		//if key === name then
+		if(key === "name"){
+			geometry.name = value;
+			return;
+		}
+		//get geometry type
+		var type = editor.getGeometryType(geometry);
+		//get geometry by type
+		var newGeometry = getGeometry(type, geometry, key, value);
+		//update related objects
+		updateObjects(newGeometry);
 
+		function getGeometry(type, oldGeo, key, value){
+			var newGeo;
+			switch(type){
+				case "BoxGeometry":
+					var options = {
+						width: oldGeo.width,
+						height: oldGeo.height,
+						depth: oldGeo.depth,
+						widthSegments: oldGeo.widthSegments,
+						heightSegments: oldGeo.heightSegments,
+						depthSegments: oldGeo.depthSegments
+					};
+					options[key] = value;
+					newGeo = new THREE.BoxGeometry(
+						options.width,
+						options.height,
+						options.depth,
+						options.widthSegments,
+						options.heightSegments,
+						options.depthSegments
+					);
+					newGeo.uuid = oldGeo.uuid;
+
+					newGeo.computeBoundingSphere();
+				break;
+				default:
+				break;
+			}
+			return newGeo;
+		}
+		function updateObjects(geometry){
+			var allRefs = editor.refManager.allRefs(geometry.uuid);
+
+			_.forEach(allRefs, function(ref){
+				var object = editor.getObjectByUuid(ref);
+
+				//change the mesh with new geometry and old material
+				geometry.uuid = object.geometry.uuid;
+				var mesh = new THREE.Mesh( geometry, object.material );
+				mesh.name = object.name;
+				mesh.applyMatrix(object.matrix);
+				mesh.uuid = object.uuid;
+				mesh.userData = object.userData;
+
+				editor.addObject( mesh );
+				editor.parent(mesh, object.parent);				
+				_.each(object.children, function onEach(child) {//bug fix, mesh can be intermediate node.	
+					editor.parent(child, mesh);
+				});
+				
+				editor.removeObject(object);
+			});
+		}
 	}
 	function updateMaterial(material, key, value){
 		switch(key){

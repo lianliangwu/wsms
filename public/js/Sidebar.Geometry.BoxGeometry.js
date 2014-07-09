@@ -65,8 +65,88 @@ Sidebar.Geometry.BoxGeometry = function ( signals, object ) {
 	container.add( depthSegmentsRow );
 
 	//
+	//wzh
+	var updateByEngine = (function(){
+		var funcArrays = [];
+		var precision = 2;
+
+		function toFixedNumber(n){
+			return parseFloat(n.toFixed(precision));
+		}
+
+		function checkWidth(geometry){
+			var newWidth = width.getValue();
+			var oldWidth = geometry.width;
+
+			if(oldWidth === newWidth){
+				return;
+			}
+			var operation = new Operation(Operation.UPDATE_STATE,{
+				'target': geometry,
+				'key': 'width'
+			});
+			operation.after = newWidth;
+
+			return operation;
+		}
+		funcArrays.push(checkWidth);
+
+		function checkHeight(geometry){
+			var newHeight = height.getValue();
+			var oldHeight = geometry.height;
+
+			if(oldHeight === newHeight){
+				return;
+			}
+			var operation = new Operation(Operation.UPDATE_STATE,{
+				'target': geometry,
+				'key': 'height'
+			});
+			operation.after = newHeight;
+			
+			return operation;
+		}
+		funcArrays.push(checkHeight);	
+
+		function checkDepth(geometry){
+			var newDepth = depth.getValue();
+			var oldDepth = geometry.height;
+
+			if(oldDepth === newDepth){
+				return;
+			}
+			var operation = new Operation(Operation.UPDATE_STATE,{
+				'target': geometry,
+				'key': 'depth'
+			});
+			operation.after = newDepth;
+			
+			return operation;
+		}
+		funcArrays.push(checkDepth);				
+
+		return function (geometry){
+			var operation = null;
+			var r = false;//log if object is updated
+
+			_.each(funcArrays, function onEach(func) {
+				operation = func(geometry); 
+				if(operation){
+					editor.engine.exec(operation);
+					r = true; 
+				}
+			});
+
+			return r;
+		};
+	})();
 
 	function update() {
+
+		var boo = updateByEngine(object.geometry);
+		if(boo){//if updated by engine
+			return;
+		}		
 
 		delete object.__webglInit; // TODO: Remove hack (WebGLRenderer refactoring)
 
