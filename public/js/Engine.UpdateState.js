@@ -101,13 +101,14 @@ var UpdateState = function () {
 				mesh.uuid = object.uuid;
 				mesh.userData = object.userData;
 
-				editor.addObject( mesh );
 				editor.parent(mesh, object.parent);				
 				_.each(object.children, function onEach(child) {//bug fix, mesh can be intermediate node.	
 					editor.parent(child, mesh);
 				});
 				
 				editor.removeObject(object);
+				editor.addObject( mesh );
+				editor.select(mesh);				
 			});
 		}
 	}

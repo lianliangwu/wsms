@@ -556,22 +556,22 @@ var Viewport = function ( editor ) {
 			var result = loader.parse( data );
 			var geometry = result.geometry;
 
-
 			//change the mesh with new geometry and old material
 			geometry.uuid = object.geometry.uuid;
 			var mesh = new THREE.Mesh( geometry, object.material );
-			editor.addObject( mesh );
-			editor.parent(mesh, object.parent);
-
 			mesh.name = object.name;
 			mesh.applyMatrix(object.matrix);
 			mesh.uuid = object.uuid;
 			mesh.userData = object.userData;
+
+			editor.parent(mesh, object.parent);				
 			_.each(object.children, function onEach(child) {//bug fix, mesh can be intermediate node.	
 				editor.parent(child, mesh);
 			});
 			
-			editor.removeObject(object);			
+			editor.removeObject(object);
+			editor.addObject( mesh );
+			editor.select(mesh);
 		};
 
 		var setTexture = function(uuid, type, img, sourceFile, textureId) {
