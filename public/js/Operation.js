@@ -5,7 +5,7 @@ var Operation = (function(){
 	var UPDATE_STATE = 1;
 	var UPDATE_STRUCT = 2;
 	
-	//copy all the property of a to b
+	//copy all the property of @a to @b
 	function copy(a, b){
 		for(var property in a){
 			if(a.hasOwnProperty(property)){
@@ -13,6 +13,25 @@ var Operation = (function(){
 			}
 		}
 	}
+
+	//get a copy of @value
+	function clone(value){
+		var result;
+
+		switch(typeof value){
+			case "number":
+			case "string":
+			case "boolean":
+				result = value;
+				break;
+			case "object":
+				result = JSON.parse(JSON.stringify(value));
+				break;
+			default:
+			break;
+		}
+		return result;
+	}	
 
 	//build the state of operation UPDATE_STATE
 	function buildState(op, target, key){
@@ -22,24 +41,6 @@ var Operation = (function(){
 		}else{
 			op.before = clone(target[key]);
 			op.after = clone(target[key]);
-		}
-
-		function clone(value){
-			var result;
-
-			switch(typeof value){
-				case "number":
-				case "string":
-				case "boolean":
-					result = value;
-					break;
-				case "object":
-					result = JSON.parse(JSON.stringify(value));
-					break;
-				default:
-				break;
-			}
-			return result;
 		}
 	}	
 
@@ -95,18 +96,16 @@ var Operation = (function(){
 			}
 			
 			function makeUndoState(op){
-				var newOp = null;
+				var newOp = JSON.parse(JSON.stringify(op));
 
-				switch(op.key){
-					case "position":
-					case "rotation":
-					case "scale":
-						newOp = JSON.parse(JSON.stringify(op));
-
-						newOp.before = op.after.clone();
-						newOp.after = op.before.clone();
-					break;
+				if(op.before.clone){
+					newOp.before = op.after.clone();
+					newOp.after = op.before.clone();
+				}else{
+					newOp.before = clone(op.after);
+					newOp.after = clone(op.before);
 				}
+
 
 				return newOp;
 			}
