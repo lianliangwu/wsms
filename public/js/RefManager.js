@@ -43,34 +43,41 @@ var RefManager = function(editor){
     }
 
     editor.signals.objectAdded.add(function(object){
-        var geometry = object.geometry;
-        var material = object.material;
-
-        addRef(geometry.uuid, object.uuid);
-        addRef(material.uuid, object.uuid);
+        if(object.geometry){
+            addRef(object.geometry.uuid, object.uuid);
+        }
+        if(object.material){
+            addRef(object.material.uuid, object.uuid);
+        }
     });
 
     editor.signals.objectRemoved.add(function(object){
-        var geometry = object.geometry;
-        var material = object.material;
-
-        removeRef(geometry.uuid, object.uuid);
-        removeRef(material.uuid, object.uuid);
+        if(object.geometry){
+            removeRef(object.geometry.uuid, object.uuid);
+        }
+        if(object.material){
+            removeRef(object.material.uuid, object.uuid);
+        }
     });
 
     editor.signals.objectChanged.add(function(object){
-        var geometry = object.geometry;
-        var material = object.material;
-        var keys = allKeys();
-        //remove old ref
-        _.forEach(keys, function(key){
-            if(refMap[key].has(object.uuid)){
-                refMap[key].remove(object.uuid);
+        if(object.geometry||object.material){
+            var keys = allKeys();
+            //remove old ref
+            _.forEach(keys, function(key){
+                if(hasRef(key, object.uuid)){
+                    removeRef(key, object.uuid);
+                }
+            });
+
+            //add new ref
+            if(object.geometry){
+                addRef(object.geometry.uuid, object.uuid);
             }
-        });
-        //add new ref
-        addRef(geometry.uuid, object.uuid);
-        addRef(material.uuid, object.uuid);
+            if(object.material){
+                addRef(object.material.uuid, object.uuid);
+            }
+        }
     });    
 
     return {
