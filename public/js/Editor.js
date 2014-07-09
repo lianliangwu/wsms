@@ -47,6 +47,7 @@ var Editor = function () {
 	this.asset = new Asset(this);	
 	this.loader = new Loader(this);
 	this.revCon = new RevisionControl(this);
+	this.refManager = new RefManager(this);
 
 
 	this.scene = new THREE.Scene();
