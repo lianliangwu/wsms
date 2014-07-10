@@ -61,12 +61,12 @@ Menubar.Add = function ( editor ) {
 	option.setClass( 'option' );
 	option.setTextContent( 'Object3D' );
 	option.onClick( function () {
+		addPrimary('Object3D');
+		// var mesh = new THREE.Object3D();
+		// mesh.name = 'Object3D ' + ( ++ meshCount );
 
-		var mesh = new THREE.Object3D();
-		mesh.name = 'Object3D ' + ( ++ meshCount );
-
-		editor.addObject( mesh );
-		editor.select( mesh );
+		// editor.addObject( mesh );
+		// editor.select( mesh );
 
 	} );
 	options.add( option );
@@ -291,15 +291,16 @@ Menubar.Add = function ( editor ) {
 	option.setTextContent( 'Point light' );
 	option.onClick( function () {
 
-		var color = 0xffffff;
-		var intensity = 1;
-		var distance = 0;
+		addPrimary('PointLight');
+		// var color = 0xffffff;
+		// var intensity = 1;
+		// var distance = 0;
 
-		var light = new THREE.PointLight( color, intensity, distance );
-		light.name = 'PointLight ' + ( ++ lightCount );
+		// var light = new THREE.PointLight( color, intensity, distance );
+		// light.name = 'PointLight ' + ( ++ lightCount );
 
-		editor.addObject( light );
-		editor.select( light );
+		// editor.addObject( light );
+		// editor.select( light );
 
 	} );
 	options.add( option );

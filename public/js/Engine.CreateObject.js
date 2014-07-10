@@ -6,8 +6,17 @@ var CreateObject = (function () {
 
 	function addPrimary(uuid, primaryName, parent){
 		switch(primaryName){
+			case "Object3D":
+				objectCount['Object3D'] = objectCount['Object3D']||0;
+
+				var mesh = new THREE.Object3D();
+				mesh.name = 'Object3D ' + ( ++ objectCount['Object3D'] );
+				mesh.uuid = uuid;
+
+				addToParent(mesh, parent);
+			break;
 			case "Box":
-				objectCount['Box'] = objectCount['Box']||1;
+				objectCount['Box'] = objectCount['Box']||0;
 				var width = 100;
 				var height = 100;
 				var depth = 100;
@@ -23,6 +32,18 @@ var CreateObject = (function () {
 
 				addToParent(mesh, parent);
 			break;
+			case "PointLight":
+				objectCount['PointLight'] = objectCount['PointLight']||0;
+				var color = 0xffffff;
+				var intensity = 1;
+				var distance = 0;
+
+				var light = new THREE.PointLight( color, intensity, distance );
+				light.name = 'PointLight ' + ( ++ objectCount['PointLight'] );
+				light.uuid = uuid;
+
+				addToParent(light, parent);
+			break;						
 			default:
 			break;
 		}
