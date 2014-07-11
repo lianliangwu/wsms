@@ -1,46 +1,38 @@
 /*global editor, THREE, _*/
 var UpdateState = function () {
 	"use strict";
+
+	function setValue (target, key, value) {
+		if(typeof value === "string" || typeof value === "number" || typeof value === "boolean"){
+			target[key] = value;
+		}else if(value instanceof THREE.Vector3){
+			target[key].x = value.x;
+			target[key].y = value.y;
+			target[key].z = value.z;
+		}else if(value instanceof THREE.Color){
+			target[key].setHex(value.getHex());
+		}
+	}
 	
 	function updateObject(object, key, value){
+		//if key === name then
+		if(key === "name"){
+			object.name = value;
+			return;
+		}
+
 		switch(key){
-			case "name":
-				setName(object, value);
-			break;
-			case "position":
-				setPosition(object, value);
-			break;
-			case "rotation":
-				setRotation(object, value);
-			break;
-			case "scale":
-				setScale(object, value);
+			case "matrix":
+				setMatrix(object, value);
 			break;
 			default:
+				setValue(object, key, value);
 			break;
 		}
 
 		function setMatrix ( object, matrix ) {
 			object.matrix = matrix;
 			object.matrix.decompose( object.position, object.quaternion, object.scale );
-		}
-		function setName ( object, name) {
-			object.name = name;
-		}
-		function setPosition ( object, position ) {
-			object.position.x = position.x;
-			object.position.y = position.y;
-			object.position.z = position.z;
-		}
-		function setScale ( object, scale ) {
-			object.scale.x = scale.x;
-			object.scale.y = scale.y;
-			object.scale.z = scale.z;
-		}
-		function setRotation ( object, rotation ) {
-			object.rotation.x = rotation.x;
-			object.rotation.y = rotation.y;
-			object.rotation.z = rotation.z;
 		}
 	}
 
@@ -108,22 +100,19 @@ var UpdateState = function () {
 				
 				editor.removeObject(object);
 				editor.addObject( mesh );
-				editor.select(mesh);				
+				editor.select(mesh);
 			});
 		}
 	}
+
 	function updateMaterial(material, key, value){
+
+
 		switch(key){
-			case "color":
-				setColor(material, value);
-			break;
 			default:
+				setValue(material, key, value);
 			break;
 		}
-
-		function setColor (material, color) {
-			material.color.setHex(color.getHex());
-		}		
 	}
 
 
