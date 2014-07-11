@@ -312,8 +312,10 @@ Sidebar.Material = function ( editor ) {
 		function makeCheckFunc(key, input){
 
 			var isChanged = function(target){
-				if(typeof target[key] === "string" || typeof target[key] === "number" || typeof target[key] === "boolean"){
+				if(typeof target[key] === "string" || typeof target[key] === "boolean"){
 					return target[key] !== input.getValue();
+				}else if(typeof target[key] === "number"){
+					return target[key] !== parseInt(input.getValue(), 10);
 				}else if(target[key] instanceof THREE.Color){
 					return input.getHexValue() !== target[key].getHex();
 				}
@@ -328,8 +330,10 @@ Sidebar.Material = function ( editor ) {
 					'key': key
 				});
 
-				if(typeof target[key] === "string" || typeof target[key] === "number" || typeof target[key] === "boolean"){
+				if(typeof target[key] === "string" || typeof target[key] === "boolean"){
 					operation.after = input.getValue();
+				}else if( typeof target[key] === "number" ){
+					operation.after = parseInt(input.getValue(), 10);
 				}else if(target[key] instanceof THREE.Color){
 					operation.after.setHex(input.getHexValue());
 				}
@@ -340,7 +344,7 @@ Sidebar.Material = function ( editor ) {
 			return checkValue;
 		}
 
-		var checkValue = makeCheckFunc('name', materialColor);
+		var checkValue = makeCheckFunc('name', materialName);
 		funcArrays.push(checkValue);
 
 		checkValue = makeCheckFunc('color', materialColor);
