@@ -30,11 +30,7 @@ Sidebar.Object3D = function ( editor ) {
 	// name
 
 	var objectNameRow = new UI.Panel();
-	var objectName = new UI.Input().setWidth( '150px' ).setColor( '#444' ).setFontSize( '12px' ).onChange( function () {
-
-			editor.setObjectName( editor.selected, objectName.getValue() );
-
-	} );
+	var objectName = new UI.Input().setWidth( '150px' ).setColor( '#444' ).setFontSize( '12px' ).onChange(update);
 
 	objectNameRow.add( new UI.Text( 'Name' ).setWidth( '90px' ) );
 	objectNameRow.add( objectName );
@@ -276,6 +272,70 @@ Sidebar.Object3D = function ( editor ) {
 		function toFixedNumber(n){
 			return parseFloat(n.toFixed(precision));
 		}
+
+		function makeCheckFunc(key, input){
+
+			var isChanged = function(target){
+				if(typeof target[key] === "string" || typeof target[key] === "number" || typeof target[key] === "boolean"){
+					return target[key] !== input.getValue();
+				}else if(target[key] instanceof THREE.Color){
+					return input.getHexValue() !== target[key].getHex();
+				}
+			};
+			var checkValue = function(target){
+				if(target[key] === undefined || !isChanged(target)){
+					return;
+				}
+
+				var operation = new Operation(Operation.UPDATE_STATE,{
+					'target': target,
+					'key': key
+				});
+
+				if(typeof target[key] === "string" || typeof target[key] === "number" || typeof target[key] === "boolean"){
+					operation.after = input.getValue();
+				}else if(target[key] instanceof THREE.Color){
+					operation.after.setHex(input.getHexValue());
+				}
+
+				return operation;
+			};
+
+			return checkValue;
+		}
+
+		var checkValue = makeCheckFunc('visible', objectVisible);
+		funcArrays.push(checkValue);
+
+		checkValue = makeCheckFunc('name', objectName);
+		funcArrays.push(checkValue);
+
+		checkValue = makeCheckFunc('fov', objectFov);
+		funcArrays.push(checkValue);
+
+		checkValue = makeCheckFunc('near', objectNear);
+		funcArrays.push(checkValue);
+
+		checkValue = makeCheckFunc('far', objectFar);
+		funcArrays.push(checkValue);
+
+		checkValue = makeCheckFunc('intensity', objectIntensity);
+		funcArrays.push(checkValue);
+
+		checkValue = makeCheckFunc('color', objectColor);
+		funcArrays.push(checkValue);
+
+		checkValue = makeCheckFunc('groundColor', objectGroundColor);
+		funcArrays.push(checkValue);
+
+		checkValue = makeCheckFunc('distance', objectDistance);
+		funcArrays.push(checkValue);
+
+		checkValue = makeCheckFunc('angle', objectAngle);
+		funcArrays.push(checkValue);
+
+		checkValue = makeCheckFunc('exponent', objectExponent);
+		funcArrays.push(checkValue);
 
 		function checkPosition(object) {
 			var x = objectPositionX.getValue(),

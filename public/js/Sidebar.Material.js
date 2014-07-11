@@ -309,47 +309,78 @@ Sidebar.Material = function ( editor ) {
 			return parseFloat(n.toFixed(precision));
 		}
 
-		function checkColor(material){
-			var oldColor = materialColor.getHexValue();
-			var newColor = material.color.getHex();
+		function makeCheckFunc(key, input){
 
-			if(oldColor === newColor){
-				return;
-			}
+			var isChanged = function(target){
+				if(typeof target[key] === "string" || typeof target[key] === "number" || typeof target[key] === "boolean"){
+					return target[key] !== input.getValue();
+				}else if(target[key] instanceof THREE.Color){
+					return input.getHexValue() !== target[key].getHex();
+				}
+			};
+			var checkValue = function(target){
+				if(target[key] === undefined || !isChanged(target)){
+					return;
+				}
 
-			var operation = new Operation(Operation.UPDATE_STATE,{
-				'target': material,
-				'key': 'color'
-			});
+				var operation = new Operation(Operation.UPDATE_STATE,{
+					'target': target,
+					'key': key
+				});
 
-			operation.after.setHex(materialColor.getHexValue());
+				if(typeof target[key] === "string" || typeof target[key] === "number" || typeof target[key] === "boolean"){
+					operation.after = input.getValue();
+				}else if(target[key] instanceof THREE.Color){
+					operation.after.setHex(input.getHexValue());
+				}
 
-			return operation;
+				return operation;
+			};
+
+			return checkValue;
 		}
-		funcArrays.push(checkColor);
 
-		function checkAmbient(material){
-			var oldColor = materialAmbient.getHexValue();
-			var newColor = material.ambient.getHex();
+		var checkValue = makeCheckFunc('name', materialColor);
+		funcArrays.push(checkValue);
 
-			if(oldColor === newColor){
-				return;
-			}
+		checkValue = makeCheckFunc('color', materialColor);
+		funcArrays.push(checkValue);
 
-			var operation = new Operation(Operation.UPDATE_STATE,{
-				'target': material,
-				'key': 'ambient'
-			});
+		checkValue = makeCheckFunc('ambient', materialAmbient);
+		funcArrays.push(checkValue);
 
-			operation.after.setHex(materialAmbient.getHexValue());
+		checkValue = makeCheckFunc('emissive', materialEmissive);
+		funcArrays.push(checkValue);
 
-			return operation;
-		}
-		funcArrays.push(checkAmbient);
-		// function checkEmissive(){}
-		// function checkSpecular(){}
-		// function checkShininess(){}
+		checkValue = makeCheckFunc('specular', materialSpecular);
+		funcArrays.push(checkValue);
 
+		checkValue = makeCheckFunc('shininess', materialShininess);
+		funcArrays.push(checkValue);
+
+		checkValue = makeCheckFunc('vertexColors', materialVertexColors);
+		funcArrays.push(checkValue);
+
+		checkValue = makeCheckFunc('side', materialSide);
+		funcArrays.push(checkValue);
+
+		checkValue = makeCheckFunc('opacity', materialOpacity);
+		funcArrays.push(checkValue);
+
+		checkValue = makeCheckFunc('transparent', materialTransparent);
+		funcArrays.push(checkValue);
+
+		checkValue = makeCheckFunc('Blending', materialBlending);
+		funcArrays.push(checkValue);
+
+		checkValue = makeCheckFunc('opacity', materialOpacity);
+		funcArrays.push(checkValue);
+
+		checkValue = makeCheckFunc('wireframe', materialWireframe);
+		funcArrays.push(checkValue);
+
+		checkValue = makeCheckFunc('wireframeLinewidth', materialWireframeLinewidth);
+		funcArrays.push(checkValue);
 		return function (material){
 			var operation = null;
 			var r = false;//log if object is updated

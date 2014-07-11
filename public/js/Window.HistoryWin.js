@@ -53,7 +53,7 @@ var HistoryWin = function(){
 				break;
 			case Operation.UPDATE_STATE:
 				// type = 'UPDATE_STATE';
-				type = 'update ' + op.key;
+				type = op.key;
 				break;
 			case Operation.UPDATE_STRUCT:
 				// type = 'UPDATE_STRUCT';
@@ -89,8 +89,8 @@ var HistoryWin = function(){
 		var item = items[op.id];
 
 		var col1 = '<span>' + item.time +'</span>';
-		var col2 = '<span>' + item.name + '</span>';
-		var col3 = '<span>' + item.type + '</span>';
+		var col2 = '<span>' + item.type + '</span>';
+		var col3 = '<span>' + item.name + '</span>';
 		options[op.id] = '<div>' + col1 + col2 + col3 + '</div>';
 		_.forEach(items, function(item, index){
 			if(item.undone){
@@ -105,8 +105,8 @@ var HistoryWin = function(){
 		var item = items[op.id];
 
 		var col1 = '<span>' + item.time +'</span>';
-		var col2 = '<span>' + item.name + '</span>';
-		var col3 = '<span>' + item.type + '</span>';
+		var col2 = '<span>' + item.type + '</span>';
+		var col3 = '<span>' + item.name + '</span>';
 		options[op.id] = '<div class="undone">' + col1 + col2 + col3 + '</div>';
 		items[op.id].undone = true;
 
@@ -117,8 +117,8 @@ var HistoryWin = function(){
 		var item = items[op.id];
 
 		var col1 = '<span>' + item.time +'</span>';
-		var col2 = '<span>' + item.name + '</span>';
-		var col3 = '<span>' + item.type + '</span>';
+		var col2 = '<span>' + item.type + '</span>';
+		var col3 = '<span>' + item.name + '</span>';
 		options[op.id] = '<div>' + col1 + col2 + col3 + '</div>';
 		items[op.id].undone = false;
 
