@@ -48,6 +48,7 @@ var ExecuteOperation = (function () {
 			return true;
 		}
 
+		//update the material
 		target = editor.getMaterial(op.uuid);
 		if(target){
 			UpdateState.updateMaterial(target, op.key, op.after);

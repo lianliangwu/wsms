@@ -94,7 +94,7 @@ var MergeWin = function (editor) {
 		sceneWinB.show();
 		sceneWinB.setPosition({
 			top: '0px',
-			left: width/4*1.5 + '0px'
+			left: width/4*1.5 + 'px'
 		});
 		sceneWinB.setWidth(width/4*1.5);
 		sceneWinB.setHeight(height/2);		

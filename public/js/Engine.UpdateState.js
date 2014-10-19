@@ -46,7 +46,7 @@ var UpdateState = function () {
 		var type = editor.getGeometryType(geometry);
 		//get geometry by type
 		var newGeometry = getGeometry(type, geometry, key, value);
-		//update related objects
+		//update related objects with new geometry
 		updateObjects(newGeometry);
 
 		function getGeometry(type, oldGeo, key, value){

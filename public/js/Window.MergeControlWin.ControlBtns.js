@@ -37,7 +37,7 @@ MergeControlWin.ControlBtns = function (mergeEditor) {
 	btnRow.add( new UI.Text( 'color' ) );
 	btnRow.add( outlineSet );
 	btnRow.add( new UI.Text( 'outline' ) );	
-	// btnRow.add( cancelBtn );
+	btnRow.add( cancelBtn );
 	btnRow.add( commitBtn );	
 
 	container.add( new UI.Break() );

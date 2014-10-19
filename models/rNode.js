@@ -13,6 +13,7 @@ var RNodeSchema = new mongoose.Schema({
 RNodeSchema.statics.getAllVersions = function(sceneId, callback) {
 	this.find({'sceneId': sceneId}, callback);
 };
+
 RNodeSchema.statics.saveWithPath = function(rNode) {//save with the extended standard materialized path
 	var path;
 

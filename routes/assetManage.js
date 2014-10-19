@@ -3,7 +3,7 @@ var Asset = require('../models/asset.js');
 var SNode = require('../models/sNode.js');
 var DNode = require('../models/dNode.js');
 var fs = require('fs');
-var DIR = 'upload3/';
+var DIR = 'upload/';
 
 function isObjectId(str){
 	return (/^[0-9a-fA-F]{24}$/).test(str);
@@ -621,26 +621,26 @@ exports._autoRemove = function (callback){
 		assets.forEach(function onEach(asset){
 			//remove asset
 			var path = "./public/" + asset.path;
-			fs.unlink(path, function onEnd(err){
-				if(!err){
-					console.log('removeFile success.');
-				}else{
-					console.log(err);
-				}
-			});
+			// fs.unlink(path, function onEnd(err){
+			// 	if(!err){
+			// 		console.log('removeFile success.');
+			// 	}else{
+			// 		console.log(err);
+			// 	}
+			// });
 
-			//remove snapshot
-			if(asset.snapshot){
-				path = "./public/" + asset.snapshot;
-				fs.unlink(path, function onEnd(err) {
-					if(err){
-						console.log(err);
-						return;
-					}
-					console.log('remove snapshot success.');
-				});
-			}
-			asset.remove();			
+			// //remove snapshot
+			// if(asset.snapshot){
+			// 	path = "./public/" + asset.snapshot;
+			// 	fs.unlink(path, function onEnd(err) {
+			// 		if(err){
+			// 			console.log(err);
+			// 			return;
+			// 		}
+			// 		console.log('remove snapshot success.');
+			// 	});
+			// }
+			// asset.remove();			
 		});
 	});
 };

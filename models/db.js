@@ -2,7 +2,7 @@
 // Bring Mongoose into the project
 var mongoose = require( 'mongoose' );
 // Build the connection string
-var dbURI = 'mongodb://localhost/csms5';
+var dbURI = 'mongodb://localhost/wsms';
 // Create the database connection
 mongoose.connect(dbURI);
 
