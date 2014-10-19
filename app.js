@@ -11,6 +11,7 @@ var http = require('http');
 var path = require('path');
 var db = require('./models/db');
 
+
 var app = express();
 
 // all environments
@@ -21,6 +22,8 @@ app.use(express.favicon());
 app.use(express.logger('dev'));
 app.use(express.bodyParser());
 app.use(express.methodOverride());
+app.use(express.cookieParser());
+app.use(express.session({secret: '1234567890QWERTY'}));
 app.use(app.router);
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.static(path.join(__dirname, 'test')));
@@ -30,6 +33,9 @@ app.get('/', routes.index);
 app.post('/saveScene', routes.saveScene);
 app.get('/loadScene', routes.loadScene);
 app.get('/getAllScenes', routes.getAllScenes);
+
+app.get('/login', routes.renderLogin);
+app.post('/login', routes.login);
 
 app.get('/getAsset', am.getAsset);
 app.post('/addImgAsset', am.addImgAsset);
@@ -65,6 +71,7 @@ app.post('/addTag', rc.addTag);
 app.post('/removeTag', rc.removeTag);
 app.get('/getTags', rc.getTags);
 app.get('/getRHG', rc.getVersionHistory);
+
 
 http.createServer(app).listen(app.get('port'), function(){
   console.log('Express server listening on port ' + app.get('port'));
