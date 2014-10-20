@@ -4,15 +4,17 @@
  */
 
 var express = require('express');
+var app = express();
 var routes = require('./routes');
 var rc = require('./routes/revisionControl');
 var am = require('./routes/assetManage');
-var http = require('http');
+var http = require('http').Server(app);
+var io = require('socket.io')(http);
 var path = require('path');
 var db = require('./models/db');
 
 
-var app = express();
+
 
 // all environments
 app.set('port', process.env.PORT || 3000);
@@ -72,7 +74,13 @@ app.post('/removeTag', rc.removeTag);
 app.get('/getTags', rc.getTags);
 app.get('/getRHG', rc.getVersionHistory);
 
-
-http.createServer(app).listen(app.get('port'), function(){
-  console.log('Express server listening on port ' + app.get('port'));
+io.on('connection', function(socket){
+  socket.on('operation', function(op){
+    io.emit('operation', op);
+  });
 });
+
+http.listen(3000, function(){
+  console.log('listening on *:3000');
+});
+

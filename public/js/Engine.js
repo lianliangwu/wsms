@@ -1,11 +1,11 @@
-/*global ExecuteOperation, OperationHistory, Operation, editor*/
+/*global ExecuteOperation, OperationHistory, Operation, editor, io*/
 var Engine = (function(){
 	"use strict";
 	var operations = OperationHistory;
 
 	function exec(op){
 
-		if(executeByType(op)){
+		if(executeByType()){
 			operations.add(op);
 			editor.signals.render.dispatch();			
 		}
@@ -108,4 +108,24 @@ var Engine = (function(){
 		'replay': replay,
 		'getRemovedObject': ExecuteOperation.getRemovedObject
 	};
+})();
+
+var OperationColla = (function(){
+	"use strict";
+	var operations = OperationHistory;
+	var engine = Engine;
+	var socket = io();
+	
+	
+	
+	socket.on('operation', function(op){
+		if(!operations.exist(op)){
+			engine.exec(op);
+		}
+	});
+
+	operations.signals.operationAdded.add(function onEvent(op){
+		//send to server
+		socket.emit('operation', op);
+	});
 })();

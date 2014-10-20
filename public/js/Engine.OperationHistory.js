@@ -1,7 +1,8 @@
-/*global signals*/
+/*global signals, THREE*/
 var OperationHistory = (function(){
 	"use strict";
 	var operations = [];
+	var map = {};
 	var top = -1;
 	var count = 0;
 	var SIGNALS = signals; 
@@ -14,10 +15,18 @@ var OperationHistory = (function(){
 	};
 
 	function add (op) {
+		if(exist(op)){
+			return ;
+		}
+
 		if (operations[top + 1] !== undefined){//check and remove the undone operations
 			operations.length = top + 1;
 		}
 		op.id = (count)++;
+		if(!op.uuid) {
+			op.uuid = THREE.Math.generateUUID();
+		}
+		map[op.uuid] = op;
 		operations.push(op);
 		++top;
 
@@ -46,6 +55,14 @@ var OperationHistory = (function(){
 		return op;
 	}
 
+	function exist(op){
+		if(op.uuid && map[op.uuid]){
+			return true;
+		}else{
+			return false;
+		}
+	}
+
 	/*
 	* return operation or undefined(no operations)
 	*/
@@ -64,6 +81,7 @@ var OperationHistory = (function(){
 		'add': add,
 		'undo': undo,
 		'redo': redo,
+		'exist': exist,
 		'signals': sig,
 		'getCurrent': getCurrent,
 		'__getOperations': function(){return operations;},
