@@ -1,19 +1,19 @@
-/*global THREE, editor*/
+/*global THREE, THREE.Mesh, editor*/
 var CreateObject = (function () {
 	"use strict";
 
 	var objectCount = {};
 
-	function addPrimary(uuid, primaryName, parent){
-		switch(primaryName){
+	function addPrimary(op){
+		switch(op.primary){
 			case "Object3D":
 				objectCount['Object3D'] = objectCount['Object3D']||0;
 
-				var mesh = new THREE.Object3D();
-				mesh.name = 'Object3D ' + ( ++ objectCount['Object3D'] );
-				mesh.uuid = uuid;
+				var object = new THREE.Object3D();
+				object.name = 'Object3D ' + ( ++ objectCount['Object3D'] );
+				object.uuid = op.uuid;
 
-				addToParent(mesh, parent);
+				addToParent(object, op.parent);
 			break;
 			case "Box":
 				objectCount['Box'] = objectCount['Box']||0;
@@ -28,9 +28,11 @@ var CreateObject = (function () {
 				var geometry = new THREE.BoxGeometry( width, height, depth, widthSegments, heightSegments, depthSegments );
 				var mesh = new THREE.Mesh( geometry, new THREE.MeshPhongMaterial() );
 				mesh.name = 'Box ' + ( ++ objectCount['Box'] );
-				mesh.uuid = uuid;
+				mesh.uuid = op.uuid;
+				mesh.geometry.uuid = op.geoUuid;
+				mesh.material.uuid = op.matUuid;
 
-				addToParent(mesh, parent);
+				addToParent(mesh, op.parent);
 			break;
 			case "PointLight":
 				objectCount['PointLight'] = objectCount['PointLight']||0;
@@ -40,9 +42,9 @@ var CreateObject = (function () {
 
 				var light = new THREE.PointLight( color, intensity, distance );
 				light.name = 'PointLight ' + ( ++ objectCount['PointLight'] );
-				light.uuid = uuid;
+				light.uuid = op.uuid;
 
-				addToParent(light, parent);
+				addToParent(light, op.parent);
 			break;						
 			default:
 			break;

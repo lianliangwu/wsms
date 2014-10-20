@@ -11,7 +11,7 @@ var ExecuteOperation = (function () {
 		var object = null;
 		//add primary object
 		if(op.primary){
-			CreateObject.addPrimary(op.uuid, op.primary, op.parent);
+			CreateObject.addPrimary(op);
 		}
 		//add from asset
 		if(op.asset){

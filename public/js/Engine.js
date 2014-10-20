@@ -1,4 +1,4 @@
-/*global ExecuteOperation, OperationHistory, Operation, editor, io*/
+/*global ExecuteOperation, OperationHistory, Operation, editor, io, THREE*/
 var Engine = (function(){
 	"use strict";
 	var operations = OperationHistory;
@@ -119,6 +119,7 @@ var OperationColla = (function(){
 	
 	
 	socket.on('operation', function(op){
+		op = recoverType(op);
 		if(!operations.exist(op)){
 			engine.exec(op);
 		}
@@ -126,6 +127,30 @@ var OperationColla = (function(){
 
 	operations.signals.operationAdded.add(function onEvent(op){
 		//send to server
-		socket.emit('operation', op);
+		socket.emit('operation', logType(op));
 	});
+
+	function logType(op){
+		if(op.before instanceof THREE.Vector3){
+			op.valueType = "THREE.Vector3";
+		}else if(op.before instanceof THREE.Color){
+			op.valueType = "THREE.Color";
+		}
+
+		return op;
+	}
+
+	function recoverType(op){
+
+		if(op.valueType === "THREE.Vector3"){
+			op.before = new THREE.Vector3(op.before.x, op.before.y, op.before.z);
+			op.after = new THREE.Vector3(op.after.x, op.after.y, op.after.z);
+		}else if(op.valueType === "THREE.Color"){
+			op.before = new THREE.Color(op.before.r, op.before.g, op.before.b);
+			op.after = new THREE.Color(op.after.r, op.after.g, op.after.b);
+		}
+
+		delete op.valueType;
+		return op;
+	}
 })();

@@ -44,6 +44,7 @@ var Operation = (function(){
 		}
 	}	
 
+	
 	function Operation(type, options){
 		switch(type){
 			case CREATE:

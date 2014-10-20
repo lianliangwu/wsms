@@ -23,10 +23,10 @@ var OperationHistory = (function(){
 			operations.length = top + 1;
 		}
 		op.id = (count)++;
-		if(!op.uuid) {
-			op.uuid = THREE.Math.generateUUID();
+		if(!op._id) {
+			op._id = THREE.Math.generateUUID();
 		}
-		map[op.uuid] = op;
+		map[op._id] = op;
 		operations.push(op);
 		++top;
 
@@ -56,7 +56,7 @@ var OperationHistory = (function(){
 	}
 
 	function exist(op){
-		if(op.uuid && map[op.uuid]){
+		if(op._id && map[op._id]){
 			return true;
 		}else{
 			return false;

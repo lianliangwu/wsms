@@ -399,10 +399,14 @@ Menubar.Add = function ( editor ) {
 	function addPrimary(primaryName){
 		var operation = new Operation(Operation.CREATE, {
 			'primary': primaryName,
-			'parent': editor.scene.uuid
+			'parent': editor.scene.uuid,
 		});
+		if(primaryName in {'Box':true}){
+			operation.geoUuid = THREE.Math.generateUUID();
+			operation.matUuid = THREE.Math.generateUUID();
+		}
 		if(operation){
 			editor.engine.exec(operation);
 		}
 	}
-}
+};
