@@ -235,12 +235,32 @@ input.Number {
 			text-decoration: line-through;
 		}
 
-#loginWin {}
-	#loginWin input{
-		margin-top: 10px; 
+#asynCollaWin {
+}
+	#asynCollaWin .FancySelect{
+		margin: 0px 10px;
 	}
-	#loginWin button{
-		margin-top: 10px;
+	#asynCollaWin #sceneSelect{
+		height: 100px;
+	}
+	#asynCollaWin #branchSelect{
+		height: 100px;
+	}
+	#asynCollaWin button{
+		margin: 10px;
+	}
+#synCollaWin {}
+	#synCollaWin .FancySelect{
+		margin: 0px 10px;
+	}
+	#synCollaWin #sceneSelect{
+		height: 100px;
+	}
+	#synCollaWin #branchSelect{
+		height: 100px;
+	}
+	#synCollaWin button{
+		margin: 10px;
 	}
 
 #toolbar {

@@ -82,8 +82,10 @@
 		<script src="js/Window.MergeControlWin.AttrList.js"></script>		
 		<script src="js/Window.MergeControlWin.StructureList.js"></script>							
 		<script src="js/Window.MergeWin.js"></script>
-		<script src="js/Window.ViewerWin.js"></script>	
-		<script src="js/Window.GeoViewerWin.js"></script>					
+		<script src="js/Window.ViewerWin.js"></script>
+		<script src="js/Window.GeoViewerWin.js"></script>
+		<script src="js/Window.AsynCollaWin.js"></script>
+		<script src="js/Window.SynCollaWin.js"></script>
 		<script src="js/Menubar.js"></script>
 		<script src="js/Menubar.File.js"></script>
 		<script src="js/Menubar.Collaboration.js"></script>		
@@ -152,6 +154,14 @@
 
 			var mergeWin = new MergeWin( editor ); 
 			editor.mergeWin = mergeWin;
+
+			var synCollaWin = SynCollaWin().setId( 'synCollaWin' ); 
+			document.body.appendChild( synCollaWin.dom );
+			editor.synCollaWin = synCollaWin;	
+
+			var asynCollaWin = AsynCollaWin().setId( 'asynCollaWin' ); 
+			document.body.appendChild( asynCollaWin.dom );
+			editor.asynCollaWin = asynCollaWin;	
 
 			editor.setTheme( editor.config.getKey( 'theme' ) );
 

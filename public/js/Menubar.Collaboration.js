@@ -22,8 +22,7 @@ Menubar.Collaboration = function ( editor ) {
 	option.setClass( 'option' );
 	option.setTextContent( 'Synchronous' );
 	option.onClick( function () {
-
-
+		editor.synCollaWin.show();
 	} );
 	options.add( option );
 
@@ -34,6 +33,7 @@ Menubar.Collaboration = function ( editor ) {
 	option.setTextContent( 'Asynchronous' );
 	option.onClick( function () {
 
+		editor.asynCollaWin.show();
 
 	} );
 	options.add( option );

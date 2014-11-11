@@ -28,7 +28,7 @@ var SceneWin = function ( editor ) {
 
 	} );
 
-	var loadScene = function() {
+	var loadSceneInfo = function() {
 		//save scene
 		var formData = new FormData();  
 
@@ -72,7 +72,7 @@ var SceneWin = function ( editor ) {
 
 	container.add( sceneSelect );
 	container.add( sceneControlRow );
-	loadScene();
+	loadSceneInfo();
 	container.hide();
 
 	function loadScene() {
