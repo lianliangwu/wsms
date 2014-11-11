@@ -58,19 +58,6 @@ function loadScene(uuid, callback) {
 	});
 }
 
-var myRequireUser = function() {
-
-  // This generates standard express middleware with a signature of (req, res, next)
-  return auth.requireUser({
-    login_url: '/login', // optional, defaults to '/login'
-    user_model: User                      // optional, defaults to mongoose.model('User')
-  });
-};
-
-// app.get('/sharedScenes', myRequireUser(), function(req, res) {
-//   res.status(200).send('Welcome, authenticated user!');
-// });
-
 exports.renderLogin = function(req, res){
     res.render('login');
 };
@@ -78,7 +65,6 @@ exports.login = function(req, res) {
   auth.loginUser(req, res, {
     email: req.body.email,
     password: req.body.password,
-    default_redirect: '/',
     user_model: User // optional, defaults to mongoose.model('User')
   }, function(err) {
     if(err) {
@@ -88,11 +74,14 @@ exports.login = function(req, res) {
         res.status(500).send('whoops');
       }
     }
+    res.send({success: true});
   });
 };
 
 exports.index = function(req, res){
-  res.render('index');
+    res.cookie("username", res.locals.currentUser.username);
+    res.cookie("email", res.locals.currentUser.email);
+    res.render('index');
 };
 
 exports.saveScene = function(req, res){

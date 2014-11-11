@@ -10,6 +10,8 @@ var Menubar = function ( editor ) {
 	container.add( new Menubar.RVC( editor ) );
 	container.add( new Menubar.Window( editor ) );
 	container.add( new Menubar.Help( editor ) );
+	container.add( new Menubar.Exit());
+	container.add( new Menubar.User());
 
 	return container;
 

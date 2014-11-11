@@ -40,3 +40,8 @@ Utils.Set = (function(){
 
     return SetManager;
 })();
+
+Utils.readCookie = function (k){
+    "use strict";
+    return(document.cookie.match('(^|; )'+k+'=([^;]*)')||0)[2];
+};

@@ -12,7 +12,17 @@ var http = require('http').Server(app);
 var io = require('socket.io')(http);
 var path = require('path');
 var db = require('./models/db');
+var auth = require('./lib/route_enhancements');
+var User = require('./models/user');
 
+var myRequireUser = function() {
+
+  // This generates standard express middleware with a signature of (req, res, next)
+  return auth.requireUser({
+    login_url: '/login', // optional, defaults to '/login'
+    user_model: User    // optional, defaults to mongoose.model('User')
+  });
+};
 
 
 
@@ -31,13 +41,17 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.static(path.join(__dirname, 'test')));
 
 
-app.get('/', routes.index);
+app.get('/', myRequireUser(), routes.index);
 app.post('/saveScene', routes.saveScene);
 app.get('/loadScene', routes.loadScene);
 app.get('/getAllScenes', routes.getAllScenes);
 
 app.get('/login', routes.renderLogin);
 app.post('/login', routes.login);
+
+app.get('/user', myRequireUser(), function(req, res) {
+  res.status(200).send('Welcome, ' + res.locals.currentUser.username);
+});
 
 app.get('/getAsset', am.getAsset);
 app.post('/addImgAsset', am.addImgAsset);

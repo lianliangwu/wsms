@@ -3,6 +3,7 @@ var auth = require('../lib/model_enhancements');
 
 var userSchema = new mongoose.Schema({
   email: String,
+  username: String,
   hashed_password: String,
   salt: String
 });

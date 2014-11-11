@@ -235,6 +235,14 @@ input.Number {
 			text-decoration: line-through;
 		}
 
+#loginWin {}
+	#loginWin input{
+		margin-top: 10px; 
+	}
+	#loginWin button{
+		margin-top: 10px;
+	}
+
 #toolbar {
 	position: absolute;
 	left: 0px;
