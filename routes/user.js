@@ -49,44 +49,50 @@ exports.requireUser = function () {
 exports.createGroup = function (req, res) {
   //create group
   var group = new Group();
-  group.name = req.body.name;
-  group.creator = req.body.username;
+  group.name = req.body.groupName;
+  group.creator = req.body.userName;
+  group.users = [req.body.userName];
 
   //save group
   group.save(function onEnd(err) {
     if (!err){
       console.log("new group created!");
+      res.send({success: true});
     }
   });
 };
 
 exports.removeGroup = function (req, res) {
-  Group.findOneAndRemove({'name': req.body.name}, function onEnd(err, group) {
+  Group.findOneAndRemove({'name': req.body.groupName}, function onEnd(err, group) {
     if (!err) {
       console.log("group " + group.name + " is removed!");
+      res.send({success: true});
     }
   });
 };
 
 exports.addUserToGroup = function (req, res) {
-  Group.find({'name': req.body.groupName}, function onEnd(err, group) {
+  Group.findOne({'name': req.body.groupName}, function onEnd(err, group) {
     if (!err) {
+      console.log(group);
       if (group.users.indexOf(req.body.userName) < 0) {
         group.users.push(req.body.userName);
         group.save();
       }
+      res.send({success: true});
     }
   });
 };
 
 exports.removeUserFromGroup = function (req, res) {
-  Group.find({'name': req.body.groupName}, function onEnd(err, group) {
+  Group.findOne({'name': req.body.groupName}, function onEnd(err, group) {
     if (!err) {
       var index = group.users.indexOf(req.body.userName);
       if (index >= 0) {
         group.users.splice(index, 1);
         group.save();
       }
+      res.send({success: true});
     }
   });
 };
