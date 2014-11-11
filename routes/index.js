@@ -3,8 +3,6 @@
 var Scene = require('../models/scene.js');
 var RNode = require('../models/rNode.js');
 var revisionControl = require('./revisionControl.js');
-var auth = require('../lib/route_enhancements');
-var User = require('../models/user');
 var fs = require('fs');
 
 /*
@@ -57,26 +55,6 @@ function loadScene(uuid, callback) {
 		}
 	});
 }
-
-exports.renderLogin = function(req, res){
-    res.render('login');
-};
-exports.login = function(req, res) {
-  auth.loginUser(req, res, {
-    email: req.body.email,
-    password: req.body.password,
-    user_model: User // optional, defaults to mongoose.model('User')
-  }, function(err) {
-    if(err) {
-      if(err.type === 'AuthenticationFailure') {
-        res.status(400).send('denied'); // or however you'd handle that
-      } else {
-        res.status(500).send('whoops');
-      }
-    }
-    res.send({success: true});
-  });
-};
 
 exports.index = function(req, res){
     res.cookie("username", res.locals.currentUser.username);

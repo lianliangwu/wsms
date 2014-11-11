@@ -8,23 +8,11 @@ var app = express();
 var routes = require('./routes');
 var rc = require('./routes/revisionControl');
 var am = require('./routes/assetManage');
+var user = require('./routes/user');
 var http = require('http').Server(app);
 var io = require('socket.io')(http);
 var path = require('path');
 var db = require('./models/db');
-var auth = require('./lib/route_enhancements');
-var User = require('./models/user');
-
-var myRequireUser = function() {
-
-  // This generates standard express middleware with a signature of (req, res, next)
-  return auth.requireUser({
-    login_url: '/login', // optional, defaults to '/login'
-    user_model: User    // optional, defaults to mongoose.model('User')
-  });
-};
-
-
 
 // all environments
 app.set('port', process.env.PORT || 3000);
@@ -41,17 +29,15 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.static(path.join(__dirname, 'test')));
 
 
-app.get('/', myRequireUser(), routes.index);
+app.get('/', user.requireUser(), routes.index);
 app.post('/saveScene', routes.saveScene);
 app.get('/loadScene', routes.loadScene);
 app.get('/getAllScenes', routes.getAllScenes);
 
-app.get('/login', routes.renderLogin);
-app.post('/login', routes.login);
-
-app.get('/user', myRequireUser(), function(req, res) {
-  res.status(200).send('Welcome, ' + res.locals.currentUser.username);
-});
+app.get('/login', function (req, res) {res.render('login');});
+app.post('/login', user.login);
+app.get('/addUser', function (req, res) {res.render('addUser');});
+app.post('/addUser', user.createUser);
 
 app.get('/getAsset', am.getAsset);
 app.post('/addImgAsset', am.addImgAsset);
@@ -88,6 +74,7 @@ app.post('/removeTag', rc.removeTag);
 app.get('/getTags', rc.getTags);
 app.get('/getRHG', rc.getVersionHistory);
 
+// synchronus operation
 io.on('connection', function(socket){
   socket.on('operation', function(op){
     io.emit('operation', op);
