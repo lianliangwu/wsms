@@ -4,6 +4,7 @@ var SceneSchema = new mongoose.Schema({
   uuid: String,
   data: String,
   name: String,
+  privilege: String,
   newestVersion: Number
 });
 

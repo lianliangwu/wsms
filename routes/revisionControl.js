@@ -1487,7 +1487,7 @@ exports.getBranches = function(req, res) {
 		if(!err){
 			res.send({
 				'success': true,
-				'tags': branches
+				'branches': branches
 			});
 		}
 	});
