@@ -31,6 +31,7 @@ app.use(express.static(path.join(__dirname, 'test')));
 
 app.get('/', user.requireUser(), routes.index);
 app.post('/saveScene', routes.saveScene);
+app.post('/updateSceneByName', routes.updateSceneByName);
 app.get('/loadScene', routes.loadScene);
 app.get('/getAllScenes', routes.getAllScenes);
 

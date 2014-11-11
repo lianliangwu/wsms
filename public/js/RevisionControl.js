@@ -330,6 +330,7 @@ var RevisionControl = function (editor) {
 			'name': options.name,
 			'desc': options.desc,
 			'sceneId': editor.scene.uuid,
+			'privilege': options.privilege,
 			'versionNum': editor.scene.userData.currentVersion
 		};
 

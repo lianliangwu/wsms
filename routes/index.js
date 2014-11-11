@@ -70,6 +70,21 @@ exports.saveScene = function(req, res){
 	res.send({success: true});
 };
 
+exports.updateSceneByName = function (req, res) {
+
+	Scene.findOne({'name' : req.body.name}, function onEnd(err, scene) {
+		if (!err) {
+			scene.privilege = req.body.privilege;
+			
+			scene.save(function onEnd(err) {
+				if (!err) {
+					res.send({success: true});
+				}
+			});
+		}
+	});
+};
+
 exports.loadScene = function(req, res){
 	var uuid = req.query['uuid'];
 

@@ -1454,6 +1454,7 @@ exports.addBranch = function(req, res) {
 	Branch.create({
 		sceneId: req.body['sceneId'],
 		name: req.body['name'],
+		privilege: req.body['privilege'],
 		versionNum: req.body['versionNum'],
 		desc: req.body['desc']
 	},function onEnd(err, branch){

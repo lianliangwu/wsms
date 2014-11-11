@@ -120,13 +120,16 @@ Menubar.RVC = function ( editor ) {
 
 	function addBranch() {
 		var name = prompt('add branch', '');
-
+		var privilege;
 		if(!name) {
 			return;
+		}else{
+			privilege = prompt('specify privilege', '');
 		}
 
 		editor.revCon.addBranch({
 			'name': name,
+			'privilege': privilege,
 			'desc': ''
 		}, function onEnd(err) {
 			if(!err) {
