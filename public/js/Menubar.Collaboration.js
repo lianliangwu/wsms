@@ -1,11 +1,11 @@
-Menubar.Scene = function ( editor ) {
+Menubar.Collaboration = function ( editor ) {
 
 	var container = new UI.Panel();
 	container.setClass( 'menu' );
 	container.setWidth('65px');
 
 	var title = new UI.Panel();
-	title.setTextContent( 'Scene' );
+	title.setTextContent( 'Collab' );
 	title.setMargin( '0px' );
 	title.setPadding( '8px' );
 	container.add( title );
@@ -20,10 +20,9 @@ Menubar.Scene = function ( editor ) {
 
 	var option = new UI.Panel();
 	option.setClass( 'option' );
-	option.setTextContent( 'New Scene' );
+	option.setTextContent( 'Synchronous' );
 	option.onClick( function () {
 
-		editor.resetScene();
 
 	} );
 	options.add( option );
@@ -32,26 +31,12 @@ Menubar.Scene = function ( editor ) {
 
 	var option = new UI.Panel();
 	option.setClass( 'option' );
-	option.setTextContent( 'Retrieve' );
+	option.setTextContent( 'Asynchronous' );
 	option.onClick( function () {
 
-		editor.versionwin.show();
-
-	} );
-	options.add( option );
-
-	// commit
-
-	var option = new UI.Panel();
-	option.setClass( 'option' );
-	option.setTextContent( 'Commit' );
-	option.onClick( function () {
-
-		editor.revCon.commit();
 
 	} );
 	options.add( option );
 
 	return container;
-
-}
+};
