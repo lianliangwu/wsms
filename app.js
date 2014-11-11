@@ -40,6 +40,8 @@ app.get('/addUser', function (req, res) {res.render('addUser');});
 app.post('/addUser', user.createUser);
 app.post('/createGroup', user.createGroup);
 app.post('/removeGroup', user.removeGroup);
+app.get('/getAllGroups', user.getAllGroups);
+app.get('/getGroupByName', user.getGroupByName);
 app.post('/addUserToGroup', user.addUserToGroup);
 app.post('/removeUserFromGroup', user.removeUserFromGroup);
 

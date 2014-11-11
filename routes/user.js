@@ -71,10 +71,25 @@ exports.removeGroup = function (req, res) {
   });
 };
 
+exports.getAllGroups = function (req, res) {
+  Group.find({}, function onEnd(err, groups) {
+    if (!err) {
+      res.send({groups: groups});
+    }
+  });
+};
+
+exports.getGroupByName = function (req, res) {
+  Group.findOne({'name': req.query.groupName}, function onEnd(err, group) {
+    if (!err) {
+      res.send({group: group});
+    }
+  });
+};
+
 exports.addUserToGroup = function (req, res) {
   Group.findOne({'name': req.body.groupName}, function onEnd(err, group) {
     if (!err) {
-      console.log(group);
       if (group.users.indexOf(req.body.userName) < 0) {
         group.users.push(req.body.userName);
         group.save();
