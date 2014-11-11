@@ -38,6 +38,10 @@ app.get('/login', function (req, res) {res.render('login');});
 app.post('/login', user.login);
 app.get('/addUser', function (req, res) {res.render('addUser');});
 app.post('/addUser', user.createUser);
+app.post('/createGroup', user.createGroup);
+app.post('/removeGroup', user.removeGroup);
+app.post('/addUserToGroup', user.addUserToGroup);
+app.post('/removeUserFromGroup', user.removeUserFromGroup);
 
 app.get('/getAsset', am.getAsset);
 app.post('/addImgAsset', am.addImgAsset);
