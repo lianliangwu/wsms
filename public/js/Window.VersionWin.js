@@ -94,7 +94,10 @@ var VersionWin = function ( editor ) {
         editor.mergeWin.show(container.sceneId, versions[0], versions[1], versions[2]);
       }
     }else if(versions.length === 2){
-      alert('not supported yet!');
+      // alert('not supported yet!');
+      if(container.sceneId){
+        editor.mergeWin.show(container.sceneId, versions[0], versions[1]);
+      }
     }else{
       alert("please select at least two versions.");
     }

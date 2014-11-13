@@ -103,19 +103,7 @@ Menubar.RVC = function ( editor ) {
 	function merge() {
 		var versionName = prompt('merge', '');
 
-		editor.revCon.merge({
-			'sceneId': editor.scene.uuid,
-			'versionA': editor.scene.userData.branch,
-			'versionB': versionName
-		}, function onEnd(err, mergeResult) {
-			if(!err){
-				editor.mergeWin.showMerge({
-					'versionA': editor.scene.userData.branch,
-					'versionB': versionName,
-					'mergeResult': mergeResult
-				});
-			}
-		});
+		editor.mergeWin.show(editor.scene.uuid, editor.scene.userData.currentVersion, versionName);
 	}
 
 	function addBranch() {

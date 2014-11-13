@@ -60,6 +60,20 @@ var MergeWin = function (editor) {
 
 				init(result);
 			});		
+		}else{
+			editor.revCon.merge({
+				'sceneId': sceneId,
+				'versionA': verA,
+				'versionB': verB
+			}, function(err, result) {
+				versionA = verA;
+				versionB = verB;
+				versionNumA = result.versionNumA;
+				versionNumB = result.versionNumB;
+				mergeLog = result.mergeLog;
+
+				init(result);
+			});	
 		}
 	};
 
