@@ -1581,7 +1581,7 @@ exports.getVersionHistory = function(req, res) {
 
 	getAllTags(function() {
 		var nodes = [], edges = [];   
-		var nodeMap = {};           
+		var nodeMap = {};
 
 		//build nodes and edges array for drawing
 		var build = function() {
@@ -1608,14 +1608,14 @@ exports.getVersionHistory = function(req, res) {
 			branches.forEach(function onEach(branch) {
 				var id = branch.versionNum;
 				nodeMap[id].branches = nodeMap[id].branches || [];
-				nodeMap[id].branches.push(branch.name);
+				nodeMap[id].branches.push(branch);
 			});	
 
 			tags.forEach(function onEach(tag) {
 				var id = tag.versionNum;
 				nodeMap[id].tags = nodeMap[id].tags || [];
 				nodeMap[id].tags.push(tag.name);
-			});				
+			});
 		};
 
 		build();

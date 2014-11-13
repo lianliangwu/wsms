@@ -1,6 +1,8 @@
 var VersionWin = function ( editor ) {
 
   var container = new UI.Window("Version History");
+  container.setInnerWidth("300px");
+  container.setInnerHeight("300px");
 
 
   var versionDag = new UI.DAG();
@@ -10,44 +12,45 @@ var VersionWin = function ( editor ) {
 
   // version control
   var versionControlRow = new UI.Panel();
-  var retrieveBtn = new UI.Button( 'Retrieve' ).setMarginLeft( '7px' ).onClick( retrieve );
-  var commitBtn = new UI.Button( 'Commit' ).setMarginLeft( '7px' ).onClick( function () {} );
-  var removeBtn = new UI.Button( 'Remove' ).setMarginLeft( '7px' ).onClick( removeVersion );
+  var retrieveBtn = new UI.Button( 'Checkout' ).setMarginRight( '20px' ).onClick( retrieve );
+  // var commitBtn = new UI.Button( 'Commit' ).setMarginLeft( '7px' ).onClick( function () {} );
+  // var removeBtn = new UI.Button( 'Remove' ).setMarginLeft( '7px' ).onClick( removeVersion );
   
-  versionControlRow.add( new UI.Text( 'Version :' ).setWidth( '100px' ) );
+  // versionControlRow.add( new UI.Text( 'Version :' ).setWidth( '100px' ) );
   versionControlRow.add( retrieveBtn );
-  versionControlRow.add( commitBtn );
-  versionControlRow.add( removeBtn );
-  versionControlRow.setMargin("10px");
+  // versionControlRow.add( commitBtn );
+  // versionControlRow.add( removeBtn );
+  // versionControlRow.setMargin("10px");
+  versionControlRow.setTextAlign("right");  
   
   controlPanel.add(versionControlRow);
 
   //branch control
-  var branchControlRow = new UI.Panel();
-  var newBranchBtn = new UI.Button('New').setMarginLeft( '7px' );
-  var removeBranchBtn = new UI.Button('Remove').setMarginLeft( '7px' );
-  var mergeBtn = new UI.Button( 'Merge' ).setMarginLeft( '7px' ).onClick( merge );
+  // var branchControlRow = new UI.Panel();
+  // var newBranchBtn = new UI.Button('New').setMarginLeft( '7px' );
+  // var removeBranchBtn = new UI.Button('Remove').setMarginLeft( '7px' );
+  // var mergeBtn = new UI.Button( 'Merge' ).setMarginLeft( '7px' ).onClick( merge );
 
-  branchControlRow.add( new UI.Text( 'Branch :' ).setWidth( '100px' ) );
-  branchControlRow.add(newBranchBtn);
-  branchControlRow.add(removeBranchBtn);
-  branchControlRow.add(mergeBtn);
-  branchControlRow.setMargin("10px");  
+  // branchControlRow.add( new UI.Text( 'Branch :' ).setWidth( '100px' ) );
+  // branchControlRow.add(newBranchBtn);
+  // branchControlRow.add(removeBranchBtn);
+  // branchControlRow.add(mergeBtn);
+  // branchControlRow.setMargin("10px");  
 
-  controlPanel.add(branchControlRow);
+  // controlPanel.add(branchControlRow);
 
   //tag control
-  var tagControlRow = new UI.Panel();
-  var newTagBtn = new UI.Button('New').setMarginLeft( '7px' );
-  var removeTagBtn = new UI.Button('Remove').setMarginLeft( '7px' );
+  // var tagControlRow = new UI.Panel();
+  // var newTagBtn = new UI.Button('New').setMarginLeft( '7px' );
+  // var removeTagBtn = new UI.Button('Remove').setMarginLeft( '7px' );
 
-  tagControlRow.add( new UI.Text( 'Tag :' ).setWidth( '100px' ) );
-  tagControlRow.add(newTagBtn);
-  tagControlRow.add(removeTagBtn);
-  tagControlRow.setMargin("10px");
+  // tagControlRow.add( new UI.Text( 'Tag :' ).setWidth( '100px' ) );
+  // tagControlRow.add(newTagBtn);
+  // tagControlRow.add(removeTagBtn);
+  // tagControlRow.setMargin("10px");
 
   
-  controlPanel.add(tagControlRow);
+  // controlPanel.add(tagControlRow);
  
 
   container.add( versionDag );
@@ -158,24 +161,38 @@ var VersionWin = function ( editor ) {
               state.value.label += ' ]';
               state.color = "#00FFFF";
             }
-            if(node.branches){
-              state.value.label += '\nbranch: [ ';
-
-              _.each(node.branches, function onEach(branch, i){
-                if(i>0){
-                  state.value.label +=', ';
-                }           
-                state.value.label += branch;
-              });
-
-              state.value.label += ' ]';  
-              state.color = "#FFD800";
-            }
 
             return state;
-          });          
+          });
 
-          versionDag.draw(states, edges);     
+          _.each(nodes, function onEach(node) {
+            if (node.branches){
+              _.each(node.branches, function onEach(branch) {
+                // branch node
+                var state = {};
+                state.id = branch.name;
+                state.color = "#FFD800";
+                state.value = {};
+                state.value.label = 'branch: [' + branch.name + ']';
+                if (branch.privilege === 'private') {
+                  state.value.label += ', ' + branch.creator;
+                }else{
+                  state.value.label += ', ' + branch.privilege;
+                }
+
+                states.push(state);
+
+                // edge
+                var edge = {
+                  'v': branch.name,
+                  'u': node.id
+                };
+                edges.push(edge);
+              });
+            }
+          });
+
+          versionDag.draw(states, edges);
         } else {
           alert('An error occurred!');
         }
