@@ -2,6 +2,7 @@ var SceneWin = function ( editor ) {
 	var sceneMap = {};
 
 	var container = new UI.Window("Scene Manager");
+	container.setInnerHeight("300px");
 
 	var sceneSelect = new UI.FancySelect().setId( 'sceneSelect' );
 	sceneSelect.onChange( function () {

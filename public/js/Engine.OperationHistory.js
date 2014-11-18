@@ -4,7 +4,7 @@ var OperationHistory = (function(){
 	var operations = [];
 	var map = {};
 	var top = -1;
-	var count = 0;
+	var count = 1;
 	var SIGNALS = signals; 
 
 	var sig = {

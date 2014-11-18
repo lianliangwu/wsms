@@ -10,6 +10,11 @@ var HistoryWin = function(){
 	historyWin.setInnerWidth("300px");
 	historyWin.setInnerHeight("300px");
 
+	var fancySelect = new UI.FancySelect();
+	options[0] = '<div class=""><strong><span>Time</span><span>key</span><span>object</span><span>user</span></strong></div>';
+	fancySelect.setOptions(options);
+	historyWin.add(fancySelect);
+
 	var btnRow = new UI.Panel().setTextAlign("center");
 	var undoBtn = new UI.Button( 'Undo' ).setMarginLeft( '7px' ).onClick( undo );
 	var redoBtn = new UI.Button( 'Redo' ).setMarginLeft( '7px' ).onClick( redo );	
@@ -18,9 +23,6 @@ var HistoryWin = function(){
 	btnRow.add(redoBtn);
 	historyWin.add(btnRow);
 
-	var fancySelect = new UI.FancySelect();
-
-	historyWin.add(fancySelect);
 	historyWin.hide();
 
 	//event listener
@@ -80,7 +82,8 @@ var HistoryWin = function(){
 		items[op.id] = {
 			time: time,
 			name: name,
-			type: type
+			type: type,
+			username: op.username
 		};
 	}
 
@@ -91,9 +94,10 @@ var HistoryWin = function(){
 		var col1 = '<span>' + item.time +'</span>';
 		var col2 = '<span>' + item.type + '</span>';
 		var col3 = '<span>' + item.name + '</span>';
-		options[op.id] = '<div>' + col1 + col2 + col3 + '</div>';
+		var col4 = '<span>' + item.username + '</span>';
+		options[op.id] = '<div>' + col1 + col2 + col3 + col4 + '</div>';
 		_.forEach(items, function(item, index){
-			if(item.undone){
+			if(item && item.undone){
 				delete options[index];
 			}
 		});
@@ -107,7 +111,8 @@ var HistoryWin = function(){
 		var col1 = '<span>' + item.time +'</span>';
 		var col2 = '<span>' + item.type + '</span>';
 		var col3 = '<span>' + item.name + '</span>';
-		options[op.id] = '<div class="undone">' + col1 + col2 + col3 + '</div>';
+		var col4 = '<span>' + item.username + '</span>';
+		options[op.id] = '<div class="undone">' + col1 + col2 + col3 + col4 + '</div>';
 		items[op.id].undone = true;
 
 		fancySelect.setOptions(options);
@@ -119,7 +124,8 @@ var HistoryWin = function(){
 		var col1 = '<span>' + item.time +'</span>';
 		var col2 = '<span>' + item.type + '</span>';
 		var col3 = '<span>' + item.name + '</span>';
-		options[op.id] = '<div>' + col1 + col2 + col3 + '</div>';
+		var col4 = '<span>' + item.username + '</span>';
+		options[op.id] = '<div>' + col1 + col2 + col3 + col4 + '</div>';
 		items[op.id].undone = false;
 
 		fancySelect.setOptions(options);

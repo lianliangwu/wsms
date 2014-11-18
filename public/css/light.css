@@ -223,11 +223,11 @@ input.Number {
 	#historyWin .FancySelect{
 		height: 80%;
 		width: 85%;
-		margin: 0px auto;
+		margin: 10px auto;
 		overflow: auto;
 	}
 		#historyWin .FancySelect .option span{
-			min-width: 33%;
+			min-width: 25%;
 			display: inline-block;
 			text-align: center;			
 		}

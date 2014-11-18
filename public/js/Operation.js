@@ -1,4 +1,4 @@
-/*global THREE, editor*/
+/*global THREE, editor, Utils*/
 var Operation = (function(){
 	"use strict";
 	var CREATE = 0;
@@ -46,6 +46,7 @@ var Operation = (function(){
 
 	
 	function Operation(type, options){
+		this.username = Utils.readCookie('username');
 		switch(type){
 			case CREATE:
 				this.type = CREATE;
