@@ -45,7 +45,7 @@ var DiffColor = (function(){
 		var outlineMesh1 = new THREE.Mesh( mesh.geometry.clone(), outlineMaterial1 );
 
 		outlineMesh1.applyMatrix(mesh.matrixWorld);
-		outlineMesh1.scale.multiplyScalar(1.2);
+		outlineMesh1.scale.multiplyScalar(1.05);
 
 		this.outlines.push(outlineMesh1);
 		this.sceneHelpers.add(outlineMesh1);

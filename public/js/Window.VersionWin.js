@@ -151,19 +151,19 @@ var VersionWin = function ( editor ) {
             state.value = {};
             state.value.label = node.label;      
             
-            if(node.tags){
-              state.value.label += '\ntag: [ ';
+            // if(node.tags){
+            //   state.value.label += '\ntag: [ ';
 
-              _.each(node.tags, function onEach(tag, i){
-                if(i>0){
-                  state.value.label +=',';
-                }
-                state.value.label += tag;
-              });
+            //   _.each(node.tags, function onEach(tag, i){
+            //     if(i>0){
+            //       state.value.label +=',';
+            //     }
+            //     state.value.label += tag;
+            //   });
 
-              state.value.label += ' ]';
-              state.color = "#00FFFF";
-            }
+            //   state.value.label += ' ]';
+            //   state.color = "#00FFFF";
+            // }
 
             return state;
           });
@@ -191,6 +191,26 @@ var VersionWin = function ( editor ) {
                   'u': node.id
                 };
                 edges.push(edge);
+              });
+            }
+
+            if (node.tags) {
+              _.each(node.tags, function onEach(tag) {
+                // tag node
+                var state = {};
+                state.id = tag;
+                state.color = "#00FFFF";
+                state.value = {};
+                state.value.label = 'tag: [' + tag + ']';
+                states.push(state);
+
+                // edge
+                var edge = {
+                  'u': node.id,
+                  'v': tag
+                };
+                edges.push(edge);
+
               });
             }
           });
