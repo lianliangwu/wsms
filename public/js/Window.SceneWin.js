@@ -7,7 +7,7 @@ var SceneWin = function ( editor ) {
 		newSceneBtn = new UI.Button( 'New' ).setMarginLeft( '7px' ).onClick(addScene),
 		loadSceneBtn = new UI.Button( 'Load' ).setMarginLeft( '7px' ).onClick( loadScene ),
 		versionBtn = new UI.Button( 'View Versions' ).setMarginLeft( '7px' ).onClick( viewVersions ),
-		removeBtn = new UI.Button( 'Remove' ).setMarginLeft( '7px' ),
+		removeBtn = new UI.Button( 'Remove' ).setMarginLeft( '7px' ).onClick(removeScene),
 		sceneMap = {};
 
 	
@@ -81,6 +81,7 @@ var SceneWin = function ( editor ) {
 			}
 		});		
 	}
+
 	function viewVersions() {
 		var uuid = sceneSelect.getValue();
 		if(!uuid){
@@ -88,6 +89,22 @@ var SceneWin = function ( editor ) {
 		}else{
 			editor.versionWin.show(sceneSelect.getValue());	
 		}
+	}
+
+	function removeScene() {
+		var uuid = sceneSelect.getValue(),
+			params = {
+			'sceneId': uuid
+		};
+
+		Ajax.post({
+			'url': 'removeScene',
+			'params': params
+		}, function onEnd(err, result) {
+			if(result.success === true){
+				console.log("scene " + name + " removed");
+			}
+		});
 	}
 	return container;
 

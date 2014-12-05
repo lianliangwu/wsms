@@ -32,6 +32,7 @@ app.use(express.static(path.join(__dirname, 'test')));
 
 app.get('/', user.requireUser(), routes.index);
 app.post('/addScene', routes.addScene);
+app.post('/removeScene', routes.removeScene);
 app.get('/getAllScenes', routes.getAllScenes);
 
 app.post('/addModel', modelManager.addModel);

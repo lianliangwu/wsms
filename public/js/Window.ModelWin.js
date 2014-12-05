@@ -7,7 +7,7 @@ var ModelWin = function ( editor ) {
 		newModelBtn = new UI.Button( 'New' ).setMarginLeft( '7px' ).onClick(addModel),
 		loadModelBtn = new UI.Button( 'Load' ).setMarginLeft( '7px' ).onClick( loadModel ),
 		versionBtn = new UI.Button( 'View Versions' ).setMarginLeft( '7px' ).onClick( viewVersions ),
-		removeBtn = new UI.Button( 'Remove' ).setMarginLeft( '7px' ),
+		removeBtn = new UI.Button( 'Remove' ).setMarginLeft( '7px' ).onClick(removeModel),
 		sceneMap = {};
 
 	
@@ -65,7 +65,7 @@ var ModelWin = function ( editor ) {
 				if(result.success === true){
 					editor.scene.userData.currentVersion = result.versionNum;
 					editor.scene.userData.branch = result.branch;
-					console.log("scene " + name + " added");
+					console.log("model " + name + " added");
 				}
 			});
 		}
@@ -85,13 +85,30 @@ var ModelWin = function ( editor ) {
 			}
 		});		
 	}
+
 	function viewVersions() {
 		var uuid = modelSelect.getValue();
 		if(!uuid){
-			alert("no scene selected!");
+			alert("no model selected!");
 		}else{
 			editor.versionWin.show(modelSelect.getValue());	
 		}
+	}
+
+	function removeModel() {
+		var uuid = modelSelect.getValue(),
+			params = {
+			'sceneId': uuid
+		};
+
+		Ajax.post({
+			'url': 'removeModel',
+			'params': params
+		}, function onEnd(err, result) {
+			if(result.success === true){
+				console.log("model " + name + " removed");
+			}
+		});
 	}
 	return container;
 

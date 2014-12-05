@@ -95,15 +95,7 @@ exports.addScene = function(req, res){
 };
 
 exports.removeScene = function(req, res){
-	var uuid = req.query['uuid'];
-
-	removeScene(uuid, function(err){
-		if(!err){
-			res.send({
-				'success': true
-			});
-		}
-	});
+	revisionControl.removeScene(req, res);
 };
 
 exports.getAllScenes = function(req, res) {

@@ -9,15 +9,7 @@ exports.addModel = function(req, res){
 };
 
 exports.removeModel = function(req, res){
-    var uuid = req.query['uuid'];
-
-    Scene.findOne({'uuid': uuid}, function onEnd(err, model) {
-        
-        if(!err && model) {
-            model.remove();
-            res.send({success: true});
-        }
-    });
+    index.removeScene(req, res);
 };
 
 exports.getModels = function(req, res) {
