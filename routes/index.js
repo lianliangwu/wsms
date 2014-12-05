@@ -2,6 +2,7 @@
 
 var Scene = require('../models/scene.js');
 var RNode = require('../models/rNode.js');
+var Branch = require('../models/branch.js');
 var revisionControl = require('./revisionControl.js');
 var fs = require('fs');
 
@@ -62,11 +63,41 @@ exports.index = function(req, res){
     res.render('index');
 };
 
-exports.saveScene = function(req, res){
-	var uuid = req.body['uuid'];
-	var scene = req.body['scene'];
+exports.addScene = function(req, res){
+	var uuid = req.body['uuid'],
+		name = req.body['name'],
+		scene = null,
+		branch = null,
+		rNode = null;
 
-	saveScene(uuid, scene);
+	// add scene
+	scene = new Scene({
+		'uuid': uuid,
+		'name': name,
+		'newestVersion': 0
+	});
+	scene.save();
+	// add master branch
+	branch = new Branch({
+		'sceneId': uuid,
+		'name': 'master',
+		'versionNum': "0",
+		'desc': 'default branch'
+	});
+	branch.save();
+	// add 0 version
+	rNode = new RNode({
+		'sceneId': uuid,
+		'versionNum': 0,
+		'prevs': [],
+		'nodeMap': {}
+	});
+
+	RNode.saveWithPath(rNode, function onEnd(err) {
+		if(!err){
+			console.log('rNode saved' );
+		}
+	});
 	res.send({success: true});
 };
 
