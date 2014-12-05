@@ -1199,51 +1199,177 @@ exports.merge = function(req, res) {
 	}
 };
 
-exports.commit = function(req, res) {
-	var preVersions = JSON.parse(req.body.preVersions);
-	var sceneGraph = JSON.parse(req.body.scene);
-	var branchName = req.body.branch;
-	var sceneId = req.body.sceneId;
-	var deltaNodes, nodeMap = {};
-	var nodes = getNodesFromScene(sceneGraph);
-	var scene, branch;
+// exports.commit = function(req, res) {
+// 	var preVersions = JSON.parse(req.body.preVersions);
+// 	var sceneGraph = JSON.parse(req.body.scene);
+// 	var branchName = req.body.branch;
+// 	var sceneId = req.body.sceneId;
+// 	var deltaNodes, nodeMap = {};
+// 	var nodes = getNodesFromScene(sceneGraph);
+// 	var scene, branch;
 
-	if (preVersions.length === 0){//first commit
-		//save scene info
-		scene = new Scene({
-			'uuid': sceneId,
-			'name': sceneGraph.object.name,
-			'newestVersion': -1
-		});
+// 	if (preVersions.length === 0){//first commit
+// 		//save scene info
+// 		scene = new Scene({
+// 			'uuid': sceneId,
+// 			'name': sceneGraph.object.name,
+// 			'newestVersion': -1
+// 		});
 
-		//create master branch here
-		branchName = 'master';
-		branch = new Branch({
-			'sceneId': sceneId,
-			'name': branchName,
-			'versionNum': "-1",
-			'desc': 'default branch'
-		});
+// 		//create master branch here
+// 		branchName = 'master';
+// 		branch = new Branch({
+// 			'sceneId': sceneId,
+// 			'name': branchName,
+// 			'versionNum': "-1",
+// 			'desc': 'default branch'
+// 		});
 
-		commit();
+// 		commit();
 		
-	}else{
-		Scene.findOne({'uuid':sceneId}, function onEnd(err, result) {
-			if(!err){
-				scene = result;
-				// get branch here
-				Branch.findOne({
-					'name': branchName,
-					'sceneId': sceneId
-				}, function onEnd(err, result) {
-					if(!err){
-						branch = result;
-						commit();
-					}
-				});
-			}
-		});
-	}
+// 	}else{
+// 		Scene.findOne({'uuid':sceneId}, function onEnd(err, result) {
+// 			if(!err){
+// 				scene = result;
+// 				// get branch here
+// 				Branch.findOne({
+// 					'name': branchName,
+// 					'sceneId': sceneId
+// 				}, function onEnd(err, result) {
+// 					if(!err){
+// 						branch = result;
+// 						commit();
+// 					}
+// 				});
+// 			}
+// 		});
+// 	}
+
+
+// 	function saveDeltaNodes(deltaNodes) {
+// 		deltaNodes.forEach(function each(node) {
+// 			SNode.create(node, function onEnd(err, node){
+// 				if(!err){
+// 					SNode.signals.nodeAdded.dispatch(node);
+// 				}else{
+// 					console.log("save SNode err! "+ err);
+// 				}
+// 			});
+// 		});		
+// 	}
+
+// 	function saveRNode(versionNum, preVersions) {
+// 		//build node map of scene graph
+// 		nodes.forEach(function each(node) {
+// 			nodeMap[node.uuid] = node.versionNum;
+// 		});
+
+// 		var rNode = new RNode({
+// 			'sceneId': sceneId,
+// 			'versionNum': versionNum,
+// 			'prevs': preVersions,
+// 			'nodeMap': JSON.stringify(nodeMap)
+// 		});
+
+// 		RNode.saveWithPath(rNode, function onEnd(err) {
+// 			if(!err){
+// 				console.log('rNode saved' );
+// 			}
+// 		});
+// 	}
+
+// 	function commit() {
+// 		getPreVersionNodes(function onEnd(err, preVersionNodes) {
+// 			scene.newestVersion += 1;
+// 			deltaNodes = diff(preVersionNodes, nodes, scene.newestVersion + '');
+
+// 			if(deltaNodes.length > 0){
+// 				//save scene info
+// 				scene.name = sceneGraph.object.name;
+// 				scene.save(function( err ){
+// 					if(!err){
+// 						console.log('Scene saved!');
+// 					}
+// 				});
+
+// 				//save branch here.
+// 				branch.versionNum = scene.newestVersion;
+// 				branch.save(function( err ){
+// 					if(!err){
+// 						console.log('branch saved!');
+// 					}
+// 				});
+
+// 				saveDeltaNodes(deltaNodes);
+// 				saveRNode(scene.newestVersion, preVersions);
+// 				assetManage._autoRemove(function onEnd(err){
+// 					if(err){
+// 						console.log(err);
+// 					}
+// 				});
+
+// 				res.send({
+// 					'success': true,
+// 					'versionNum': scene.newestVersion,
+// 					'branch': branchName
+// 				});	
+
+// 			}else{
+// 				console.log("no change to be committed!\n");
+				
+// 				res.send({
+// 					'success': false,
+// 					'errInfo': 'no change to be committed'
+// 				});
+// 			}
+// 		});
+
+// 		function getPreVersionNodes(callback) {
+// 			var count = preVersions.length;
+// 			var allNodes = [];
+
+// 			//first commit
+// 			if(count === 0){
+// 				callback(null, allNodes);
+// 			}
+
+// 			preVersions.forEach(function onEach(versionNum){
+// 				retrieveSceneNodes(sceneId, versionNum, function onEach(err, nodes) {
+// 					allNodes = allNodes.concat(nodes);
+// 					count--;
+// 					if(count === 0){
+// 						callback(null, allNodes);
+// 					}
+// 				});
+// 			});
+// 		}
+// 	}
+// };
+exports.commit = function(req, res) {
+	var preVersions = JSON.parse(req.body.preVersions),
+		sceneGraph = JSON.parse(req.body.scene),
+		branchName = req.body.branch,
+		sceneId = req.body.sceneId,
+		deltaNodes, nodeMap = {},
+		nodes = getNodesFromScene(sceneGraph),
+		scene = null,
+		branch = null;
+
+	Scene.findOne({'uuid':sceneId}, function onEnd(err, result) {
+		if(!err){
+			scene = result;
+			// get branch here
+			Branch.findOne({
+				'name': branchName,
+				'sceneId': sceneId
+			}, function onEnd(err, result) {
+				if(!err){
+					branch = result;
+					commit();
+				}
+			});
+		}
+	});
 
 
 	function saveDeltaNodes(deltaNodes) {
@@ -1259,8 +1385,7 @@ exports.commit = function(req, res) {
 	}
 
 	function saveRNode(versionNum, preVersions) {
-		//build node map of scene graph
-		nodes.forEach(function each(node) {
+		nodes.forEach(function each(node) {//build node map of scene graph
 			nodeMap[node.uuid] = node.versionNum;
 		});
 
@@ -1302,16 +1427,10 @@ exports.commit = function(req, res) {
 
 				saveDeltaNodes(deltaNodes);
 				saveRNode(scene.newestVersion, preVersions);
-				assetManage._autoRemove(function onEnd(err){
-					if(err){
-						console.log(err);
-					}
-				});
 
 				res.send({
 					'success': true,
-					'versionNum': scene.newestVersion,
-					'branch': branchName
+					'versionNum': scene.newestVersion
 				});	
 
 			}else{
