@@ -13,17 +13,10 @@ SceneSchema.statics.findByUuid = function(uuid, callback) {
   this.find({'uuid': uuid}, callback);
 };
 
-SceneSchema.statics.saveScene = function(scene, callback) {
-
-};
-
-SceneSchema.statics.getScene = function(uuid, callback) {
-	
-};
-
 SceneSchema.statics.getAllScenes = function(callback) {
   this.find(callback);
 };
+
 
 var Scene = mongoose.model('Scene', SceneSchema);
 
