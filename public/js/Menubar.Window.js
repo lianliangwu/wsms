@@ -28,6 +28,18 @@ Menubar.Window = function ( editor ) {
 	} );
 	options.add( option );
 
+	// models
+
+	var option = new UI.Panel();
+	option.setClass( 'option' );
+	option.setTextContent( 'Model Window' );
+	option.onClick( function () {
+
+		editor.modelWin.show();
+
+	} );
+	options.add( option );
+
 	// assets
 
 	var option = new UI.Panel();

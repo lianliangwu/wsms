@@ -1,80 +1,48 @@
 /*global UI, Ajax*/
 var SceneWin = function ( editor ) {
 	"use strict";
-	var sceneMap = {};
+	var container = new UI.Window("Scene Manager"),
+		sceneSelect = new UI.FancySelect().setId( 'sceneSelect' ),
+		sceneControlRow = new UI.Panel(),
+		newSceneBtn = new UI.Button( 'New' ).setMarginLeft( '7px' ).onClick(addScene),
+		loadSceneBtn = new UI.Button( 'Load' ).setMarginLeft( '7px' ).onClick( loadScene ),
+		versionBtn = new UI.Button( 'View Versions' ).setMarginLeft( '7px' ).onClick( viewVersions ),
+		removeBtn = new UI.Button( 'Remove' ).setMarginLeft( '7px' ),
+		sceneMap = {};
 
-	var container = new UI.Window("Scene Manager");
-	container.setInnerHeight("300px");
-
-	var sceneSelect = new UI.FancySelect().setId( 'sceneSelect' );
-	sceneSelect.onChange( function () {
-
-	} );
-
-	var sceneControlRow = new UI.Panel();
-	var newSceneBtn = new UI.Button( 'New' ).setMarginLeft( '7px' ).onClick(addScene);
-	var loadSceneBtn = new UI.Button( 'Load' ).setMarginLeft( '7px' ).onClick( loadScene );
-	var shareSceneBtn = new UI.Button( 'Share' ).setMarginLeft( '7px' ).onClick( function () {
-		var email = prompt("share scene with:","");
-	} );
-	var versionBtn = new UI.Button( 'View Versions' ).setMarginLeft( '7px' ).onClick( function () {
-		var uuid = sceneSelect.getValue();
-		if(!uuid){
-			alert("no scene selected!");
-		}else{
-			editor.versionWin.show(sceneSelect.getValue());	
-		}
-	} );
-	var removeBtn = new UI.Button( 'Remove' ).setMarginLeft( '7px' ).onClick( function () {
-
-	} );
-
-	var loadSceneInfo = function() {
-		//save scene
-		var formData = new FormData();  
-
-		// Set up the request.
-		var xhr = new XMLHttpRequest();
-
-		// Open the connection.
-		xhr.open('GET', 'getAllScenes', true);
-
-		// Set up a handler for when the request finishes.
-		xhr.onload = function () {
-			if (xhr.status === 200 && xhr.readyState === 4) {
-
-				var scenes = JSON.parse(xhr.responseText).scenes;
-				var options = {};
-
-				scenes.forEach(function onEach(scene) {
-					sceneMap[scene.uuid] = scene;
-					options[scene.uuid] = scene.name;
-				});
-
-				sceneSelect.setOptions(options);			
-				
-			} else {
-				alert('An error occurred!');
-			}
-		};
-
-		// Send the Data.
-		xhr.send(formData);		
-	};
+	
+	container.setInnerHeight("300px");	
 
 	sceneControlRow.add( newSceneBtn );
 	sceneControlRow.add( loadSceneBtn );
-	sceneControlRow.add( shareSceneBtn );
 	sceneControlRow.add( removeBtn );
 	sceneControlRow.add( versionBtn );	
 	sceneControlRow.setMargin("10px");
 	sceneControlRow.setTextAlign('center');
 
-
 	container.add( sceneSelect );
 	container.add( sceneControlRow );
 	loadSceneInfo();
 	container.hide();
+
+	function loadSceneInfo() {
+		var params = {};
+
+		Ajax.getJSON({
+			'url': 'getAllScenes',
+			'params': params
+		}, function onEnd(err, result) {
+			if(result.scenes){
+				var options = {};
+				result.scenes.forEach(function onEach(scene) {
+					sceneMap[scene.uuid] = scene;
+					options[scene.uuid] = scene.name;
+				});
+
+				sceneSelect.setOptions(options);
+			}
+		});
+	}
 
 	function addScene() {
 		var name = prompt('scene name', '');		
@@ -89,7 +57,7 @@ var SceneWin = function ( editor ) {
 			Ajax.post({
 				'url': 'addScene',
 				'params': params
-			}, function onEnd(result) {
+			}, function onEnd(err, result) {
 				if(result.success === true){
 					editor.scene.userData.currentVersion = result.versionNum;
 					editor.scene.userData.branch = result.branch;
@@ -112,6 +80,14 @@ var SceneWin = function ( editor ) {
 				console.log('checkout success.');
 			}
 		});		
+	}
+	function viewVersions() {
+		var uuid = sceneSelect.getValue();
+		if(!uuid){
+			alert("no scene selected!");
+		}else{
+			editor.versionWin.show(sceneSelect.getValue());	
+		}
 	}
 	return container;
 

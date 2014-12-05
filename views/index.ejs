@@ -73,6 +73,7 @@
 		<script src="js/RefManager.js"></script>
 		<script src="js/Window.AssetWin.js"></script>
 		<script src="js/Window.SceneWin.js"></script>
+		<script src="js/Window.ModelWin.js"></script>
 		<script src="js/Window.VersionWin.js"></script>
 		<script src="js/MergeEditor.js"></script>
 		<script src="js/Window.HistoryWin.js"></script>
@@ -140,6 +141,10 @@
 			var sceneWin = new SceneWin( editor ).setId( 'sceneWin' ); 
 			document.body.appendChild( sceneWin.dom );
 			editor.sceneWin = sceneWin;
+
+			var modelWin = new ModelWin( editor ).setId( 'modelWin' ); 
+			document.body.appendChild( modelWin.dom );
+			editor.modelWin = modelWin;
 
 			var assetWin = new AssetWin( editor ).setId( 'assetWin' ); 
 			document.body.appendChild( assetWin.dom );

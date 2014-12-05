@@ -148,7 +148,7 @@ input.Number {
 
 #sceneWin {
     position: absolute;
-    width: 600px;   
+    width: 300px;   
     z-index: 10;
 }
 	#sceneWin #sceneSelect{
@@ -157,6 +157,18 @@ input.Number {
 		margin: auto;
 		margin-top: 20px;
 	}
+
+#modelWin {
+    position: absolute;
+    width: 150px;   
+    z-index: 10;
+}
+	#modelWin #modelSelect{
+		height: 200px;
+		width: 90%;
+		margin: auto;
+		margin-top: 20px;
+	}	
 
 #versionWin {
     position: absolute;

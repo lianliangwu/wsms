@@ -4,7 +4,7 @@ var Scene = require('../models/scene.js');
 var index = require('./index.js');
 
 exports.addModel = function(req, res){
-    req.isModel = true;
+    req.body.isModel = true;
     index.addScene(req, res);
 };
 
@@ -27,7 +27,7 @@ exports.getModels = function(req, res) {
     Scene.find({'isModel': true}).limit(limit).skip(start).exec(function onEnd(err, models){
         res.send({
             'success': true,
-            'scenes':models
+            'models':models
         });
     });
 };
