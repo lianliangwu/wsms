@@ -10,9 +10,7 @@ var SceneWin = function ( editor ) {
 	} );
 
 	var sceneControlRow = new UI.Panel();
-	var newSceneBtn = new UI.Button( 'New' ).setMarginLeft( '7px' ).onClick( function () {
-		editor.resetScene();
-	} );
+	var newSceneBtn = new UI.Button( 'New' ).setMarginLeft( '7px' ).onClick(addScene);
 	var loadSceneBtn = new UI.Button( 'Load' ).setMarginLeft( '7px' ).onClick( loadScene );
 	var shareSceneBtn = new UI.Button( 'Share' ).setMarginLeft( '7px' ).onClick( function () {
 		var email = prompt("share scene with:","");
@@ -75,6 +73,28 @@ var SceneWin = function ( editor ) {
 	container.add( sceneControlRow );
 	loadSceneInfo();
 	container.hide();
+
+	function addScene() {
+		var name = prompt('checkout', '');		
+		if(name){
+			editor.resetScene();
+			var params = {
+				'name': name,
+				'uuid': editor.uuid
+			};
+
+			Ajax.post({
+				'url': 'addScene',
+				'params': params
+			}, function onEnd(result) {
+				if(result.success === true){
+					scene.userData.currentVersion = result.versionNum;
+					scene.userData.branch = result.branch;
+					console.log("scene " + name + " added");
+				}
+			});
+		}
+	} 
 
 	function loadScene() {
 		var sceneId = sceneSelect.getValue();

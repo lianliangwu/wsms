@@ -225,7 +225,6 @@ var RevisionControl = function (editor) {
 			'params': params
 		}, function onEnd(err, result) {
 			scene.userData.currentVersion = result.versionNum;
-			scene.userData.branch = result.branch;
 			commitable = true; // allow for committing
 		});
 	};
