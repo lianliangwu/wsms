@@ -42,9 +42,11 @@ exports.addScene = function(req, res){
 	scene = new Scene({
 		'uuid': uuid,
 		'name': name,
-		'newestVersion': 0,
-		'isModel': req.body.isModel
+		'newestVersion': 0
 	});
+	if(req.body.isModel === true) {
+		scene.isModel = true;
+	}
 	scene.save();
 	// add master branch
 	branch = new Branch({
@@ -99,7 +101,7 @@ exports.removeScene = function(req, res){
 };
 
 exports.getAllScenes = function(req, res) {
-	Scene.getAllScenes(function(err, scenes){
+	Scene.find({isModel: false}, function(err, scenes){
 		res.send({
 			'success': true,
 			'scenes':scenes

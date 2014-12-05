@@ -62,6 +62,7 @@ var SceneWin = function ( editor ) {
 					editor.scene.userData.currentVersion = result.versionNum;
 					editor.scene.userData.branch = result.branch;
 					console.log("scene " + name + " added");
+					loadSceneInfo();
 				}
 			});
 		}
@@ -103,6 +104,7 @@ var SceneWin = function ( editor ) {
 		}, function onEnd(err, result) {
 			if(result.success === true){
 				console.log("scene " + name + " removed");
+				loadSceneInfo();
 			}
 		});
 	}

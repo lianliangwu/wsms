@@ -66,6 +66,7 @@ var ModelWin = function ( editor ) {
 					editor.scene.userData.currentVersion = result.versionNum;
 					editor.scene.userData.branch = result.branch;
 					console.log("model " + name + " added");
+					loadModelInfo();
 				}
 			});
 		}
@@ -107,6 +108,7 @@ var ModelWin = function ( editor ) {
 		}, function onEnd(err, result) {
 			if(result.success === true){
 				console.log("model " + name + " removed");
+				loadModelInfo();
 			}
 		});
 	}
