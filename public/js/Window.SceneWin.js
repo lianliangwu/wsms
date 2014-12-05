@@ -1,4 +1,6 @@
+/*global UI, Ajax*/
 var SceneWin = function ( editor ) {
+	"use strict";
 	var sceneMap = {};
 
 	var container = new UI.Window("Scene Manager");
@@ -18,7 +20,7 @@ var SceneWin = function ( editor ) {
 	var versionBtn = new UI.Button( 'View Versions' ).setMarginLeft( '7px' ).onClick( function () {
 		var uuid = sceneSelect.getValue();
 		if(!uuid){
-			alert("no scene selected!")
+			alert("no scene selected!");
 		}else{
 			editor.versionWin.show(sceneSelect.getValue());	
 		}
@@ -52,7 +54,7 @@ var SceneWin = function ( editor ) {
 				sceneSelect.setOptions(options);			
 				
 			} else {
-			  alert('An error occurred!');
+				alert('An error occurred!');
 			}
 		};
 
@@ -89,8 +91,8 @@ var SceneWin = function ( editor ) {
 				'params': params
 			}, function onEnd(result) {
 				if(result.success === true){
-					scene.userData.currentVersion = result.versionNum;
-					scene.userData.branch = result.branch;
+					editor.scene.userData.currentVersion = result.versionNum;
+					editor.scene.userData.branch = result.branch;
 					console.log("scene " + name + " added");
 				}
 			});
@@ -113,4 +115,4 @@ var SceneWin = function ( editor ) {
 	}
 	return container;
 
-}
+};

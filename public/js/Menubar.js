@@ -7,6 +7,7 @@ var Menubar = function ( editor ) {
 	container.add( new Menubar.Add( editor ) );
 	container.add( new Menubar.View( editor ) );
 	container.add( new Menubar.RVC( editor ) );
+	container.add( new Menubar.Model( editor ) );
 	container.add( new Menubar.Window( editor ) );
 	container.add( new Menubar.Collaboration( editor ) );
 	container.add( new Menubar.Help( editor ) );
