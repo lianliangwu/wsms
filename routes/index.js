@@ -29,8 +29,8 @@ exports.index = function(req, res){
 };
 
 exports.addScene = function(req, res){
-	var uuid = req.body['uuid'],
-		name = req.body['name'],
+	var uuid = req.body.uuid,
+		name = req.body.name,
 		scene = null,
 		branch = null,
 		data = null,
@@ -42,7 +42,8 @@ exports.addScene = function(req, res){
 	scene = new Scene({
 		'uuid': uuid,
 		'name': name,
-		'newestVersion': 0
+		'newestVersion': 0,
+		'isModel': req.body.isModel
 	});
 	scene.save();
 	// add master branch

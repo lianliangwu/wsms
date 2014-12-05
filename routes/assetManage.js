@@ -611,36 +611,3 @@ exports.searchAssets = function (req, res){
 		});
 	});
 };
-
-//auto remove the assets, count==0
-exports._autoRemove = function (callback){
-	Asset.find({
-		"count": 0,
-		"autoRemove": true
-	}, function onEnd(err, assets){
-		assets.forEach(function onEach(asset){
-			//remove asset
-			var path = "./public/" + asset.path;
-			// fs.unlink(path, function onEnd(err){
-			// 	if(!err){
-			// 		console.log('removeFile success.');
-			// 	}else{
-			// 		console.log(err);
-			// 	}
-			// });
-
-			// //remove snapshot
-			// if(asset.snapshot){
-			// 	path = "./public/" + asset.snapshot;
-			// 	fs.unlink(path, function onEnd(err) {
-			// 		if(err){
-			// 			console.log(err);
-			// 			return;
-			// 		}
-			// 		console.log('remove snapshot success.');
-			// 	});
-			// }
-			// asset.remove();			
-		});
-	});
-};

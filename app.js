@@ -8,6 +8,7 @@ var app = express();
 var routes = require('./routes');
 var rc = require('./routes/revisionControl');
 var am = require('./routes/assetManage');
+var modelManager = require('./routes/modelManager.js');
 var user = require('./routes/user');
 var http = require('http').Server(app);
 var io = require('socket.io')(http);
@@ -32,6 +33,10 @@ app.use(express.static(path.join(__dirname, 'test')));
 app.get('/', user.requireUser(), routes.index);
 app.post('/addScene', routes.addScene);
 app.get('/getAllScenes', routes.getAllScenes);
+
+app.post('/addModel', modelManager.addModel);
+app.post('/removeModel', modelManager.removeModel);
+app.get('/getModels', modelManager.getModels);
 
 app.get('/login', function (req, res) {res.render('login');});
 app.post('/login', user.login);

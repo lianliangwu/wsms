@@ -1,22 +1,11 @@
 "use strict";
 
 var Scene = require('../models/scene.js');
-var revisionControl = require('./revisionControl.js');
+var index = require('./index.js');
 
 exports.addModel = function(req, res){
-    var uuid = req.body.modelId;
-
-    req.body.sceneId = req.body.modelId;
-    revisionControl.commit(req, res); // commit the first version
-    Scene.findOne({'uuid': uuid}, function onEnd(err, model) {
-        if(!err) {
-            if(model) {
-                model.isModel = true;
-                model.save();
-                res.send({success: true});
-            }
-        }
-    });
+    req.isModel = true;
+    index.addScene(req, res);
 };
 
 exports.removeModel = function(req, res){
