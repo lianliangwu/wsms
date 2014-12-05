@@ -75,12 +75,13 @@ var SceneWin = function ( editor ) {
 	container.hide();
 
 	function addScene() {
-		var name = prompt('checkout', '');		
+		var name = prompt('scene name', '');		
 		if(name){
 			editor.resetScene();
+			editor.scene.name = name;
 			var params = {
 				'name': name,
-				'uuid': editor.uuid
+				'uuid': editor.scene.uuid
 			};
 
 			Ajax.post({

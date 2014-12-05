@@ -2,6 +2,7 @@
 
 var Scene = require('../models/scene.js');
 var RNode = require('../models/rNode.js');
+var SNode = require('../models/sNode.js');
 var Branch = require('../models/branch.js');
 var revisionControl = require('./revisionControl.js');
 var fs = require('fs');
@@ -32,6 +33,9 @@ exports.addScene = function(req, res){
 		name = req.body['name'],
 		scene = null,
 		branch = null,
+		data = null,
+		nodeMap = {},
+		sNode = null,
 		rNode = null;
 
 	// add scene
@@ -49,12 +53,32 @@ exports.addScene = function(req, res){
 		'desc': 'default branch'
 	});
 	branch.save();
+
+	// add sNode
+	data = {
+		"uuid": uuid,
+		"name": name,
+		"type": "Scene",
+		"matrix": [1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1]
+	};
+	sNode = new SNode({
+		"uuid" : uuid,
+		"type" : "object",
+		"data" : JSON.stringify(data),
+		"versionNum" : 0,
+		"children" : []
+	});
+	sNode.save();
+
+
 	// add version 0
+
+	nodeMap[uuid] = 0;
 	rNode = new RNode({
 		'sceneId': uuid,
 		'versionNum': 0,
 		'prevs': [],
-		'nodeMap': {}
+		'nodeMap': JSON.stringify(nodeMap)
 	});
 
 	RNode.saveWithPath(rNode, function onEnd(err) {
