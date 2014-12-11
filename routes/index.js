@@ -29,6 +29,8 @@ exports.index = function(req, res){
 };
 
 exports.addScene = function(req, res){
+
+	console.log("Test Information: come to add scene controller!!!!");
 	var uuid = req.body.uuid,
 		name = req.body.name,
 		scene = null,

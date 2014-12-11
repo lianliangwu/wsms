@@ -45,7 +45,7 @@ var SceneWin = function ( editor ) {
 	}
 
 	function addScene() {
-		var name = prompt('scene name', '');		
+		var name = prompt('scene name', '');
 		if(name){
 			editor.resetScene();
 			editor.scene.name = name;

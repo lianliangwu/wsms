@@ -40,6 +40,19 @@ Menubar.Window = function ( editor ) {
 	} );
 	options.add( option );
 
+	// tree
+
+	var option = new UI.Panel();
+	option.setClass( 'option' );
+	option.setTextContent( 'Tree Window' );
+	option.onClick( function () {
+
+		editor.treeWin.show();
+		editor.treeWin.customMethod();
+
+	} );
+	options.add( option );
+
 	// assets
 
 	var option = new UI.Panel();

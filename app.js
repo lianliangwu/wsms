@@ -38,6 +38,9 @@ app.get('/getAllScenes', routes.getAllScenes);
 app.post('/addModel', modelManager.addModel);
 app.post('/removeModel', modelManager.removeModel);
 app.get('/getModels', modelManager.getModels);
+//app.get('/getTree', modelManager.getTree);
+app.get('/getTreeTest', function (req, res) {res.render('getTreeTest');});
+app.get('/getTreeNodes', modelManager.getTreeNodes);
 
 app.get('/login', function (req, res) {res.render('login');});
 app.post('/login', user.login);
