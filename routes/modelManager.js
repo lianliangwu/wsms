@@ -126,6 +126,9 @@ exports.editTreeNode = function(req, res) {
 
     var id = req.body.id;
     var name = req.body.name;
+    if (!name){
+        name = 'default node';
+    }
 
     TreeNode.findOne({
         'id': id

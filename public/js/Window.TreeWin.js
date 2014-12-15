@@ -140,7 +140,8 @@ var TreeWin = function ( editor ) {
 		};
 
 		function showRemoveBtn(treeId, treeNode) {
-			return !treeNode.isFirstNode;
+			//return !treeNode.isFirstNode;
+			return true;
 		}
 		function showRenameBtn(treeId, treeNode) {
 			// if is last node, cann't rename
@@ -297,7 +298,7 @@ var TreeWin = function ( editor ) {
 						editor.scene.userData.currentVersion = result.versionNum;
 						editor.scene.userData.branch = result.branch;
 						console.log("model " + name + " added");
-						loadModelInfo();
+						loadModelInfo2(treeNodeId);
 					}
 				});
 			}
@@ -331,21 +332,29 @@ var TreeWin = function ( editor ) {
 	}
 
 	function removeModel() {
-		var uuid = modelSelect.getValue(),
-			params = {
-			'sceneId': uuid
-		};
 
-		Ajax.post({
-			'url': 'removeModel',
-			'params': params
-		}, function onEnd(err, result) {
-			if(result.success === true){
-				console.log("model " + name + " removed");
-				loadModelInfo();
-			}
-		});
+		var treeObj = $.fn.zTree.getZTreeObj("treeDemo");
+		var selectedNodes = treeObj.getSelectedNodes();
+		if ( selectedNodes.length === 0){
+			alert("please select 1 tree node first!");
+		} else {
+			// default get the first selected node, and retrive the node's id
+			var treeNodeId = selectedNodes[0].id;
+			var uuid = modelSelect.getValue(),
+				params = {
+				'sceneId': uuid
+			};
+
+			Ajax.post({
+				'url': 'removeModel',
+				'params': params
+			}, function onEnd(err, result) {
+				if(result.success === true){
+					console.log("model " + name + " removed");
+					loadModelInfo2(treeNodeId);
+				}
+			});
+		}
 	}		
-	
 	return container;
 };
