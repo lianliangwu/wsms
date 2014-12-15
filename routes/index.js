@@ -4,6 +4,7 @@ var Scene = require('../models/scene.js');
 var RNode = require('../models/rNode.js');
 var SNode = require('../models/sNode.js');
 var Branch = require('../models/branch.js');
+var TreeNodeMap = require('../models/treeNodeMap.js');
 var revisionControl = require('./revisionControl.js');
 var fs = require('fs');
 
@@ -33,12 +34,14 @@ exports.addScene = function(req, res){
 	console.log("Test Information: come to add scene controller!!!!");
 	var uuid = req.body.uuid,
 		name = req.body.name,
+		treeNodeId = req.body.treeNodeId,
 		scene = null,
 		branch = null,
 		data = null,
 		nodeMap = {},
 		sNode = null,
-		rNode = null;
+		rNode = null,
+		treeNodeMap = null;
 
 	// add scene
 	scene = new Scene({
@@ -91,6 +94,19 @@ exports.addScene = function(req, res){
 			console.log('rNode saved' );
 		}
 	});
+
+	// add treeNodeMap
+	treeNodeMap = new TreeNodeMap({
+		"id": uuid,
+		"nodeId": treeNodeId,
+		"sceneId": uuid
+	});
+	treeNodeMap.save(function onEnd(err, treeNodeMap) {
+        if(err){
+        	console.log('ERROR: treeNodeMap add failed!!!!!')
+        }
+    });
+
 	res.send({
 		success: true,
 		versionNum: 0,

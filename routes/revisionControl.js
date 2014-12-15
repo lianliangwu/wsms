@@ -6,6 +6,7 @@ var Scene = require('../models/scene.js');
 var SNode = require('../models/sNode.js');
 var RNode = require('../models/rNode.js');
 var Branch = require('../models/branch.js');
+var TreeNodeMap = require('../models/treeNodeMap.js');
 var assetManage = require('./assetManage.js');
 var Tag = require('../models/tag.js');
 var textureMaps = ['map', 'bumpMap', 'lightMap', 'normalMap', 'specularMap', 'envMap'];
@@ -1390,6 +1391,15 @@ exports.removeScene = function(req, res) {
 			Branch.remove({'sceneId': sceneId}, function onEnd(err) {
 				if(!err) {
 					console.log('branches removed');
+				}
+			});
+
+			// remove treeNode-scene map
+			TreeNodeMap.remove({'sceneId': sceneId}, function onEnd(err) {
+				if(!err) {
+					console.log('treeNodeMap removed succeed');
+				} else {
+					console.log('ERROR: treeNodeMap removed failed');
 				}
 			});
 

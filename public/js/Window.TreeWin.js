@@ -22,17 +22,20 @@ var TreeWin = function ( editor ) {
 	modelControlRow.setMargin("10px");
 	modelControlRow.setTextAlign('center');
 
-	container.add( modelSelect );
-	container.add( modelControlRow );
-
 
 	container.customMethod = function ( ) {
 
+		
 		//ztree
 		var ztreeDiv = document.createElement('ul');
 		ztreeDiv.className = 'ztree';
 		ztreeDiv.id = "treeDemo";
+		$('.ztree').remove();
+
 		container.dom.appendChild(ztreeDiv);
+		container.add( modelSelect );
+		container.add( modelControlRow );
+
 		//ztree
 		var setting = {
 			view: {
@@ -57,24 +60,12 @@ var TreeWin = function ( editor ) {
 				beforeRemove: beforeRemove,
 				beforeRename: beforeRename,
 				onRemove: onRemove,
-				onRename: onRename
+				onRename: onRename,
+				onDblClick: zTreeOnDblClick
 			}
 		};
 
-		var zNodes =[
-			{ id:1, pId:0, name:"父节点 1", open:true},
-			{ id:11, pId:1, name:"叶子节点 1-1"},
-			{ id:12, pId:1, name:"叶子节点 1-2"},
-			{ id:13, pId:1, name:"叶子节点 1-3"},
-			{ id:2, pId:0, name:"父节点 2", open:true},
-			{ id:21, pId:2, name:"叶子节点 2-1"},
-			{ id:22, pId:2, name:"叶子节点 2-2"},
-			{ id:23, pId:2, name:"叶子节点 2-3"},
-			{ id:3, pId:0, name:"父节点 3", open:true},
-			{ id:31, pId:3, name:"叶子节点 3-1"},
-			{ id:32, pId:3, name:"叶子节点 3-2"},
-			{ id:33, pId:3, name:"叶子节点 3-3"}
-		];
+		var zNodes =[];
 
 		var log, className = "dark";
 		function beforeDrag(treeId, treeNodes) {
@@ -96,6 +87,20 @@ var TreeWin = function ( editor ) {
 		}
 		function onRemove(e, treeId, treeNode) {
 			showLog("[ "+getTime()+" onRemove ]&nbsp;&nbsp;&nbsp;&nbsp; " + treeNode.name);
+			// rename tree node
+			var params = {
+				'id': treeNode.id
+			};
+			Ajax.post({
+				'url': 'removeTreeNode',
+				'params': params
+			}, function onEnd(err, result) {
+				if(result.success === true){
+					//
+				} else {
+					alert("Remove tree node Error!");
+				}
+			});
 		}
 		function beforeRename(treeId, treeNode, newName, isCancel) {
 			className = (className === "dark" ? "":"dark");
@@ -110,7 +115,30 @@ var TreeWin = function ( editor ) {
 		}
 		function onRename(e, treeId, treeNode, isCancel) {
 			showLog((isCancel ? "<span style='color:red'>":"") + "[ "+getTime()+" onRename ]&nbsp;&nbsp;&nbsp;&nbsp; " + treeNode.name + (isCancel ? "</span>":""));
+			// console.log(treeNode.name);
+			// rename tree node
+			var params = {
+				'id': treeNode.id,
+				'name': treeNode.name
+			};
+			Ajax.post({
+				'url': 'editTreeNode',
+				'params': params
+			}, function onEnd(err, result) {
+				if(result.success === true){
+					//
+				} else {
+					alert("Rename tree node Error!");
+				}
+			});
+			
 		}
+		function zTreeOnDblClick(event, treeId, treeNode) {
+			// add a method to show the right selcet model list on double click event
+    		// alert(treeNode ? treeNode.tId + ", " + treeNode.name : "isRoot");
+    		loadModelInfo2(treeNode.id);
+		};
+
 		function showRemoveBtn(treeId, treeNode) {
 			return !treeNode.isFirstNode;
 		}
@@ -145,7 +173,27 @@ var TreeWin = function ( editor ) {
 			var btn = $("#addBtn_"+treeNode.tId);
 			if (btn) btn.bind("click", function(){
 				var zTree = $.fn.zTree.getZTreeObj("treeDemo");
-				zTree.addNodes(treeNode, {id:(100 + newCount), pId:treeNode.id, name:"new node" + (newCount++)});
+				var name = prompt('node name', '');
+				zTree.addNodes(treeNode, {id:(100 + newCount), pId:treeNode.id, name:name });
+				// add node method	
+				if(name){
+					var params = {
+						'name': name,
+						'pId': treeNode.id,
+						'id': THREE.Math.generateUUID()
+					};
+					Ajax.post({
+						'url': 'addTreeNode',
+						'params': params
+					}, function onEnd(err, result) {
+						if(result.success === true){
+							// 
+						} else {
+							alert("add node error!");
+						}
+					});
+				}
+
 				return false;
 			});
 		};
@@ -153,31 +201,26 @@ var TreeWin = function ( editor ) {
 			$("#addBtn_"+treeNode.tId).unbind().remove();
 		};
 		
-		//console.log(loadTreeNodeInfo());
-		
-		$.fn.zTree.init($(ztreeDiv), setting, zNodes);
-		loadModelInfo();
-	};
-
-	function loadTreeNodeInfo() {
-		// load tree information
+		// load tree node info
 		Ajax.getJSON({
 			'url': 'getTreeNodes'
 		}, function onEnd(err, result) {
 			if(result.treeNodes){
-				var options = {};
-				result.treeNodes.forEach(function onEach(treeNode) {					
-					// tmp
-				});				
+				zNodes = result.treeNodes;
+				// alert(zNodes);
+				// load tree	
+				$.fn.zTree.init($(ztreeDiv), setting, zNodes);
 			}
-		});
-		return result.treeNodes;
-	}
+		});	
+
+		// load model info
+		// loadModelInfo();
+	};
 
 	function loadModelInfo() {
 		var params = {
 			start: 0,
-			limit: 10
+			limit: 10,
 		};
 
 		// load model information
@@ -197,29 +240,70 @@ var TreeWin = function ( editor ) {
 		});
 	}
 
-	function addModel() {
-		var name = prompt('model name', '');
-		// console.log(this);		
-		if(name){
-			editor.resetScene();
-			editor.scene.name = name;
-			var params = {
-				'name': name,
-				'uuid': editor.scene.uuid
-			};
+	function loadModelInfo2(treeNodeId) {
+		var params = {
+			start: 0,
+			limit: 10,
+			treeNodeId : treeNodeId
+		};
 
-			Ajax.post({
-				'url': 'addModel',
-				'params': params
-			}, function onEnd(err, result) {
-				if(result.success === true){
-					editor.scene.userData.currentVersion = result.versionNum;
-					editor.scene.userData.branch = result.branch;
-					console.log("model " + name + " added");
-					loadModelInfo();
-				}
-			});
+		// load model information
+		Ajax.getJSON({
+			'url': 'getModels2',
+			'params': params
+		}, function onEnd(err, result) {
+			// alert('models number:' + result.models.length);
+			if(result.models){
+				var options = {};
+				result.models.forEach(function onEach(model) {
+					sceneMap[model.uuid] = model;
+					options[model.uuid] = model.name;
+				});
+
+				modelSelect.setOptions(options);				
+			} else {
+				modelSelect.setOptions({});
+			}
+		});
+	}
+
+	function addModel() {
+
+		var treeObj = $.fn.zTree.getZTreeObj("treeDemo");
+		var selectedNodes = treeObj.getSelectedNodes();
+
+		// alert(nodes);
+		if ( selectedNodes.length === 0){
+			alert("please select 1 tree node first!");
+		} else {
+			// default get the first selected node, and retrive the node's id
+			var treeNodeId = selectedNodes[0].id;
+			var name = prompt('model name', '');
+			// console.log(this);		
+			if(name){
+				editor.resetScene();
+				editor.scene.name = name;
+				var params = {
+					'name': name,
+					'uuid': editor.scene.uuid,
+					'treeNodeId': treeNodeId
+				};
+
+				Ajax.post({
+					'url': 'addModel',
+					'params': params
+				}, function onEnd(err, result) {
+					if(result.success === true){
+						editor.scene.userData.currentVersion = result.versionNum;
+						editor.scene.userData.branch = result.branch;
+						console.log("model " + name + " added");
+						loadModelInfo();
+					}
+				});
+			}
 		}
+
+
 	} 
 
 	function loadModel() {
