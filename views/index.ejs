@@ -8,8 +8,16 @@
 	<body>
 		<link href="css/types.css" rel="stylesheet" />
 		<link id="theme" href="css/light.css" rel="stylesheet" />
+		<!-- wulianliang: jstree -->
+		<link href="lib/jstree/themes/default/style.min.css" rel="stylesheet" />
+		<!-- wulianliang: ztree -->
+		<link rel="stylesheet" href="lib/ztree/css/demo.css" type="text/css">
+		<link rel="stylesheet" href="lib/ztree/css/zTreeStyle/zTreeStyle.css" type="text/css">
+
 		<script src="/socket.io/socket.io.js"></script>
 	    <script src="http://code.jquery.com/jquery-1.11.1.js"></script>
+
+
 	    
 		<script src="js/libs/three.js"></script>
 		<script src="js/examples/js/libs/system.min.js"></script>
@@ -74,6 +82,7 @@
 		<script src="js/Window.AssetWin.js"></script>
 		<script src="js/Window.SceneWin.js"></script>
 		<script src="js/Window.ModelWin.js"></script>
+		<script src="js/Window.TreeWin.js"></script>
 		<script src="js/Window.VersionWin.js"></script>
 		<script src="js/MergeEditor.js"></script>
 		<script src="js/Window.HistoryWin.js"></script>
@@ -119,6 +128,14 @@
 
 		<script src="js/workflow.js"></script>
 
+		<!-- wulianliang: add 1 line -->
+		<!-- <script src="lib/jstree/jstree.min.js"></script> -->
+		<!-- wulianliang: ztree -->
+		<!-- <script type="text/javascript" src="lib/ztree/js/jquery-1.4.4.min.js"></script> -->
+		<script type="text/javascript" src="lib/ztree/js/jquery.ztree.core-3.5.js"></script>
+		<script type="text/javascript" src="lib/ztree/js/jquery.ztree.excheck-3.5.js"></script>
+		<script type="text/javascript" src="lib/ztree/js/jquery.ztree.exedit-3.5.js"></script>
+
 		<script>
 
 			window.URL = window.URL || window.webkitURL;
@@ -145,6 +162,11 @@
 			var modelWin = new ModelWin( editor ).setId( 'modelWin' ); 
 			document.body.appendChild( modelWin.dom );
 			editor.modelWin = modelWin;
+
+			// will add 1 element
+			var treeWin = new TreeWin( editor ).setId( 'treeWin' ); ; 
+			document.body.appendChild( treeWin.dom );
+			editor.treeWin = treeWin;
 
 			var assetWin = new AssetWin( editor ).setId( 'assetWin' ); 
 			document.body.appendChild( assetWin.dom );
