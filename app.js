@@ -48,6 +48,9 @@ app.get('/getModels2', modelManager.getModels2);
 
 app.get('/login', function (req, res) {res.render('login');});
 app.post('/login', user.login);
+app.get('/register', function (req, res) {res.render('register');});
+app.post('/register', user.createUser);
+
 app.get('/addUser', function (req, res) {res.render('addUser');});
 app.post('/addUser', user.createUser);
 app.post('/createGroup', user.createGroup);
@@ -91,6 +94,8 @@ app.post('/addTag', rc.addTag);
 app.post('/removeTag', rc.removeTag);
 app.get('/getTags', rc.getTags);
 app.get('/getRHG', rc.getVersionHistory);
+
+app.get('/vedio', function (req, res) {res.render('vedio_index');});
 
 // synchronus operation
 io.on('connection', function(socket){

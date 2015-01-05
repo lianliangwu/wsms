@@ -33,7 +33,7 @@ exports.createUser = function (req, res) {
       if(err){
         res.status(400).send('whoops'); 
       }
-      res.status(200).send("Add Success!");
+      res.status(200).send("Add Success! please go to login view");
     });
 };
 
