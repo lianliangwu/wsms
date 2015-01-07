@@ -1,14 +1,21 @@
-var mongoose = require('mongoose');
-var auth = require('../lib/model_enhancements');
+"use strict";
+var mongoose = require("mongoose");
 
-var userSchema = new mongoose.Schema({
-  email: String,
-  username: String,
-  hashed_password: String,
-  salt: String
+var MovieSchema = new mongoose.Schema({
+  uuid: String,
+  path: String,
+  name: String,
 });
 
-auth.makeAuthable(userSchema);
-var User = mongoose.model('User', userSchema);
+MovieSchema.statics.findByUuid = function(uuid, callback) {
+    this.find({'uuid': uuid}, callback);
+};
 
-module.exports = User;
+MovieSchema.statics.getAllMovies = function(callback) {
+    this.find(callback);
+};
+
+
+var Movie = mongoose.model('Movie', MovieSchema);
+
+module.exports = Movie;

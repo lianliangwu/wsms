@@ -9,6 +9,7 @@
   <!-- ztree -->
   <link rel="stylesheet" href="lib/ztree/css/demo.css" type="text/css">
   <link rel="stylesheet" href="lib/ztree/css/zTreeStyle/zTreeStyle.css" type="text/css">
+  <link rel="stylesheet" href="css/selectric.css" type="text/css">
 
   <script src="js/libs/jquery-1.11.1.js"></script>
   <!-- dropzone -->
@@ -17,8 +18,11 @@
   <script type="text/javascript" src="lib/ztree/js/jquery.ztree.core-3.5.js"></script>
   <script type="text/javascript" src="lib/ztree/js/jquery.ztree.excheck-3.5.js"></script>
   <script type="text/javascript" src="lib/ztree/js/jquery.ztree.exedit-3.5.js"></script>
+  <script type="text/javascript" src="js/libs/jquery.selectric.js"></script>
+
   <script type="text/javascript" src="js/Ajax.js"></script>
   <script type="text/javascript" src="js/libs/three.js"></script>
+
 
 </head>
 <body>
@@ -27,14 +31,15 @@
 
   <div style="float:left"> 
     <h2>Step 1.1 movie tree</h2>
-    <div id="movieTreeDiv"> <ul id="treeDemo" class="ztree"> </ul> </div>
-    <div> <select id="modelSelect"> </select></div> 
+    <div id="movieTreeDiv" style="float:left" > <ul id="treeDemo" class="ztree"> </ul> </div>
+    <div style="float:left" > <select id="selectDemo"> </select></div> 
   </div>
 
   <div style="float:left">
     <h2>Step 1.2 movie upload</h2>
     <div id="dropzone" style="width:600px">
       <form action="/upload" class="dropzone dz-clickable" id="demo-upload">
+        <input type="hidden" id="movieStyle" value="1"/>
         <div class="dz-default dz-message">
           <span>Drop files here to upload</span>
         </div>
@@ -55,6 +60,13 @@
   <script src="js/vedio/movieSnap.js"></script>
   <script src="js/vedio/movieTree.js"></script>
   <script type="text/javascript">
+
+  $('select').selectric();
+
+  $('#demo-upload').on('sending', function(file, xhr, formData){
+    formData.append('movieStyle', $('#movieStyle')[0].value);
+  });
+
   // load tree node info
   Ajax.getJSON({
     'url': 'getMovieTreeNodes'

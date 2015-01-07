@@ -104,6 +104,7 @@ app.get('/getMovieTreeNodes', movieControl.getTreeNodes);
 app.post('/editMovieTreeNode', movieControl.editTreeNode);
 app.post('/removeMovieTreeNode', movieControl.removeTreeNode);
 app.post('/addMovieTreeNode', movieControl.addTreeNode);
+app.get('/getMovieModels2', movieControl.getModels2);
 
 // synchronus operation
 io.on('connection', function(socket){

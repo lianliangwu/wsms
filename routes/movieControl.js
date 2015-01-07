@@ -7,6 +7,7 @@ var db = require('../models/db');
 var fs = require('fs');
 
 var async = require("async");
+var Movie = require('../models/movie.js');
 var TreeMovie = require('../models/treeMovie.js');
 var TreeNodeMap = require('../models/treeMovieMap.js');
 
@@ -17,6 +18,8 @@ exports.upload = function(req, res) {
 	console.log(tempfile);
 	var origname    = req.files.file.name;
 	console.log(origname);
+    console.log(req.body.movieType);
+    
 	var writestream = db.gfs.createWriteStream({ filename: origname });
 	// open a stream to the temporary file created by Express...
 	fs.createReadStream(tempfile)
@@ -135,5 +138,56 @@ exports.addTreeNode = function(req, res) {
                 'success': true
             });
         }
+    });
+};
+
+exports.getModels2 = function(req, res) {
+
+    // console.log('Information: come to getModels2!!! ')
+    var start = req.query['start'];
+    var limit = req.query['limit'];
+    var treeNodeId = req.query['treeNodeId'];
+
+    var models = [];
+    var treeNodeMaps = null;
+
+    //version 3: use the async plugin
+    async.series([
+        function(callback){
+            TreeNodeMap.find({'nodeId': treeNodeId}, function(err, result){
+                if (err) {
+                    console.log('ERROR: get tree node map error!!! ') 
+                    return callback(err);
+                } else {
+                    treeNodeMaps = result;
+                    callback(null);
+                }
+            });  
+        },
+        function(callback){
+            // do some more stuff ...
+            async.forEach(treeNodeMaps, function(element, callback) {
+                var id = element.path;
+                Movie.findOne({'uuid': id}).exec(function onEnd(err, result){
+                    if (!err) {
+                        models.push(result);  
+                        callback(null);  
+                    } else {
+                        console.log('ERROR: get models error!!! '); 
+                        return callback(err);
+                    }
+                });
+            }, function(err) {
+                if (err) return callback(err);
+                callback(null);
+            });
+        }
+    ],// optional callback
+    function(err){
+        // results is now equal to ['one', 'two']
+        res.send({
+            'success': true,
+            'models': models
+        });
     });
 };

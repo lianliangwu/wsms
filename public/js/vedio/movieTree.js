@@ -28,6 +28,7 @@ var setting = {
 };
 
 var zNodes =[];
+var movieType = null;
 
 var log, className = "dark";
 function beforeDrag(treeId, treeNodes) {
@@ -99,6 +100,8 @@ function zTreeOnDblClick(event, treeId, treeNode) {
 	// add a method to show the right selcet model list on double click event
 	// alert(treeNode ? treeNode.tId + ", " + treeNode.name : "isRoot");
 	loadModelInfo2(treeNode.id);
+	// set the global movie type
+	$('#movieStyle').val(treeNode.id);
 };
 
 function showRemoveBtn(treeId, treeNode) {
@@ -163,5 +166,34 @@ function addHoverDom(treeId, treeNode) {
 
 function removeHoverDom(treeId, treeNode) {
 	$("#addBtn_"+treeNode.tId).unbind().remove();
+};
+
+function loadModelInfo2(treeNodeId) {
+	var params = {
+		start: 0,
+		limit: 10,
+		treeNodeId : treeNodeId
+	};
+
+	// load model information
+	Ajax.getJSON({
+		'url': 'getMovieModels2',
+		'params': params
+	}, function onEnd(err, result) {
+		// alert('models number:' + result.models.length);
+		if(result.models){
+			var options = {};
+			result.models.forEach(function onEach(model) {
+				// options[model.path] = model.name;
+				var opt = document.createElement("option");
+				opt.value = model.path;
+				opt.textContent = model.name;
+				$("#selectDemo").appendChild(opt);
+			});
+			// $("#selectDemo").setOptions(options);				
+		} else {
+			// $("#selectDemo").setOptions({});
+		}
+	});
 };
 
