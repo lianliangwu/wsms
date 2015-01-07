@@ -13,7 +13,7 @@ var user = require('./routes/user');
 var http = require('http').Server(app);
 var io = require('socket.io')(http);
 var path = require('path');
-var db = require('./models/db');
+var movieControl = require('./routes/movieControl');
 
 // all environments
 app.set('port', process.env.PORT || 3000);
@@ -21,7 +21,7 @@ app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
 app.use(express.favicon());
 app.use(express.logger('dev'));
-app.use(express.bodyParser());
+app.use(express.bodyParser({limit: '1000mb'}));
 app.use(express.methodOverride());
 app.use(express.cookieParser());
 app.use(express.session({secret: '1234567890QWERTY'}));
@@ -95,30 +95,15 @@ app.post('/removeTag', rc.removeTag);
 app.get('/getTags', rc.getTags);
 app.get('/getRHG', rc.getVersionHistory);
 
+// video
 app.get('/vedio', function (req, res) {res.render('vedio_index');});
-app.post('/upload', function(req, res) {
-	var tempfile    = req.files.filename.path;
-	var origname    = req.files.filename.name;
-	var writestream = gfs.createWriteStream({ filename: origname });
-	// open a stream to the temporary file created by Express...
-	fs.createReadStream(tempfile)
-		.on('end', function() {
-			res.send('upload OK');
-		})
-		.on('error', function() {
-			res.send('upload ERR');
-		})
-		// and pipe it to gfs
-		pipe(writestream);
-});
-app.get('/download', function(req, res) {
-	// TODO: set proper mime type + filename, handle errors, etc...
-	gfs
-	// create a read stream from gfs...
-	.createReadStream({ filename: req.param('filename') })
-	// and pipe it to Express' response
-	.pipe(res);
-});
+app.post('/upload', movieControl.upload);
+app.get('/download', movieControl.download);
+
+app.get('/getMovieTreeNodes', movieControl.getTreeNodes);
+app.post('/editMovieTreeNode', movieControl.editTreeNode);
+app.post('/removeMovieTreeNode', movieControl.removeTreeNode);
+app.post('/addMovieTreeNode', movieControl.addTreeNode);
 
 // synchronus operation
 io.on('connection', function(socket){
