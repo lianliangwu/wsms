@@ -1,23 +1,71 @@
-<!DOCTYPE html>
-<html>
-<head>
-  <title></title>
-</head>
 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset=utf-8>
+  <title>Movie Recommender</title>
+
+  <link id="theme" href="css/dropzone.css" rel="stylesheet" />
+
+  <script src="http://code.jquery.com/jquery-1.11.1.js"></script>
+  <script src="js/libs/dropzone.js"></script>
+
+</head>
 <body>
-  <div >
-    vedio index tool
+  <h1>Step 1(movie management)</h1>
+  <h2>Step 1.1 movie upload</h2>
+  <div id="dropzone" style="width:600px">
+    <form action="/upload" class="dropzone dz-clickable" id="demo-upload">
+      <div class="dz-default dz-message">
+        <span>Drop files here to upload</span>
+      </div>
+    </form>
   </div>
-  <form action="register" method="POST">
-  	<label>email</label>
-    <input type="text" name="email" />
-    <label>username</label>
-    <input type="text" name="username" />
-    <label>password</label>
-    <input type="text" name="password" />
+
+  <h1>Step 2(optional)</h1>
+  <video controls>
+    <source src="http://ptgmedia.pearsoncmg.com/imprint_downloads/peachpit/peachpit/downloads/0321793935/media//elephants-dream-medium.mp4" type="video/mp4">
+  </video>
+  <canvas></canvas>
+  <img id="snapImage" src="">
+  <button id="snap" onclick="snap()">snap keyframe</button>
+  <script>
+    // Get handles on the video and canvas elements
+    var video = document.querySelector('video');
+    var canvas = document.querySelector('canvas');
+    // Get a handle on the 2d context of the canvas element
+    var context = canvas.getContext('2d');
+    // Define some vars required later
+    var w, h, ratio;
     
-    <input type="submit" />
-  </form>
-  
+    // Add a listener to wait for the 'loadedmetadata' state so the video's dimensions can be read
+    video.addEventListener('loadedmetadata', function() {
+      // Calculate the ratio of the video's width to height
+      ratio = video.videoWidth / video.videoHeight;
+      // Define the required width as 100 pixels smaller than the actual video's width
+      w = video.videoWidth - 100;
+      // Calculate the height based on the video's width and the ratio
+      h = parseInt(w / ratio, 10);
+      // Set the canvas width and height to the values just calculated
+      canvas.width = w;
+      canvas.height = h;      
+    }, false);
+    
+    // Takes a snapshot of the video
+    function snap() {
+      // Define the size of the rectangle that will be filled (basically the entire element)
+      context.fillRect(0, 0, w, h);
+      // Grab the image from the video
+      context.drawImage(video, 0, 0, w, h);
+      // wulianliang: save the image
+      var image = new Image();
+      // var image = $("#snapImage");
+      image.setAttribute('crossOrigin', 'anonymous');
+      //image.crossOrigin = "anonymous";
+      image.src = canvas.toDataURL("image/png");
+
+    }
+     
+  </script>
 </body>
 </html>
