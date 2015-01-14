@@ -106,6 +106,8 @@ app.post('/removeMovieTreeNode', movieControl.removeTreeNode);
 app.post('/addMovieTreeNode', movieControl.addTreeNode);
 app.get('/getMovieModels2', movieControl.getModels2);
 
+app.get('/semantic_graph', function (req, res) {res.render('semantic_graph');});
+
 // synchronus operation
 io.on('connection', function(socket){
   socket.on('operation', function(op){
