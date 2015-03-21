@@ -44,7 +44,7 @@ Menubar.Window = function ( editor ) {
 
 	var option = new UI.Panel();
 	option.setClass( 'option' );
-	option.setTextContent( 'Tree Window' );
+	option.setTextContent( 'Manage Window' );
 	option.onClick( function () {
 
 		editor.treeWin.show();

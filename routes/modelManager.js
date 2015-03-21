@@ -106,6 +106,21 @@ exports.getModels2 = function(req, res) {
 
 // Description: get tree nodes list
 exports.getTreeNodes = function(req, res) {
+    
+    // console.log('------------- test get TreeNode -------------');
+    // var id = 2;
+    // var pId = 1;
+    // var name = "sub_class";
+
+    // var element = new TreeNode({
+    //     'id':id, 'pId':pId, 'name':name
+    // });
+    // element.save(function onEnd(err, element) {
+    //     if(!err){
+    //         console.log('------------- INSERT ok -------------');
+    //     }
+    // });
+
     // get the tree node list
     TreeNode.getAllTreeNodes(function onEnd(err, result) {
         if(err){

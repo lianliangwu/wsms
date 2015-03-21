@@ -14,6 +14,7 @@ var http = require('http').Server(app);
 var io = require('socket.io')(http);
 var path = require('path');
 var movieControl = require('./routes/movieControl');
+var imageControl = require('./routes/imageControl');
 
 // all environments
 app.set('port', process.env.PORT || 3000);
@@ -96,7 +97,7 @@ app.get('/getTags', rc.getTags);
 app.get('/getRHG', rc.getVersionHistory);
 
 // video
-app.get('/vedio', function (req, res) {res.render('vedio_index');});
+app.get('/vedio', function (req, res) {res.render('image_index');});
 app.post('/upload', movieControl.upload);
 app.get('/download', movieControl.download);
 
@@ -107,6 +108,11 @@ app.post('/addMovieTreeNode', movieControl.addTreeNode);
 app.get('/getMovieModels2', movieControl.getModels2);
 
 app.get('/semantic_graph', function (req, res) {res.render('semantic_graph');});
+
+// image
+app.get('/image', function (req, res) {res.render('image_index');});
+app.post('/search', imageControl.search);
+
 
 // synchronus operation
 io.on('connection', function(socket){

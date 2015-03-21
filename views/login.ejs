@@ -2,10 +2,15 @@
 <html>
 <head>
   <title></title>
+  <link id="theme2" href="css/login.css" rel="stylesheet" />
+  <link id="theme" href="css/light.css" rel="stylesheet" />
+
+  <script src="lib/LodLive/js/jquery-2.0.3.min.js"></script>
+  <script src="js/Window.login.js"></script>
 </head>
 
 <body>
-  <div >
+<!--   <div >
     User Login
   </div>
   <form action="login" method="POST">
@@ -13,9 +18,71 @@
     <input type="text" name="password" />
     <input type="submit" />
   </form>
-  <div><a href="register">register</a> </div>
-
-  <div><a href="vedio"> vedio recommender tool </a></div>
+  demo username: 123123123
+  demo passwork: 123123123
   
+  <div><a href="register">register</a> </div> -->
+
+<!--   <div><a href="vedio"> vedio recommender tool </a></div>
+  <div><a href="image"> bing image search tool </a></div> -->
+  
+  <div>
+    <a href="https://github.com/lianliangwu/wsms" target='_blank'><img style="position: fixed; top: 0; right: 0; border: 0;" src="https://camo.githubusercontent.com/a6677b08c955af8400f44c6298f40e7d19cc5b2d/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f72696768745f677261795f3664366436642e706e67" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png"></a>
+  </div>
+  <div class="loginWrapper">
+  <!-- Current user form -->
+    <form action="login" method="POST">
+        <div class="loginPic">
+            <a href="#" title=""><img src="http://i.imgur.com/lZBpqmM.png" alt=""></a>
+            <span>WSMS</span>
+            <div class="loginActions">
+                <div><a href="#" title="Change user" class="logleft flip" style="left: 0px; opacity: 1;"></a></div>
+                <div><a href="#" title="Forgot password?" class="logright" style="right: 0px; opacity: 1;"></a></div>
+            </div>
+        </div>
+        
+        <input type="text" name="email" placeholder="Confirm your email" class="loginEmail">
+        <input type="password" name="password" placeholder="Password" class="loginPassword">
+        
+        <div class="logControl">
+            <input type="submit" name="submit" value="Login" class="buttonM bBlue">
+        </div>
+    </form>
+    
+    <!-- New user form -->
+    <!-- 
+    <form action="index.html" id="recover">
+        <div class="loginPic">
+            <a href="#" title=""><img src="http://i.imgur.com/axskkd0.png" alt=""></a>
+            <div class="loginActions">
+                <div><a href="#" title="" class="logback flip" style="left: 0px; opacity: 1;"></a></div>
+                <div><a href="#" title="Forgot password?" class="logright" style="right: 0px; opacity: 1;"></a></div>
+            </div>
+        </div>
+            
+        <input type="text" name="login" placeholder="Your username" class="loginUsername">
+        <input type="password" name="password" placeholder="Password" class="loginPassword">
+        
+        <div class="logControl">
+            <input type="submit" name="submit" value="Login" class="buttonM bBlue">
+        </div>
+    </form> -->
+    <div style="position: absolute;margin-top: 220px;margin-left: -230px; width: 700px; color: darkgray;font-size: initial;">
+      <div class="Panel" style="margin: 0px; padding: 8px;">
+        Demo 帐号: 123123123  密码: 123123123
+      </div>
+
+      <div class="Panel" style="margin: 0px; padding: 8px;">
+        在开源项目 three.js/editor 的基础上，添加了版本控制、协同检测、模型库管理等功能
+      </div>
+      <div class="Panel" style="margin: 0px; padding: 8px;">
+        平台自身也提供3D模型加载、场景编辑、导入导出等的功能等
+      </div>
+      <div class="Panel" style="margin: 0px; padding: 8px;">
+        示例模型加载流程： Window -> Manage Window -> 双击sub_class1,加载示例模型
+      </div>
+      
+    </div>
+</div>  
 </body>
 </html>
